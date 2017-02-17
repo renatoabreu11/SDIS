@@ -6,10 +6,10 @@ import java.util.Map;
 //Datagram packets are used to implement a connectionless packet delivery service.
 //Each message is routed from one machine to another based solely on information contained within that packet
 
-public class UDPServer {
+public class SocketServer {
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
-            System.out.println("Usage: java UDPServer <port_number>");
+            System.out.println("Usage: java SocketServer <port_number>");
             return;
         }
 
@@ -17,7 +17,7 @@ public class UDPServer {
         DatagramSocket socket = new DatagramSocket(port);
         byte[] buffer = new byte[1024];
         DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
-        System.out.println("UDPServer initialized!");
+        System.out.println("SocketServer initialized!");
 
         Map<String , String> vehicles = new HashMap<>();
 

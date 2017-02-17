@@ -1,9 +1,9 @@
 import java.net.*;
 
-public class UDPClient {
+public class SocketClient {
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.out.println("Usage: java UDPClient <host_name> <port_number> <oper> <opnd>*");
+            System.out.println("Usage: java SocketClient <host_name> <port_number> <oper> <opnd>*");
             return;
         }
 
@@ -29,7 +29,7 @@ public class UDPClient {
                 message = "LOOKUP " + plate_number;
                 break;
             default:
-                System.out.print("Invalid UDPClient Request. It has to be register or lookup.");
+                System.out.print("Invalid SocketClient Request. It has to be register or lookup.");
                 return;
         }
         System.out.println(message);
