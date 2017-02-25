@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
@@ -44,13 +45,33 @@ public class MulticastSocketClient {
         InetAddress group = InetAddress.getByName(mcast_addr);
         try (MulticastSocket clientSocket = new MulticastSocket(mcast_port)) {
             clientSocket.joinGroup(group);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, mcast_port);
-            clientSocket.send(packet);
 
-            byte[] rbuffer = new byte[1024];
-            packet = new DatagramPacket(rbuffer, rbuffer.length, group, mcast_port);
+            byte[] advertisement = new byte[128];
+            DatagramPacket packet = new DatagramPacket(advertisement, advertisement.length, group, mcast_port);
             clientSocket.receive(packet);
             String received = new String(packet.getData(), 0, packet.getLength());
+            System.out.println("Echoed Message: " + received);
+
+            String[] splitedAd = received.split(":+");
+            if(splitedAd.length != 4){
+                System.out.println("Error reading service advertisement!");
+                clientSocket.leaveGroup(group);
+                clientSocket.close();
+                System.out.println("Socket closed!");
+            }
+
+            int srvc_port = Integer.parseInt(splitedAd[3]);
+            String srvc_addr = splitedAd[2];
+            InetAddress addr = InetAddress.getByName(srvc_addr);
+            DatagramSocket socket = new DatagramSocket();
+
+            packet = new DatagramPacket(buffer, buffer.length, addr, srvc_port);
+            socket.send(packet);
+
+            byte[] rbuffer = new byte[1024];
+            packet = new DatagramPacket(rbuffer, rbuffer.length, addr, srvc_port);
+            socket.receive(packet);
+            received = new String(packet.getData(), 0, packet.getLength());
             System.out.println("Echoed Message: " + received);
             if(received.matches("^-?\\d+$"))
                 if(received.equals("-1"))
@@ -61,6 +82,7 @@ public class MulticastSocketClient {
             else System.out.println(received + " is the owner of the vehicle with plate number " + plate_number + ".");
             clientSocket.leaveGroup(group);
             clientSocket.close();
+            socket.close();
             System.out.println("Socket closed!");
         } catch (IOException ex) {
             ex.printStackTrace();

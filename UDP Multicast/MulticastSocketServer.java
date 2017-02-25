@@ -19,9 +19,9 @@ public class MulticastSocketServer {
         int mcast_port = Integer.parseInt(args[2]);
         String mcast_addr = args[1];
         InetAddress addr = InetAddress.getByName(mcast_addr);
-        DatagramSocket serverSocket = new DatagramSocket();
+        DatagramSocket serverSocket = new DatagramSocket(srvc_port);
 
-        String advertisement = "<" + mcast_addr + "><" + args[2] + ">:<" + "localhost><" + args[0] + ">";
+        String advertisement = mcast_addr + ":" + args[2] + ":" + "127.0.0.1:" + args[0];
         byte[] adMessage = advertisement.getBytes();
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -29,7 +29,7 @@ public class MulticastSocketServer {
                 try {
                     DatagramPacket resp = new DatagramPacket(adMessage, adMessage.length, addr, mcast_port);
                     serverSocket.send(resp);
-                    System.out.println("multicast:"+advertisement);
+                    System.out.println("multicast:<" + mcast_addr + "><" + args[2] + ">:<" + "localhost><" + args[0] + ">");
                 } catch (IOException e) {
 
                 }
@@ -81,7 +81,7 @@ public class MulticastSocketServer {
             }
 
             buffer = response.getBytes();
-            DatagramPacket resp = new DatagramPacket(buffer, buffer.length, addr, mcast_port);
+            DatagramPacket resp = new DatagramPacket(buffer, buffer.length, dgp.getAddress(), dgp.getPort());
             serverSocket.send(resp);
         }
     }
