@@ -1,3 +1,5 @@
+package src;
+
 import java.net.*;
 
 public class SocketClient {

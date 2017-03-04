@@ -1,3 +1,5 @@
+package src;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -7,7 +9,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MulticastSocketServer {
+public class MulticastServer {
 
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {

@@ -1,10 +1,12 @@
+package src;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-public class MulticastSocketClient {
+public class MulticastClient {
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
             System.out.println("Usage: java MulticastSocketClient1 <mcast_addr> <mcast_port> <oper> <opnd>*");
@@ -35,7 +37,7 @@ public class MulticastSocketClient {
                 message = "LOOKUP " + plate_number;
                 break;
             default:
-                System.out.print("Invalid MulticastSocketClient Request. It has to be register or lookup.");
+                System.out.print("Invalid MulticastClient Request. It has to be register or lookup.");
                 return;
         }
         byte[] buffer = message.getBytes();
