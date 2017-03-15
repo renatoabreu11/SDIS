@@ -6,7 +6,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Server {
+public class Initializer {
 
     public static void main(String[] args) {
         Peer peerObj = new Peer();
@@ -18,7 +18,7 @@ public class Server {
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.bind(remoteObjectName, stub);
 
-            System.out.println("Server is ready.");
+            System.out.println("Initializer is ready.");
         } catch (RemoteException e) {
             System.out.println(e.toString());
             e.printStackTrace();
@@ -27,6 +27,4 @@ public class Server {
             e.printStackTrace();
         }
     }
-
-
 }
