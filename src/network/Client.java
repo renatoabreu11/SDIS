@@ -52,7 +52,7 @@ public class Client {
                 int replicationDegree = scanner.nextInt();
 
                 try {
-                    System.out.println(stub.BackupFile(pathname, replicationDegree));
+                    stub.BackupFile(pathname, replicationDegree);
                 } catch (RemoteException e) {
                     System.out.println(e.toString());
                     e.printStackTrace();
