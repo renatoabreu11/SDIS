@@ -1,4 +1,4 @@
 package fileSystem;
 
-public class manager {
+public class Chunk {
 }
