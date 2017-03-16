@@ -49,9 +49,11 @@ public class RMIClient {
             Registry registry = LocateRegistry.getRegistry(hostName);
             Operation stub = (Operation) registry.lookup(remoteObject);
             String response;
-            if(request == "register")
+            if(request.equals("register")){
                 response = stub.register(plateNumber, ownerName);
-            else response = stub.lookup(plateNumber);
+                System.out.println(request);
+
+            } else response = stub.lookup(plateNumber);
             System.out.println("response: " + response);
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());

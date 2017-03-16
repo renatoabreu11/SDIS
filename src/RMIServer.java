@@ -55,14 +55,13 @@ public class RMIServer implements Operation {
     public String register(String plateNumber, String ownerName) throws RemoteException {
         String response;
         String lookup = vehicles.get(plateNumber);
-        if (lookup != null) {
+        if (lookup != null)
             response = "-1";
-            System.out.println("<Register><" + plateNumber + "><" + ownerName + ">::-1");
-        } else {
-            response = Integer.toString(vehicles.size());
+        else {
             vehicles.put(plateNumber, ownerName);
-            System.out.println("<Register><" + plateNumber + "><" + ownerName + ">::"+response);
+            response = Integer.toString(vehicles.size());
         }
+        System.out.println("<Register><" + plateNumber + "><" + ownerName + ">::"+response);
         return response;
     }
 }
