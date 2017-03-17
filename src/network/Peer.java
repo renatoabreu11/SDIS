@@ -1,7 +1,5 @@
 package network;
 
-import protocols.Backup;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -17,6 +15,7 @@ public class Peer implements IClientPeer {
     private String protocolVersion;
     private String serverAccessPoint;
     private int id;
+    private IClientPeer stub;
     private byte[] buf;
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String multicastAddress, int multicastPort, String mdbAddress, int mdbPort, String mdlAddress, int mdlPort) {
@@ -25,12 +24,19 @@ public class Peer implements IClientPeer {
         this.serverAccessPoint = serverAccessPoint;
 
         try {
+            this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+
             InetAddress address = InetAddress.getByName(multicastAddress);
             MulticastSocket multicastSocket = new MulticastSocket(multicastPort);
             multicastSocket.joinGroup(address);
+        } catch (RemoteException e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
         } catch (UnknownHostException e) {
+            System.out.println(e.toString());
             e.printStackTrace();
         } catch (IOException e) {
+            System.out.println(e.toString());
             e.printStackTrace();
         }
     }
@@ -57,6 +63,14 @@ public class Peer implements IClientPeer {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public IClientPeer getStub() {
+        return stub;
+    }
+
+    public void setStub(IClientPeer stub) {
+        this.stub = stub;
     }
 
     public byte[] getBuf() {
@@ -101,14 +115,10 @@ public class Peer implements IClientPeer {
         String mdlPort = "1";//msgSplit[1];
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastAddress, Integer.parseInt(multicastPort), mdbAddress, Integer.parseInt(mdbPort), mdlAddress, Integer.parseInt(mdlPort));
-        peer.setServerAccessPoint(args[2]);
 
-        IClientPeer stub = null;
         try {
-            stub = (IClientPeer) UnicastRemoteObject.exportObject(peer, 0);
-
             Registry registry = LocateRegistry.createRegistry(1099);
-            registry.bind(peer.getServerAccessPoint(), stub);
+            registry.bind(peer.getServerAccessPoint(), peer.getStub());
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (AlreadyBoundException e) {
