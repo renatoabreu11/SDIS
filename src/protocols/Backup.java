@@ -8,7 +8,6 @@ import backupService.Message;
 public class Backup {
 
     public Backup() {
-        //Message message = new Message();
 
     }
 

@@ -69,17 +69,17 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(String pathname, int replicationDegree) throws RemoteException {
-        Backup backup = new Backup();
+        // Construct message and send it to the MC channel.
     }
 
     @Override
     public void RestoreFile(String pathname) throws RemoteException {
-
+        // Construct message and send it to the MC channel.
     }
 
     @Override
     public void DeleteFile(String pathname) throws RemoteException {
-
+        // Construct message and send it to the MC channel.
     }
 
     public static void main(String[] args) {
@@ -114,5 +114,7 @@ public class Peer implements IClientPeer {
         } catch (AlreadyBoundException e) {
             e.printStackTrace();
         }
+
+        // Create 3 Threads (MC, MDL, MDB).
     }
 }
