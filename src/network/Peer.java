@@ -1,5 +1,7 @@
 package network;
 
+import protocols.Backup;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -26,19 +28,19 @@ public class Peer implements IClientPeer {
         try {
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-            InetAddress address = InetAddress.getByName(multicastAddress);
+            /*InetAddress address = InetAddress.getByName(multicastAddress);
             MulticastSocket multicastSocket = new MulticastSocket(multicastPort);
-            multicastSocket.joinGroup(address);
+            multicastSocket.joinGroup(address);*/
         } catch (RemoteException e) {
             System.out.println(e.toString());
             e.printStackTrace();
-        } catch (UnknownHostException e) {
+        } /*catch (UnknownHostException e) {
             System.out.println(e.toString());
             e.printStackTrace();
         } catch (IOException e) {
             System.out.println(e.toString());
             e.printStackTrace();
-        }
+        }*/
     }
 
     public String getProtocolVersion() {
@@ -97,7 +99,7 @@ public class Peer implements IClientPeer {
     }
 
     public static void main(String[] args) {
-        if(args.length != 4) {
+        if(args.length != 6) {
             System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
             return;
         }
@@ -106,13 +108,15 @@ public class Peer implements IClientPeer {
         String multicastAddress = msgSplit[0];
         String multicastPort = msgSplit[1];
 
-        //msgSplit = args[4].split(":");
-        String mdbAddress = "1";//msgSplit[0];
-        String mdbPort = "1";//msgSplit[1];
+        System.out.println(multicastAddress + " --> " + multicastPort);
 
-        //msgSplit = args[5].split(":");
-        String mdlAddress = "1";//msgSplit[0];
-        String mdlPort = "1";//msgSplit[1];
+        msgSplit = args[4].split(":");
+        String mdbAddress = msgSplit[0];
+        String mdbPort = msgSplit[1];
+
+        msgSplit = args[5].split(":");
+        String mdlAddress = msgSplit[0];
+        String mdlPort = msgSplit[1];
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastAddress, Integer.parseInt(multicastPort), mdbAddress, Integer.parseInt(mdbPort), mdlAddress, Integer.parseInt(mdlPort));
 
@@ -120,11 +124,15 @@ public class Peer implements IClientPeer {
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.bind(peer.getServerAccessPoint(), peer.getStub());
         } catch (RemoteException e) {
+            System.out.println(e.toString());
             e.printStackTrace();
         } catch (AlreadyBoundException e) {
+            System.out.println(e.toString());
             e.printStackTrace();
         }
 
         // Create 3 Threads (MC, MDL, MDB).
+        Backup backup = new Backup();
+        backup.start();
     }
 }
