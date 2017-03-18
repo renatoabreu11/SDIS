@@ -5,6 +5,8 @@ import java.util.ArrayList;
 public class Chunk implements Comparable<Chunk> {
 
     private String fileId;
+    private String fileExtension;
+
     private int chunkNo;
     private int replicationDegree;
     private int currReplicationDegree;
@@ -68,6 +70,14 @@ public class Chunk implements Comparable<Chunk> {
 
     public void setCurrReplicationDegree(int currReplicationDegree) {
         this.currReplicationDegree = currReplicationDegree;
+    }
+
+    public String getFileExtension() {
+        return fileExtension;
+    }
+
+    public void setFileExtension(String fileExtension) {
+        this.fileExtension = fileExtension;
     }
 
     public boolean desiredReplication(){
