@@ -1,8 +1,8 @@
 package protocols;
 
-import backupService.Message;
-import backupService.MessageBody;
-import backupService.MessageHeader;
+import messageSystem.Message;
+import messageSystem.MessageBody;
+import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
