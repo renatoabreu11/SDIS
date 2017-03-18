@@ -1,8 +1,12 @@
 package network;
 
+import fileSystem.Splitter;
 import protocols.Backup;
+import utils.Utils;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -11,6 +15,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Peer implements IClientPeer {
 
@@ -91,12 +97,31 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(String pathname, int replicationDegree) throws RemoteException {
-        System.out.print("S");
+        String lastModified = Long.toString(new File(pathname).lastModified());
 
-        buf = "Hey bro".getBytes();
-        datagramPacket = new DatagramPacket(buf, buf.length, inetAddress, mcPort);
         try {
-            multicastSocket.send(datagramPacket);
+            // Hashing the file id.
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            String fileId = pathname + lastModified;
+            md.update(fileId.getBytes("UTF-8"));
+            byte[] fileIdHashed = md.digest();
+
+            // Splitting the file into chunks.
+            Splitter splitter = new Splitter(pathname);
+            splitter.splitFile(replicationDegree);
+
+            String msgToSend;
+            for(int i = 0; i < splitter.getChunks().size(); i++) {
+                msgToSend = "PUTCHUNK " + protocolVersion + " " + id + " " + fileIdHashed + " " + (i+1) + " " + replicationDegree + Utils.CRLF + Utils.CRLF + splitter.getChunks().get(i).getChunkData();
+                buf = msgToSend.getBytes();
+                datagramPacket = new DatagramPacket(buf, buf.length, inetAddress, mcPort);
+                System.out.println("Sending message to MC Channel.");
+                multicastSocket.send(datagramPacket);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -133,7 +158,10 @@ public class Peer implements IClientPeer {
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastAddress, Integer.parseInt(multicastPort), mdbAddress, Integer.parseInt(mdbPort), mdlAddress, Integer.parseInt(mdlPort));
 
         try {
-            Registry registry = LocateRegistry.createRegistry(1099);
+            // Supposedly the RMI is initialized only on one machine...
+            int port = peer.id + 1098;
+
+            Registry registry = LocateRegistry.createRegistry(port);
             registry.bind(peer.getServerAccessPoint(), peer.getStub());
         } catch (RemoteException e) {
             System.out.println(e.toString());
@@ -147,18 +175,17 @@ public class Peer implements IClientPeer {
         //Backup backup = new Backup(peer.mdbAddress, peer.mdbPort);
         //backup.start();
 
-        System.out.println("Ready...");
+        System.out.println("Server is ready.");
 
         if(args[6].equals("0")) {
-            System.out.println("Peer waiting...");
-            byte[] buf = new byte[512];
+            System.out.println("In 'if'.");
+            byte[] buf = new byte[64256];       // 64000 bytes of 'chunk body' and 256 bytes of header.
             peer.datagramPacket = new DatagramPacket(buf, buf.length);
             while(true) {
                 peer.multicastSocket.receive(peer.datagramPacket);
                 String message = new String(peer.datagramPacket.getData());
-                System.out.println("Initiator peer enviou: " + message);
+                System.out.println("Received from initiator peer: " + message);
             }
         }
-
     }
 }
