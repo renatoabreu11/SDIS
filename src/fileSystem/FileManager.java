@@ -1,6 +1,7 @@
 package fileSystem;
 
 import messageSystem.Message;
+import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 
 import java.io.IOException;
@@ -120,5 +121,14 @@ public class FileManager {
 
         // Removes the entry on the map.
         storage.remove(fileId);
+    }
+
+    public void addChunkToStorage(Chunk c) {
+        boolean containsFile = storage.containsKey(c.getFileId());
+        if(!containsFile)
+            storage.put(c.getFileId(), new ArrayList<>());
+
+        storage.get(c.getFileId()).add(c);
+
     }
 }
