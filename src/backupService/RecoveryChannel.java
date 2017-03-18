@@ -18,16 +18,13 @@ public class RecoveryChannel extends Channel{
         while (true) {
             byte[] buffer = new byte[HEADER_SIZE + BODY_SIZE];
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
-            String message = new String(dgp.getData(), 0, dgp.getLength());
-            System.out.println("MDR message: " + message);
-            ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
-            try {
-                dispatcher.dispatchRequest(getParentPeer());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             try {
                 this.getSocket().receive(dgp);
+                String message = new String(dgp.getData());
+                System.out.println("MDR message: " + message);
+
+                ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
+                dispatcher.dispatchRequest(getParentPeer());
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -25,6 +25,8 @@ public class Peer implements IClientPeer {
     private int id;
     private IClientPeer stub;
 
+    private boolean isInitiator = false;
+
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
 
         this.protocolVersion = protocolVersion;
@@ -35,9 +37,9 @@ public class Peer implements IClientPeer {
         mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
         mdr = new RecoveryChannel(multicastInfo[4], multicastInfo[5], this);
 
-        mc.run();
-        mdb.run();
-        mdr.run();
+        new Thread(mc).start();
+        new Thread(mdb).start();
+        new Thread(mdr).start();
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
         System.out.println("All channels online.");
@@ -45,6 +47,7 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException {
+        isInitiator = true;
         String lastModified = Long.toString(new File(pathname).lastModified());
 
         // Hashing the file id.
@@ -170,5 +173,13 @@ public class Peer implements IClientPeer {
 
     public void setMdr(RecoveryChannel mdr) {
         this.mdr = mdr;
+    }
+
+    public boolean isInitiator() {
+        return isInitiator;
+    }
+
+    public void setInitiator(boolean initiator) {
+        isInitiator = initiator;
     }
 }

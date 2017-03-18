@@ -52,7 +52,7 @@ public class ProtocolDispatcher {
         MessageHeader header;
         MessageBody body;
         String version, fileId;
-        int senderId, chunkNo = -1, replicationDegree = -1;
+        int senderId, chunkNo, replicationDegree;
 
         version = headerSplit[1];
         senderId = Integer.parseInt(headerSplit[2]);
@@ -83,16 +83,12 @@ public class ProtocolDispatcher {
         this.message = message;
     }
 
-    public void dispatchRequest() {
-        System.out.println(msgWrapper.getMessageString());
-    }
-
     public void dispatchRequest(Peer parentPeer) throws IOException {
         System.out.println(msgWrapper.getMessageString());
         switch(msgWrapper.getHeader().getMessageType()){
             case PUTCHUNK:
                 Backup backup = new Backup(parentPeer, msgWrapper);
-                backup.run();
+                new Thread(backup).start();
                 break;
             case STORED:
             case GETCHUNK:
