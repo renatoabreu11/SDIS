@@ -37,6 +37,8 @@ public class Peer implements IClientPeer {
     private DatagramPacket datagramPacket;
     private byte[] buf;
 
+    private Backup backup;
+
     public Peer(String protocolVersion, int id, String serverAccessPoint, String mcAddress, int mcPort, String mdbAddress, int mdbPort, String mdrAddress, int mdrPort) throws IOException {
         this.mcAddress = mcAddress;
         this.mcPort = mcPort;
@@ -53,6 +55,9 @@ public class Peer implements IClientPeer {
         multicastSocket.joinGroup(inetAddress);
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+
+        backup = new Backup(this.mdbAddress, this.mdbPort);
+        backup.start();
     }
 
     public String getProtocolVersion() {
@@ -96,33 +101,12 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void BackupFile(String pathname, int replicationDegree) throws RemoteException {
-        String lastModified = Long.toString(new File(pathname).lastModified());
-
+    public void BackupFile(String pathname, int replicationDegree) {
         try {
-            // Hashing the file id.
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            String fileId = pathname + lastModified;
-            md.update(fileId.getBytes("UTF-8"));
-            byte[] fileIdHashed = md.digest();
-
-            // Splitting the file into chunks.
-            Splitter splitter = new Splitter(pathname);
-            splitter.splitFile(replicationDegree);
-
-            String msgToSend;
-            for(int i = 0; i < splitter.getChunks().size(); i++) {
-                msgToSend = "PUTCHUNK " + protocolVersion + " " + id + " " + fileIdHashed + " " + (i+1) + " " + replicationDegree + Utils.CRLF + Utils.CRLF + splitter.getChunks().get(i).getChunkData();
-                buf = msgToSend.getBytes();
-                datagramPacket = new DatagramPacket(buf, buf.length, inetAddress, mcPort);
-                System.out.println("Sending message to MC Channel.");
-                multicastSocket.send(datagramPacket);
-            }
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            backup.SendMsg(pathname, replicationDegree, protocolVersion, id);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
@@ -170,10 +154,6 @@ public class Peer implements IClientPeer {
             System.out.println(e.toString());
             e.printStackTrace();
         }
-
-        // Create 3 Threads (MC, MDL, MDB).
-        //Backup backup = new Backup(peer.mdbAddress, peer.mdbPort);
-        //backup.start();
 
         System.out.println("Server is ready.");
 
