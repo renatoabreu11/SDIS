@@ -40,6 +40,7 @@ public class Peer implements IClientPeer {
         mdr.run();
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+        System.out.println("All channels online.");
     }
 
     @Override

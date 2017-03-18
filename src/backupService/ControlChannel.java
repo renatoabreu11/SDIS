@@ -23,6 +23,7 @@ public class ControlChannel extends Channel {
         time = 0;
         isCounting = false;
         numRetransmission = 0;
+        System.out.println("Control channel online.");
     }
 
     public void StartTime() {

@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 public class BackupChannel extends Channel {
     public BackupChannel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
         super(mcAddress, mcPort, parentPeer);
+        System.out.println("Backup channel online.");
     }
 
     @Override
