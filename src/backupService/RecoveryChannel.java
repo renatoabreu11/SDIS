@@ -1,6 +1,7 @@
 package backupService;
 
 import network.Peer;
+import protocols.ProtocolDispatcher;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -18,6 +19,8 @@ public class RecoveryChannel extends Channel{
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
             String message = new String(dgp.getData(), 0, dgp.getLength());
             System.out.println("MDR message: " + message);
+            ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
+            dispatcher.dispatchRequest(getParentPeer());
             try {
                 this.getSocket().receive(dgp);
             } catch (IOException e) {

@@ -151,4 +151,28 @@ public class Peer implements IClientPeer {
     public void setStub(IClientPeer stub) {
         this.stub = stub;
     }
+
+    public ControlChannel getMc() {
+        return mc;
+    }
+
+    public void setMc(ControlChannel mc) {
+        this.mc = mc;
+    }
+
+    public BackupChannel getMdb() {
+        return mdb;
+    }
+
+    public void setMdb(BackupChannel mdb) {
+        this.mdb = mdb;
+    }
+
+    public RecoveryChannel getMdr() {
+        return mdr;
+    }
+
+    public void setMdr(RecoveryChannel mdr) {
+        this.mdr = mdr;
+    }
 }

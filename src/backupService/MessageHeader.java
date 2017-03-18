@@ -73,6 +73,11 @@ public class MessageHeader {
         return header;
     }
 
+    public byte[] getMessageHeaderAsBytes(){
+        String header = getMessageHeaderAsString();
+        return header.getBytes();
+    }
+
     public Utils.MessageType getMessageType() {
         return messageType;
     }

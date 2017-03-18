@@ -1,49 +1,63 @@
 package protocols;
 
+import backupService.Message;
+import backupService.MessageBody;
+import backupService.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.*;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Backup extends Thread {
 
     private Peer parentPeer;
+    private Message request;
 
-    public Backup(Peer parentPeer) throws IOException {
+    public Backup(Peer parentPeer, Message request) throws IOException {
         this.parentPeer = parentPeer;
+        this.request = request;
 
         System.out.println("Backup Thread is ready.");
     }
 
-    private void BackupChunk(String msgReceived) throws IOException, InterruptedException {
-        String[] msgSplit = msgReceived.split("\\s+", 6);
+    private void BackupChunk() throws IOException, InterruptedException {
+        MessageBody body = request.getBody();
+        MessageHeader header = request.getHeader();
 
-        String type = msgSplit[0];
-        if(!type.equals("PUTCHUNK"))
-            return;
-        String version = msgSplit[1];
-        String senderId = msgSplit[2];
-        String fileId = msgSplit[3];
-        String chunkNo = msgSplit[4];
-        String replicationDegree = msgSplit[5];
+        String version = header.getVersion();
+        int senderId = header.getSenderId();
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+        int replicationDegree = header.getReplicationDegree();
+
+        byte[] chunkData = body.getBody();
 
         // Writes to file.
         FileOutputStream fileOutputStream = new FileOutputStream("../");
-        fileOutputStream.write(msgSplit[6].getBytes());
+        fileOutputStream.write(chunkData);
 
         // Creates the message to send back to the initiator peer.
-        String msgReply = "STORED " + version + " " + senderId + " " + fileId + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
+        MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
+        byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
 
         Random random = new Random();
         TimeUnit.MILLISECONDS.sleep(random.nextInt(401));
+
+        parentPeer.getMc().sendMessage(responseBytes);
     }
 
     @Override
     public void run() {
+        try {
+            BackupChunk();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // Qual é a necessidade disto?
         /*while(true) {
             try {
