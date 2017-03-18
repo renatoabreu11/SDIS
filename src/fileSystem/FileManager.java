@@ -1,7 +1,7 @@
 package fileSystem;
 
-import backupService.Message;
-import backupService.MessageHeader;
+import messageSystem.Message;
+import messageSystem.MessageHeader;
 
 import java.util.ArrayList;
 import java.util.HashMap;

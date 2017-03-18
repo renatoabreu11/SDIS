@@ -1,4 +1,4 @@
-package backupService;
+package channels;
 
 import network.Peer;
 import protocols.ProtocolDispatcher;

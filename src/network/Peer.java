@@ -1,13 +1,13 @@
 package network;
 
-import backupService.*;
+import channels.*;
 import fileSystem.Chunk;
 import fileSystem.FileManager;
 import fileSystem.Splitter;
 import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
-import restoreService.RecoveryChannel;
+import channels.RecoveryChannel;
 import utils.Utils;
 
 import java.io.File;
@@ -93,7 +93,7 @@ public class Peer implements IClientPeer {
                 mdb.sendMessage(buffer);
             }
 
-            TimeUnit.MILLISECONDS.sleep(1000*numRetransmission);
+            TimeUnit.MILLISECONDS.sleep(1000*numTransmission);
 
             int chunksToUpload = this.manager.chunksToUpload();
             if(chunksToUpload == 0)
