@@ -13,7 +13,7 @@ public interface IClientPeer extends Remote {
      * @param replicationDegree number of servers to distribute the chunks.
      * @throws RemoteException
      */
-    void BackupFile(String pathname, int replicationDegree) throws IOException, NoSuchAlgorithmException;
+    void BackupFile(String pathname, int replicationDegree) throws IOException, NoSuchAlgorithmException, InterruptedException;
 
     /**
      * @param pathname the system path for the file to backup.

@@ -13,7 +13,7 @@ public class Client {
     private static Registry registry;
     private static IClientPeer stub;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String hostname = "localhost";
         String remoteObjectName = "IClientPeer";
 
@@ -34,7 +34,7 @@ public class Client {
     /**
      * Shows the menu
      */
-    public static void Menu() {
+    public static void Menu() throws InterruptedException {
         System.out.print(
                 "1 - Backup a file\n" +
                 "2 - Restore a file\n" +

@@ -1,6 +1,8 @@
 package network;
 
 import backupService.*;
+import fileSystem.Chunk;
+import fileSystem.FileManager;
 import fileSystem.Splitter;
 import utils.Utils;
 
@@ -13,6 +15,10 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class Peer implements IClientPeer {
 
@@ -26,12 +32,14 @@ public class Peer implements IClientPeer {
     private IClientPeer stub;
 
     private boolean isInitiator = false;
+    private FileManager manager;
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
 
         this.protocolVersion = protocolVersion;
         this.id = id;
         this.serverAccessPoint = serverAccessPoint;
+        manager = new FileManager();
 
         mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this);
         mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
@@ -42,12 +50,15 @@ public class Peer implements IClientPeer {
         new Thread(mdr).start();
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+
         System.out.println("All channels online.");
     }
 
     @Override
-    public void BackupFile(String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException {
+    public void BackupFile(String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
         isInitiator = true;
+        int numRetransmission = 1;
+
         String lastModified = Long.toString(new File(pathname).lastModified());
 
         // Hashing the file id.
@@ -58,16 +69,34 @@ public class Peer implements IClientPeer {
 
         // Splitting the file into chunks.
         Splitter splitter = new Splitter(pathname);
-        splitter.splitFile(replicationDegree);
+        splitter.splitFile(replicationDegree, fileId);
 
-        for(int i = 0; i < splitter.getChunks().size(); i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), (i+1), replicationDegree);
-            MessageBody body = new MessageBody(splitter.getChunkData(i));
-            Message message = new Message(header, body);
-            byte[] buffer = message.getMessageBytes();
-            mdb.sendMessage(buffer);
-            mc.ActivateListenReplies(pathname, replicationDegree);
-        }
+        this.manager.addUploadingChunks(splitter.getChunks());
+
+        boolean desiredReplicationDegree = false;
+        do{
+
+            Map<Chunk, ArrayList<Integer>> uploadingChunks = this.manager.getUploading();
+            Set<Chunk> keys = uploadingChunks.keySet();
+            for(Chunk c:keys){
+                if(c.getFileId() == fileId){
+                    MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), c.getChunkNo(), replicationDegree);
+                    MessageBody body = new MessageBody(c.getChunkData());
+                    Message message = new Message(header, body);
+                    byte[] buffer = message.getMessageBytes();
+                    mdb.sendMessage(buffer);
+                }
+            }
+
+            TimeUnit.MILLISECONDS.sleep(1000*numRetransmission);
+
+            int chunksToUpload = this.manager.updateUploadedChunks(fileId);
+            if(chunksToUpload == 0)
+                desiredReplicationDegree = true;
+            else numRetransmission++;
+        } while(!desiredReplicationDegree);
+
+        isInitiator = false;
     }
 
     @Override
@@ -181,5 +210,13 @@ public class Peer implements IClientPeer {
 
     public void setInitiator(boolean initiator) {
         isInitiator = initiator;
+    }
+
+    public FileManager getManager() {
+        return manager;
+    }
+
+    public void setManager(FileManager manager) {
+        this.manager = manager;
     }
 }
