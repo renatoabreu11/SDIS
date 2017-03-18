@@ -80,8 +80,7 @@ public abstract class Channel implements Runnable {
     }
 
     public void sendMessage(byte[] message){
-        DatagramPacket packet = null;
-        packet = new DatagramPacket(message, message.length, group, mcPort);
+        DatagramPacket packet = new DatagramPacket(message, message.length, group, mcPort);
         try {
             socket.send(packet);
         } catch (IOException e) {

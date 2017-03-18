@@ -6,6 +6,7 @@ import backupService.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
@@ -20,10 +21,11 @@ public class Backup extends Thread {
         this.parentPeer = parentPeer;
         this.request = request;
 
-        System.out.println("Backup Thread is ready.");
+        System.out.println("Starting backup.");
     }
 
-    private void BackupChunk() throws IOException, InterruptedException {
+    @Override
+    public void run() {
         MessageBody body = request.getBody();
         MessageHeader header = request.getHeader();
 
@@ -36,39 +38,28 @@ public class Backup extends Thread {
         byte[] chunkData = body.getBody();
 
         // Writes to file.
-        FileOutputStream fileOutputStream = new FileOutputStream("../");
-        fileOutputStream.write(chunkData);
-
-        // Creates the message to send back to the initiator peer.
-        MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
-        byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
-
-        Random random = new Random();
-        TimeUnit.MILLISECONDS.sleep(random.nextInt(401));
-
-        parentPeer.getMc().sendMessage(responseBytes);
-    }
-
-    @Override
-    public void run() {
+        FileOutputStream fileOutputStream = null;
         try {
-            BackupChunk();
-        } catch (IOException e) {
+            // We need to save the file extension!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            fileOutputStream = new FileOutputStream(fileId + ".txt");
+            fileOutputStream.write(chunkData);
+
+            // Creates the message to send back to the initiator peer.
+            MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
+            byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
+
+            // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
+            Random random = new Random();
+            TimeUnit.MILLISECONDS.sleep(random.nextInt(401));
+
+            // Sends the message to the initiator peer.
+            parentPeer.getMc().sendMessage(responseBytes);
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        // Qual é a necessidade disto?
-        /*while(true) {
-            try {
-                multicastSocket.receive(datagramPacket);
-                String msgReceived =  new String(datagramPacket.getData());
-                BackupChunk(msgReceived);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 }

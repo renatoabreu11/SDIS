@@ -19,8 +19,9 @@ public class BackupChannel extends Channel {
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
             try {
                 this.getSocket().receive(dgp);
-                String message = new String(dgp.getData(), 0, dgp.getLength());
+                String message = new String(dgp.getData());
                 System.out.println("MDB message: " + message);
+
                 ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
                 dispatcher.dispatchRequest(getParentPeer());
             } catch (IOException e) {

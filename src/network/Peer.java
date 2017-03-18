@@ -2,17 +2,10 @@ package network;
 
 import backupService.*;
 import fileSystem.Splitter;
-import protocols.Backup;
-import protocols.ProtocolDispatcher;
 import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -69,6 +62,7 @@ public class Peer implements IClientPeer {
             Message message = new Message(header, body);
             byte[] buffer = message.getMessageBytes();
             mdb.sendMessage(buffer);
+            mc.ActivateListenReplies(pathname, replicationDegree);
         }
     }
 
