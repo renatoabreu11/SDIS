@@ -9,16 +9,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class FileManager {
-    private Map<Chunk, ArrayList<Integer>> storage = new HashMap<>();
-    private Map<Chunk, ArrayList<Integer>> uploading = new HashMap<>();
+    private Map<String, ArrayList<Chunk>> storage = new HashMap<>();
+    private ArrayList<Chunk> uploading = new ArrayList<>();
 
     public FileManager(){}
 
-    public Map<Chunk, ArrayList<Integer>> getStorage() {
+    public Map<String, ArrayList<Chunk>> getStorage() {
         return storage;
     }
 
-    public void setStorage(Map<Chunk, ArrayList<Integer>> storage) {
+    public void setStorage(Map<String, ArrayList<Chunk>> storage) {
         this.storage = storage;
     }
 
@@ -30,38 +30,35 @@ public class FileManager {
         this.uploading.clear();
     }
 
-    public ArrayList<Integer> getChunkStorage(String fileId, int chunkNo){
-        Chunk lookupChunk = new Chunk(fileId, chunkNo);
-        if(storage.containsKey(lookupChunk)){
-            return storage.get(lookupChunk);
+    public ArrayList<Chunk> getFileStorage(String fileId){
+        if(storage.containsKey(fileId)){
+            return storage.get(fileId);
         }
         return null;
     }
 
     public void addUploadingChunks(ArrayList<Chunk> chunks) {
-        for(int i = 0; i < chunks.size(); i++){
-            this.uploading.put(chunks.get(i), new ArrayList<>());
-        }
+        uploading = chunks;
     }
 
-    public Map<Chunk, ArrayList<Integer>> getUploading() {
+    public ArrayList<Chunk> getUploading() {
         return uploading;
     }
 
-    public void setUploading(Map<Chunk, ArrayList<Integer>> uploading) {
+    public void setUploading(ArrayList<Chunk> uploading) {
         this.uploading = uploading;
     }
 
     public int chunksToUpload() {
         int nrChunksWithoutReplication = 0;
 
-        for (Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it = uploading.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<Chunk, ArrayList<Integer>> entry = it.next();
-            if(entry.getKey().desiredReplication())
+        Iterator<Chunk> it = uploading.iterator();
+        while(it.hasNext()){
+            if(it.next().desiredReplication()){
                 it.remove();
-            else
-                nrChunksWithoutReplication++;
+            }else nrChunksWithoutReplication++;
         }
+
         return nrChunksWithoutReplication;
     }
 
@@ -73,20 +70,15 @@ public class FileManager {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        Chunk lookupChunk = new Chunk(fileId, chunkNo);
-        if(storage.containsKey(lookupChunk)){
-            storage.get(lookupChunk).add(senderId);
-
-            Map.Entry<Chunk, ArrayList<Integer>> entry = null;
-            for (Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it = storage.entrySet().iterator(); it.hasNext();) {
-                entry = it.next();
-                if(entry.getKey().equals(lookupChunk)){
-                    it.remove();
+        ArrayList<Chunk> chunks = this.getFileStorage(fileId);
+        if(chunks != null){
+            Chunk c = new Chunk(fileId, chunkNo);
+            for(int i = 0; i < chunks.size(); i++){
+                if(c.equals(chunks.get(i))){
+                    chunks.get(i).updateReplication(senderId);
                     break;
                 }
             }
-
-            storage.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -98,18 +90,13 @@ public class FileManager {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        Chunk lookupChunk = new Chunk(fileId, chunkNo);
-        if(uploading.containsKey(lookupChunk)){
-            Map.Entry<Chunk, ArrayList<Integer>> entry = null;
-            for (Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it = uploading.entrySet().iterator(); it.hasNext();) {
-                entry = it.next();
-                if(entry.getKey().equals(lookupChunk)){
-                    entry.getValue().add(senderId);
-                    it.remove();
-                    break;
-                }
+        Chunk c = new Chunk(fileId, chunkNo);
+        for(int i = 0; i < uploading.size(); i++){
+            if(c.equals(uploading.get(i))){
+                uploading.get(i).updateReplication(senderId);
+                break;
             }
-            uploading.put(entry.getKey(), entry.getValue());
         }
+
     }
 }

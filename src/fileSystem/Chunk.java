@@ -1,11 +1,14 @@
 package fileSystem;
 
+import java.util.ArrayList;
+
 public class Chunk implements Comparable<Chunk> {
 
     private String fileId;
     private int chunkNo;
     private int replicationDegree;
     private int currReplicationDegree;
+    private ArrayList<Integer> peers = new ArrayList<>();
     private byte[] chunkData;
 
     public Chunk(String fileId, int replicationDegree, int chunkNo, byte[] chunkData){
@@ -19,13 +22,6 @@ public class Chunk implements Comparable<Chunk> {
     public Chunk(String fileId, int chunkNo){
         this.fileId = fileId;
         this.chunkNo = chunkNo;
-    }
-
-    public int hashCode(){
-        int hash = 1;
-        hash = hash * 17 + chunkNo;
-        hash = hash * 31 + fileId.hashCode();
-        return hash;
     }
 
     public boolean equals(Object obj){
@@ -92,5 +88,28 @@ public class Chunk implements Comparable<Chunk> {
 
     public void setFileId(String fileId) {
         this.fileId = fileId;
+    }
+
+    public void updateReplication(int senderId) {
+        if(!peerHasChunk(senderId)){
+            peers.add(senderId);
+            addReplicationDegree();
+        }
+    }
+
+    private boolean peerHasChunk(int senderId) {
+        for(int i = 0; i < this.peers.size(); i++){
+            if(this.peers.get(i) == senderId)
+                return true;
+        }
+        return false;
+    }
+
+    public ArrayList<Integer> getPeers() {
+        return peers;
+    }
+
+    public void setPeers(ArrayList<Integer> peers) {
+        this.peers = peers;
     }
 }

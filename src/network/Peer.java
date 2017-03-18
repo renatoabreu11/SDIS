@@ -20,6 +20,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +74,7 @@ public class Peer implements IClientPeer {
 
         // Splitting the file into chunks.
         Splitter splitter = new Splitter(fileData);
-        splitter.splitFile(replicationDegree, fileId);
+        splitter.splitFile(replicationDegree, fileIdHashed.toString());
 
         this.manager.addUploadingChunks(splitter.getChunks());
 
@@ -83,9 +84,10 @@ public class Peer implements IClientPeer {
             if(numTransmission > 5)
                 break; // do something
 
-            Map<Chunk, ArrayList<Integer>> uploadingChunks = this.manager.getUploading();
-            Set<Chunk> keys = uploadingChunks.keySet();
-            for(Chunk c:keys){
+            ArrayList<Chunk> uploadingChunks = this.manager.getUploading();
+            Iterator<Chunk> it = uploadingChunks.iterator();
+            while(it.hasNext()){
+                Chunk c = it.next();
                 MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), c.getChunkNo(), replicationDegree);
                 MessageBody body = new MessageBody(c.getChunkData());
                 Message message = new Message(header, body);
