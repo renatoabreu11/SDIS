@@ -76,25 +76,28 @@ public class Peer implements IClientPeer {
         boolean desiredReplicationDegree = false;
         do{
 
+            if(numRetransmission > 5)
+                break; // do something
+
             Map<Chunk, ArrayList<Integer>> uploadingChunks = this.manager.getUploading();
             Set<Chunk> keys = uploadingChunks.keySet();
             for(Chunk c:keys){
-                if(c.getFileId() == fileId){
-                    MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), c.getChunkNo(), replicationDegree);
-                    MessageBody body = new MessageBody(c.getChunkData());
-                    Message message = new Message(header, body);
-                    byte[] buffer = message.getMessageBytes();
-                    mdb.sendMessage(buffer);
-                }
+                MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), c.getChunkNo(), replicationDegree);
+                MessageBody body = new MessageBody(c.getChunkData());
+                Message message = new Message(header, body);
+                byte[] buffer = message.getMessageBytes();
+                mdb.sendMessage(buffer);
             }
 
             TimeUnit.MILLISECONDS.sleep(1000*numRetransmission);
 
-            int chunksToUpload = this.manager.updateUploadedChunks(fileId);
+            int chunksToUpload = this.manager.chunksToUpload();
             if(chunksToUpload == 0)
                 desiredReplicationDegree = true;
             else numRetransmission++;
         } while(!desiredReplicationDegree);
+
+        this.manager.resetUploadingChunks();
 
         isInitiator = false;
     }
@@ -107,6 +110,13 @@ public class Peer implements IClientPeer {
     @Override
     public void DeleteFile(String pathname) throws RemoteException {
         // Construct message and send it to the MC channel.
+    }
+
+    public void updateFileStorage(Message msgWrapper) {
+        this.manager.updateStorage(msgWrapper);
+
+        if(this.isInitiator)
+            this.manager.updateUploadingChunks(msgWrapper);
     }
 
     public static void main(String[] args) throws IOException {

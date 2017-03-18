@@ -1,7 +1,11 @@
 package fileSystem;
 
+import backupService.Message;
+import backupService.MessageHeader;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class FileManager {
@@ -16,6 +20,14 @@ public class FileManager {
 
     public void setStorage(Map<Chunk, ArrayList<Integer>> storage) {
         this.storage = storage;
+    }
+
+    public void resetStorage(){
+        this.storage.clear();
+    }
+
+    public void resetUploadingChunks(){
+        this.uploading.clear();
     }
 
     public ArrayList<Integer> getChunkStorage(String fileId, int chunkNo){
@@ -40,20 +52,64 @@ public class FileManager {
         this.uploading = uploading;
     }
 
-    public int updateUploadedChunks(String fileId) {
-
+    public int chunksToUpload() {
         int nrChunksWithoutReplication = 0;
-        for (Map.Entry<Chunk, ArrayList<Integer>> ee : uploading.entrySet()) {
-            Chunk key = ee.getKey();
-            ArrayList<Integer> values = ee.getValue();
-            if (key.getFileId() == fileId){
-                if(key.desiredReplication()){
-                    uploading.remove(key);
-                    storage.put(key, values);
-                }else
-                    nrChunksWithoutReplication++;
-            }
+
+        for (Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it = uploading.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<Chunk, ArrayList<Integer>> entry = it.next();
+            if(entry.getKey().desiredReplication())
+                it.remove();
+            else
+                nrChunksWithoutReplication++;
         }
         return nrChunksWithoutReplication;
+    }
+
+    public void updateStorage(Message msgWrapper) {
+        MessageHeader header = msgWrapper.getHeader();
+
+        String version = header.getVersion();
+        int senderId = header.getSenderId();
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+
+        Chunk lookupChunk = new Chunk(fileId, chunkNo);
+        if(storage.containsKey(lookupChunk)){
+            storage.get(lookupChunk).add(senderId);
+
+            Map.Entry<Chunk, ArrayList<Integer>> entry = null;
+            for (Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it = storage.entrySet().iterator(); it.hasNext();) {
+                entry = it.next();
+                if(entry.getKey().equals(lookupChunk)){
+                    it.remove();
+                    break;
+                }
+            }
+
+            storage.put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public void updateUploadingChunks(Message msgWrapper) {
+        MessageHeader header = msgWrapper.getHeader();
+
+        String version = header.getVersion();
+        int senderId = header.getSenderId();
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+
+        Chunk lookupChunk = new Chunk(fileId, chunkNo);
+        if(uploading.containsKey(lookupChunk)){
+            Map.Entry<Chunk, ArrayList<Integer>> entry = null;
+            for (Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it = uploading.entrySet().iterator(); it.hasNext();) {
+                entry = it.next();
+                if(entry.getKey().equals(lookupChunk)){
+                    entry.getValue().add(senderId);
+                    it.remove();
+                    break;
+                }
+            }
+            uploading.put(entry.getKey(), entry.getValue());
+        }
     }
 }

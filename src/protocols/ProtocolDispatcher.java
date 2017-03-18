@@ -91,6 +91,8 @@ public class ProtocolDispatcher {
                 new Thread(backup).start();
                 break;
             case STORED:
+                parentPeer.updateFileStorage(msgWrapper);
+                break;
             case GETCHUNK:
             case CHUNK:
             case DELETED:
