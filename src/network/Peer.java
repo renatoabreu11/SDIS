@@ -138,6 +138,10 @@ public class Peer implements IClientPeer {
             this.manager.updateUploadingChunks(msgWrapper);
     }
 
+    public void deleteFileStorage(String fileId) throws IOException {
+        this.manager.deleteStoredChunk(fileId);
+    }
+
     public static void main(String[] args) throws IOException {
         if(args.length != 6) {
             System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");

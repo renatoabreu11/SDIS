@@ -38,7 +38,7 @@ public class ProtocolDispatcher {
                 type = Utils.MessageType.GETCHUNK; numberOfArgs = 5; break;
             case "CHUNK":
                 type = Utils.MessageType.CHUNK; numberOfArgs = 5; break;
-            case "DELETED":
+            case "DELETE":
                 type = Utils.MessageType.DELETE; numberOfArgs = 5; break;
             case "REMOVED":
                 type = Utils.MessageType.REMOVED; numberOfArgs = 4; break;
@@ -83,6 +83,14 @@ public class ProtocolDispatcher {
         this.message = message;
     }
 
+    public Message getMsgWrapper() {
+        return msgWrapper;
+    }
+
+    public void setMsgWrapper(Message msgWrapper) {
+        this.msgWrapper = msgWrapper;
+    }
+
     public void dispatchRequest(Peer parentPeer) throws IOException {
         System.out.println(msgWrapper.getMessageString());
         switch(msgWrapper.getHeader().getMessageType()){
@@ -96,9 +104,13 @@ public class ProtocolDispatcher {
             case GETCHUNK:
             case CHUNK:
             case DELETE:
+                Delete delete = new Delete(parentPeer, msgWrapper);
+                new Thread(delete).start();
+                break;
             case REMOVED:
-            default:
-                return;
+            default: return;
         }
     }
+
+
 }

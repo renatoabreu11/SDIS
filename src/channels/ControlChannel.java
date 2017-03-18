@@ -1,6 +1,9 @@
 package channels;
 
 import network.Peer;
+import protocols.Delete;
+import protocols.ProtocolDispatcher;
+import utils.Utils;
 
 import java.io.IOException;
 import java.net.*;
@@ -21,6 +24,9 @@ public class ControlChannel extends Channel {
                 this.getSocket().receive(dgp);
                 String message = new String(dgp.getData());
                 System.out.println("MC message: " + message);
+
+                ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
+                dispatcher.dispatchRequest(getParentPeer());
             } catch (IOException e) {
                 e.printStackTrace();
             }

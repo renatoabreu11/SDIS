@@ -3,6 +3,10 @@ package fileSystem;
 import messageSystem.Message;
 import messageSystem.MessageHeader;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -98,5 +102,29 @@ public class FileManager {
             }
         }
 
+    }
+
+    /**
+     * Delete protocol callable.
+     * Deletes a file from the computer and the map.
+     * @param fileId name of the file to delete.
+     * @throws IOException
+     */
+    public void deleteStoredChunk(String fileId) throws IOException {
+        Map.Entry<Chunk, ArrayList<Integer>> entry = null;
+        Iterator<Map.Entry<Chunk, ArrayList<Integer>>> it;
+
+        for(it = storage.entrySet().iterator(); it.hasNext();) {
+            entry = it.next();
+            if(entry.getKey().getFileId().equals(fileId)) {
+                // Erase that chunk from computer directory.
+                Path path = Paths.get(fileId);
+                Files.delete(path);
+
+                // Erase the chunk from the map.
+                it.remove();
+                break;
+            }
+        }
     }
 }
