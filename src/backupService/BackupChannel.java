@@ -21,7 +21,6 @@ public class BackupChannel extends Channel {
                 this.getSocket().receive(dgp);
                 String message = new String(dgp.getData(), 0, dgp.getLength());
                 System.out.println("MDB message: " + message);
-                // Usar dispatcher como thread? para não perder tempo aqui
                 ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
                 dispatcher.dispatchRequest(getParentPeer());
             } catch (IOException e) {

@@ -20,7 +20,11 @@ public class RecoveryChannel extends Channel{
             String message = new String(dgp.getData(), 0, dgp.getLength());
             System.out.println("MDR message: " + message);
             ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
-            dispatcher.dispatchRequest(getParentPeer());
+            try {
+                dispatcher.dispatchRequest(getParentPeer());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             try {
                 this.getSocket().receive(dgp);
             } catch (IOException e) {

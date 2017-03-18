@@ -1,9 +1,11 @@
 package network;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class Client {
@@ -55,6 +57,10 @@ public class Client {
                     stub.BackupFile(pathname, replicationDegree);
                 } catch (RemoteException e) {
                     System.out.println(e.toString());
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
