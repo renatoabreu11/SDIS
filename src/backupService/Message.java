@@ -1,6 +1,9 @@
 package backupService;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 public class Message {
 
     private MessageHeader header;
@@ -23,6 +26,25 @@ public class Message {
     public Message(MessageHeader header) {
         this.header = header;
         this.body = null;
+    }
+
+    public String getMessageString(){
+        if(this.body != null)
+            return this.header.getMessageHeaderAsString() + this.body.getBody().toString();
+        else return this.header.getMessageHeaderAsString();
+    }
+
+    public byte[] getMessageBytes() throws IOException {
+        byte header[] = this.header.getMessageHeaderAsString().getBytes();
+
+        if(this.body != null){
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+            outputStream.write( header );
+            outputStream.write( body.getBody() );
+
+            byte messageBytes[] = outputStream.toByteArray( );
+            return messageBytes;
+        } else return header;
     }
 
     public MessageHeader getHeader() {

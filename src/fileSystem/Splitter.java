@@ -42,6 +42,14 @@ public class Splitter {
         chunks.clear();
     }
 
+    public Chunk getChunk(int i){
+        return this.chunks.get(i);
+    }
+
+    public byte[] getChunkData(int i){
+        return this.chunks.get(i).getChunkData();
+    }
+
     public void splitFile(int desiredReplicationDegree) throws IOException {
         Path path = Paths.get(this.fileName);
         byte[] data = Files.readAllBytes(path);

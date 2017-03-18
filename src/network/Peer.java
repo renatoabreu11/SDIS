@@ -1,5 +1,6 @@
 package network;
 
+import backupService.*;
 import fileSystem.Splitter;
 import protocols.Backup;
 import utils.Utils;
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.AlreadyBoundException;
@@ -20,44 +22,102 @@ import java.security.NoSuchAlgorithmException;
 
 public class Peer implements IClientPeer {
 
-    private String mcAddress;
-    private int mcPort;
-    private String mdbAddress;
-    private int mdbPort;
-    private String mdrAddress;
-    private int mdrPort;
+    private ControlChannel mc;
+    private BackupChannel mdb;
+    private RecoveryChannel mdr;
 
     private String protocolVersion;
     private String serverAccessPoint;
     private int id;
     private IClientPeer stub;
 
-    private InetAddress inetAddress;
-    private MulticastSocket multicastSocket;
-    private DatagramPacket datagramPacket;
-    private byte[] buf;
+    public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
 
-    private Backup backup;
-
-    public Peer(String protocolVersion, int id, String serverAccessPoint, String mcAddress, int mcPort, String mdbAddress, int mdbPort, String mdrAddress, int mdrPort) throws IOException {
-        this.mcAddress = mcAddress;
-        this.mcPort = mcPort;
-        this.mdbAddress = mdbAddress;
-        this.mdbPort = mdbPort;
-        this.mdrAddress = mdrAddress;
-        this.mdrPort = mdrPort;
         this.protocolVersion = protocolVersion;
         this.id = id;
         this.serverAccessPoint = serverAccessPoint;
 
-        inetAddress = InetAddress.getByName(this.mcAddress);
-        multicastSocket = new MulticastSocket(this.mcPort);
-        multicastSocket.joinGroup(inetAddress);
+        mc = new ControlChannel(multicastInfo[0], multicastInfo[1]);
+        mdb = new BackupChannel(multicastInfo[2], multicastInfo[3]);
+        mdr = new RecoveryChannel(multicastInfo[4], multicastInfo[5]);
+
+        mc.run();
+        mdb.run();
+        mdr.run();
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+    }
 
-        backup = new Backup(this.mdbAddress, this.mdbPort);
-        backup.start();
+    @Override
+    public void BackupFile(String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException {
+        String lastModified = Long.toString(new File(pathname).lastModified());
+
+        // Hashing the file id.
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        String fileId = pathname + lastModified;
+        md.update(fileId.getBytes("UTF-8"));
+        byte[] fileIdHashed = md.digest();
+
+        // Splitting the file into chunks.
+        Splitter splitter = new Splitter(pathname);
+        splitter.splitFile(replicationDegree);
+
+        for(int i = 0; i < splitter.getChunks().size(); i++) {
+            MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), (i+1), replicationDegree);
+            MessageBody body = new MessageBody(splitter.getChunkData(i));
+            Message message = new Message(header, body);
+            byte[] buffer = message.getMessageBytes();
+            mdb.sendMessage(buffer);
+        }
+    }
+
+    @Override
+    public void RestoreFile(String pathname) throws RemoteException {
+        // Construct message and send it to the MC channel.
+    }
+
+    @Override
+    public void DeleteFile(String pathname) throws RemoteException {
+        // Construct message and send it to the MC channel.
+    }
+
+    public static void main(String[] args) throws IOException {
+        if(args.length != 6) {
+            System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
+            return;
+        }
+
+        String[] msgSplit = args[3].split(":");
+        String multicastAddress = msgSplit[0];
+        String multicastPort = msgSplit[1];
+
+        msgSplit = args[4].split(":");
+        String mdbAddress = msgSplit[0];
+        String mdbPort = msgSplit[1];
+
+        msgSplit = args[5].split(":");
+        String mdrAddress = msgSplit[0];
+        String mdrPort = msgSplit[1];
+
+        String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
+
+        Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
+
+        try {
+            // Supposedly the RMI is initialized only on one machine...
+            int port = peer.id + 1098;
+
+            Registry registry = LocateRegistry.createRegistry(port);
+            registry.bind(peer.getServerAccessPoint(), peer.getStub());
+        } catch (RemoteException e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        } catch (AlreadyBoundException e) {
+            System.out.println(e.toString());
+            e.printStackTrace();
+        }
+
+        System.out.println("Server is ready.");
     }
 
     public String getProtocolVersion() {
@@ -90,82 +150,5 @@ public class Peer implements IClientPeer {
 
     public void setStub(IClientPeer stub) {
         this.stub = stub;
-    }
-
-    public byte[] getBuf() {
-        return buf;
-    }
-
-    public void setBuf(byte[] buf) {
-        this.buf = buf;
-    }
-
-    @Override
-    public void BackupFile(String pathname, int replicationDegree) {
-        try {
-            backup.SendMsg(pathname, replicationDegree, protocolVersion, id);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void RestoreFile(String pathname) throws RemoteException {
-        // Construct message and send it to the MC channel.
-    }
-
-    @Override
-    public void DeleteFile(String pathname) throws RemoteException {
-        // Construct message and send it to the MC channel.
-    }
-
-    public static void main(String[] args) throws IOException {
-        if(args.length != 7) {
-            System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
-            return;
-        }
-
-        String[] msgSplit = args[3].split(":");
-        String multicastAddress = msgSplit[0];
-        String multicastPort = msgSplit[1];
-
-        msgSplit = args[4].split(":");
-        String mdbAddress = msgSplit[0];
-        String mdbPort = msgSplit[1];
-
-        msgSplit = args[5].split(":");
-        String mdlAddress = msgSplit[0];
-        String mdlPort = msgSplit[1];
-
-        Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastAddress, Integer.parseInt(multicastPort), mdbAddress, Integer.parseInt(mdbPort), mdlAddress, Integer.parseInt(mdlPort));
-
-        try {
-            // Supposedly the RMI is initialized only on one machine...
-            int port = peer.id + 1098;
-
-            Registry registry = LocateRegistry.createRegistry(port);
-            registry.bind(peer.getServerAccessPoint(), peer.getStub());
-        } catch (RemoteException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        } catch (AlreadyBoundException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        }
-
-        System.out.println("Server is ready.");
-
-        if(args[6].equals("0")) {
-            System.out.println("In 'if'.");
-            byte[] buf = new byte[64256];       // 64000 bytes of 'chunk body' and 256 bytes of header.
-            peer.datagramPacket = new DatagramPacket(buf, buf.length);
-            while(true) {
-                peer.multicastSocket.receive(peer.datagramPacket);
-                String message = new String(peer.datagramPacket.getData());
-                System.out.println("Received from initiator peer: " + message);
-            }
-        }
     }
 }

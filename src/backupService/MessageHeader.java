@@ -4,7 +4,7 @@ import utils.Utils;
 
 public class MessageHeader {
     private Utils.MessageType messageType;
-    private int version;
+    private String version;
     private int senderId;
     private String fileId;
     private int chunkNo = -1;
@@ -19,7 +19,7 @@ public class MessageHeader {
      * @param chunkNo
      * @param replicationDegree
      */
-    public MessageHeader(Utils.MessageType messageType, int version, int senderId, String fileId, int chunkNo, int replicationDegree){
+    public MessageHeader(Utils.MessageType messageType, String version, int senderId, String fileId, int chunkNo, int replicationDegree){
         this.messageType = messageType;
         this.version = version;
         this.senderId = senderId;
@@ -36,7 +36,7 @@ public class MessageHeader {
      * @param fileId
      * @param chunkNo
      */
-    public MessageHeader(Utils.MessageType messageType, int version, int senderId, String fileId, int chunkNo){
+    public MessageHeader(Utils.MessageType messageType, String version, int senderId, String fileId, int chunkNo){
         this.messageType = messageType;
         this.version = version;
         this.senderId = senderId;
@@ -51,7 +51,7 @@ public class MessageHeader {
      * @param senderId
      * @param fileId
      */
-    public MessageHeader(Utils.MessageType messageType, int version, int senderId, String fileId){
+    public MessageHeader(Utils.MessageType messageType, String version, int senderId, String fileId){
         this.messageType = messageType;
         this.version = version;
         this.senderId = senderId;
@@ -81,11 +81,11 @@ public class MessageHeader {
         this.messageType = messageType;
     }
 
-    public int getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 
