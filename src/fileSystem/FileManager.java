@@ -36,10 +36,7 @@ public class FileManager {
     }
 
     public ArrayList<Chunk> getFileStorage(String fileId){
-        if(storage.containsKey(fileId)){
-            return storage.get(fileId);
-        }
-        return null;
+        return storage.get(fileId);
     }
 
     public void addUploadingChunks(ArrayList<Chunk> chunks) {
@@ -70,7 +67,6 @@ public class FileManager {
     public void updateStorage(Message msgWrapper) {
         MessageHeader header = msgWrapper.getHeader();
 
-        String version = header.getVersion();
         int senderId = header.getSenderId();
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
@@ -102,7 +98,6 @@ public class FileManager {
                 break;
             }
         }
-
     }
 
     /**

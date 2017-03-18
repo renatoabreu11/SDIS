@@ -16,8 +16,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Peer implements IClientPeer {
@@ -132,8 +130,6 @@ public class Peer implements IClientPeer {
     }
 
     public void updateFileStorage(Message msgWrapper) {
-        this.manager.updateStorage(msgWrapper);
-
         if(this.isInitiator)
             this.manager.updateUploadingChunks(msgWrapper);
     }

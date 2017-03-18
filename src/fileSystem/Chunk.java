@@ -30,9 +30,8 @@ public class Chunk implements Comparable<Chunk> {
         if (obj instanceof Chunk) {
             Chunk c = (Chunk) obj;
             return (c.fileId.equals(this.fileId) && c.chunkNo == this.chunkNo);
-        } else {
+        } else
             return false;
-        }
     }
 
     @Override

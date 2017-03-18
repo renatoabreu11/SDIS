@@ -40,9 +40,11 @@ public class Backup implements Runnable {
         // Writes to file.
         FileOutputStream fileOutputStream = null;
         try {
-            // We need to save the file extension!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             fileOutputStream = new FileOutputStream(fileId + chunkNo + ".txt");
             fileOutputStream.write(chunkData);
+
+            // Saves the chunk's info in the file manager.
+            parentPeer.getManager().updateStorage(request);
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
