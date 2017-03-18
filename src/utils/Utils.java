@@ -8,7 +8,7 @@ public class Utils {
         STORED,
         GETCHUNK,
         CHUNK,
-        DELETED,
+        DELETE,
         REMOVED
     }
 

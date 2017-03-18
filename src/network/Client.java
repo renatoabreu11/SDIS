@@ -16,28 +16,20 @@ public class Client {
     private static Registry registry;
     private static IClientPeer stub;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
         String hostname = "localhost";
         String remoteObjectName = "IClientPeer";
 
-        try {
-            registry = LocateRegistry.getRegistry(hostname);
-            stub = (IClientPeer) registry.lookup(remoteObjectName);
+        registry = LocateRegistry.getRegistry(hostname);
+        stub = (IClientPeer) registry.lookup(remoteObjectName);
 
-            Menu();
-        } catch (RemoteException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        } catch (NotBoundException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        }
+        Menu();
     }
 
     /**
      * Shows the menu
      */
-    public static void Menu() throws InterruptedException {
+    public static void Menu() throws InterruptedException, IOException, NoSuchAlgorithmException {
         System.out.print(
                 "1 - Backup a file\n" +
                 "2 - Restore a file\n" +
@@ -56,42 +48,25 @@ public class Client {
                 System.out.print("Replication degree: ");
                 int replicationDegree = scanner.nextInt();
 
-                try {
-                    Path path = Paths.get(pathname);
-                    byte[] fileData = Files.readAllBytes(path);
-                    stub.BackupFile(fileData, pathname, replicationDegree);
-                } catch (RemoteException e) {
-                    System.out.println(e.toString());
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Path path = Paths.get(pathname);
+                byte[] fileData = Files.readAllBytes(path);
+                stub.BackupFile(fileData, pathname, replicationDegree);
                 break;
             case 2:
                 System.out.println("File pathname: ");
                 pathname = scanner.nextLine();
 
-                try {
-                    stub.RestoreFile(pathname);
-                } catch (RemoteException e) {
-                    System.out.println(e.toString());
-                    e.printStackTrace();
-                }
+                stub.RestoreFile(pathname);
                 break;
             case 3:
                 System.out.println("File pathname: ");
                 pathname = scanner.nextLine();
 
-                try {
-                    stub.DeleteFile(pathname);
-                } catch (RemoteException e) {
-                    System.out.println(e.toString());
-                    e.printStackTrace();
-                }
+                stub.DeleteFile(pathname);
                 break;
             default: break;
         }
+
+        System.out.println("Client has ended.");
     }
 }
