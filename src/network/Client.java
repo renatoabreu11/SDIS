@@ -1,6 +1,9 @@
 package network;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -54,7 +57,9 @@ public class Client {
                 int replicationDegree = scanner.nextInt();
 
                 try {
-                    stub.BackupFile(pathname, replicationDegree);
+                    Path path = Paths.get(pathname);
+                    byte[] fileData = Files.readAllBytes(path);
+                    stub.BackupFile(fileData, pathname, replicationDegree);
                 } catch (RemoteException e) {
                     System.out.println(e.toString());
                     e.printStackTrace();

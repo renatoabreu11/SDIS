@@ -41,7 +41,6 @@ public class FileManager {
     }
 
     public int updateUploadedChunks(String fileId) {
-
         int nrChunksWithoutReplication = 0;
         for (Map.Entry<Chunk, ArrayList<Integer>> ee : uploading.entrySet()) {
             Chunk key = ee.getKey();

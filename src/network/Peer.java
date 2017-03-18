@@ -8,6 +8,9 @@ import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -55,9 +58,9 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void BackupFile(String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
+    public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
         isInitiator = true;
-        int numRetransmission = 1;
+        int numTransmission = 1;
 
         String lastModified = Long.toString(new File(pathname).lastModified());
 
@@ -68,14 +71,13 @@ public class Peer implements IClientPeer {
         byte[] fileIdHashed = md.digest();
 
         // Splitting the file into chunks.
-        Splitter splitter = new Splitter(pathname);
+        Splitter splitter = new Splitter(fileData);
         splitter.splitFile(replicationDegree, fileId);
 
         this.manager.addUploadingChunks(splitter.getChunks());
 
         boolean desiredReplicationDegree = false;
         do{
-
             Map<Chunk, ArrayList<Integer>> uploadingChunks = this.manager.getUploading();
             Set<Chunk> keys = uploadingChunks.keySet();
             for(Chunk c:keys){
@@ -88,12 +90,12 @@ public class Peer implements IClientPeer {
                 }
             }
 
-            TimeUnit.MILLISECONDS.sleep(1000*numRetransmission);
+            TimeUnit.MILLISECONDS.sleep(1000*numTransmission);
 
             int chunksToUpload = this.manager.updateUploadedChunks(fileId);
             if(chunksToUpload == 0)
                 desiredReplicationDegree = true;
-            else numRetransmission++;
+            else numTransmission++;
         } while(!desiredReplicationDegree);
 
         isInitiator = false;
