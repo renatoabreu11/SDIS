@@ -1,5 +1,7 @@
 package backupService;
 
+import network.Peer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -16,12 +18,15 @@ public abstract class Channel implements Runnable {
     private int mcPort;
     private MulticastSocket socket;
     private InetAddress group;
+    private Peer parentPeer;
 
-    public Channel (String mcAddress, String mcPort) throws UnknownHostException, IOException {
+    public Channel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
         if(!isValidIPV4(mcAddress)){
             System.out.println("Invalid IPV4 address!");
             return;
         }
+
+        this.parentPeer = parentPeer;
 
         this.mcAddress = mcAddress;
         this.mcPort = Integer.parseInt(mcPort);
@@ -82,5 +87,13 @@ public abstract class Channel implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Peer getParentPeer() {
+        return parentPeer;
+    }
+
+    public void setParentPeer(Peer parentPeer) {
+        this.parentPeer = parentPeer;
     }
 }

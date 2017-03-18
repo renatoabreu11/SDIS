@@ -1,12 +1,14 @@
 package backupService;
 
+import network.Peer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.UnknownHostException;
 
 public class RecoveryChannel extends Channel{
-    public RecoveryChannel(String mcAddress, String mcPort) throws UnknownHostException, IOException {
-        super(mcAddress, mcPort);
+    public RecoveryChannel(String mcAddress, String mcPort,  Peer parentPeer) throws UnknownHostException, IOException {
+        super(mcAddress, mcPort, parentPeer);
     }
 
     @Override

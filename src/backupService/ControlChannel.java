@@ -1,12 +1,14 @@
 package backupService;
 
+import network.Peer;
+
 import java.io.IOException;
 import java.net.*;
 
 public class ControlChannel extends Channel {
 
-    public ControlChannel(String mcAddress, String mcPort) throws UnknownHostException, IOException {
-        super(mcAddress, mcPort);
+    public ControlChannel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
+        super(mcAddress, mcPort, parentPeer);
     }
 
     @Override

@@ -37,9 +37,9 @@ public class Peer implements IClientPeer {
         this.id = id;
         this.serverAccessPoint = serverAccessPoint;
 
-        mc = new ControlChannel(multicastInfo[0], multicastInfo[1]);
-        mdb = new BackupChannel(multicastInfo[2], multicastInfo[3]);
-        mdr = new RecoveryChannel(multicastInfo[4], multicastInfo[5]);
+        mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this);
+        mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
+        mdr = new RecoveryChannel(multicastInfo[4], multicastInfo[5], this);
 
         mc.run();
         mdb.run();

@@ -1,5 +1,6 @@
 package protocols;
 
+import network.Peer;
 import utils.Utils;
 
 import java.io.FileOutputStream;
@@ -10,22 +11,10 @@ import java.util.concurrent.TimeUnit;
 
 public class Backup extends Thread {
 
-    private String mdbAddress;
-    private int mdbPort;
+    private Peer parentPeer;
 
-    private InetAddress inetAddress;
-    private MulticastSocket multicastSocket;
-    private DatagramPacket datagramPacket;
-    private byte[] buf;
-
-    public Backup(String mdbAddress, int mdbPort) throws IOException {
-        this.mdbAddress = mdbAddress;
-        this.mdbPort = mdbPort;
-
-        inetAddress = InetAddress.getByName(mdbAddress);
-        multicastSocket = new MulticastSocket(mdbPort);
-        buf = new byte[64000];
-        datagramPacket = new DatagramPacket(buf, buf.length);
+    public Backup(Peer parentPeer) throws IOException {
+        this.parentPeer = parentPeer;
 
         System.out.println("Backup Thread is ready.");
     }
@@ -51,13 +40,12 @@ public class Backup extends Thread {
 
         Random random = new Random();
         TimeUnit.MILLISECONDS.sleep(random.nextInt(401));
-
-        // Need to send message back.
     }
 
     @Override
     public void run() {
-        while(true) {
+        // Qual é a necessidade disto?
+        /*while(true) {
             try {
                 multicastSocket.receive(datagramPacket);
                 String msgReceived =  new String(datagramPacket.getData());
@@ -67,6 +55,6 @@ public class Backup extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 }
