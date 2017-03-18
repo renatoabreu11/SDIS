@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class Backup extends Thread {
+public class Backup implements Runnable {
 
     private Peer parentPeer;
     private Message request;
