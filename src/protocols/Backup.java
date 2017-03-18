@@ -1,8 +1,8 @@
 package protocols;
 
-import backupService.Message;
-import backupService.MessageBody;
-import backupService.MessageHeader;
+import messageSystem.Message;
+import messageSystem.MessageBody;
+import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
@@ -49,8 +49,7 @@ public class Backup implements Runnable {
             byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
 
             // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
-            Random random = new Random();
-            TimeUnit.MILLISECONDS.sleep(random.nextInt(401));
+            TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
 
             // Sends the message to the initiator peer.
             parentPeer.getMc().sendMessage(responseBytes);

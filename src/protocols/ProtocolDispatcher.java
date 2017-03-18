@@ -1,8 +1,8 @@
 package protocols;
 
-import backupService.Message;
-import backupService.MessageBody;
-import backupService.MessageHeader;
+import messageSystem.Message;
+import messageSystem.MessageBody;
+import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
@@ -17,9 +17,9 @@ public class ProtocolDispatcher {
         String[] msgSplit = this.message.split("\\R+");
 
         String msgHeader, msgBody = null;
-        if(msgSplit.length == 0 || msgSplit.length > 2){
+        if(msgSplit.length == 0 || msgSplit.length > 2)
             return; //message discarded
-        }else if (msgSplit.length == 2)
+        else if (msgSplit.length == 2)
             msgBody = msgSplit[1];
 
         msgHeader = msgSplit[0];
@@ -47,7 +47,7 @@ public class ProtocolDispatcher {
         }
 
         if(headerSplit.length != numberOfArgs)
-            return;
+            return;     //IRRELEVANTE? QUANDO E QUE PODERIA ACONTECER????????????????????
 
         MessageHeader header;
         MessageBody body;

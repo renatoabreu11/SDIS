@@ -1,4 +1,4 @@
-package backupService;
+package messageSystem;
 
 public class MessageBody {
 

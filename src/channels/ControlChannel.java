@@ -1,7 +1,6 @@
 package backupService;
 
 import network.Peer;
-import protocols.ProtocolDispatcher;
 
 import java.io.IOException;
 import java.net.*;
@@ -24,8 +23,7 @@ public class ControlChannel extends Channel {
                 String message = new String(dgp.getData());
                 System.out.println("MC message: " + message);
 
-                ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
-                dispatcher.dispatchRequest(getParentPeer());
+                // Initiator peer received the reply message.
             } catch (IOException e) {
                 e.printStackTrace();
             }

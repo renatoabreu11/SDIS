@@ -4,6 +4,10 @@ import backupService.*;
 import fileSystem.Chunk;
 import fileSystem.FileManager;
 import fileSystem.Splitter;
+import messageSystem.Message;
+import messageSystem.MessageBody;
+import messageSystem.MessageHeader;
+import restoreService.RecoveryChannel;
 import utils.Utils;
 
 import java.io.File;
@@ -55,9 +59,9 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void BackupFile(String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
+    public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
         isInitiator = true;
-        int numRetransmission = 1;
+        int numTransmission = 1;
 
         String lastModified = Long.toString(new File(pathname).lastModified());
 
@@ -68,7 +72,7 @@ public class Peer implements IClientPeer {
         byte[] fileIdHashed = md.digest();
 
         // Splitting the file into chunks.
-        Splitter splitter = new Splitter(pathname);
+        Splitter splitter = new Splitter(fileData);
         splitter.splitFile(replicationDegree, fileId);
 
         this.manager.addUploadingChunks(splitter.getChunks());
@@ -76,7 +80,7 @@ public class Peer implements IClientPeer {
         boolean desiredReplicationDegree = false;
         do{
 
-            if(numRetransmission > 5)
+            if(numTransmission > 5)
                 break; // do something
 
             Map<Chunk, ArrayList<Integer>> uploadingChunks = this.manager.getUploading();
@@ -94,7 +98,7 @@ public class Peer implements IClientPeer {
             int chunksToUpload = this.manager.chunksToUpload();
             if(chunksToUpload == 0)
                 desiredReplicationDegree = true;
-            else numRetransmission++;
+            else numTransmission++;
         } while(!desiredReplicationDegree);
 
         this.manager.resetUploadingChunks();
