@@ -3,9 +3,9 @@ package network;
 import protocols.Backup;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -14,33 +14,39 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class Peer implements IClientPeer {
 
+    private String mcAddress;
+    private int mcPort;
+    private String mdbAddress;
+    private int mdbPort;
+    private String mdrAddress;
+    private int mdrPort;
+
     private String protocolVersion;
     private String serverAccessPoint;
     private int id;
     private IClientPeer stub;
+
+    private InetAddress inetAddress;
+    private MulticastSocket multicastSocket;
+    private DatagramPacket datagramPacket;
     private byte[] buf;
 
-    public Peer(String protocolVersion, int id, String serverAccessPoint, String multicastAddress, int multicastPort, String mdbAddress, int mdbPort, String mdlAddress, int mdlPort) {
+    public Peer(String protocolVersion, int id, String serverAccessPoint, String mcAddress, int mcPort, String mdbAddress, int mdbPort, String mdrAddress, int mdrPort) throws IOException {
+        this.mcAddress = mcAddress;
+        this.mcPort = mcPort;
+        this.mdbAddress = mdbAddress;
+        this.mdbPort = mdbPort;
+        this.mdrAddress = mdrAddress;
+        this.mdrPort = mdrPort;
         this.protocolVersion = protocolVersion;
         this.id = id;
         this.serverAccessPoint = serverAccessPoint;
 
-        try {
-            this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+        inetAddress = InetAddress.getByName(this.mcAddress);
+        multicastSocket = new MulticastSocket(this.mcPort);
+        multicastSocket.joinGroup(inetAddress);
 
-            /*InetAddress address = InetAddress.getByName(multicastAddress);
-            MulticastSocket multicastSocket = new MulticastSocket(multicastPort);
-            multicastSocket.joinGroup(address);*/
-        } catch (RemoteException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        } /*catch (UnknownHostException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        }*/
+        this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
     }
 
     public String getProtocolVersion() {
@@ -85,7 +91,15 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(String pathname, int replicationDegree) throws RemoteException {
-        // Construct message and send it to the MC channel.
+        System.out.print("S");
+
+        buf = "Hey bro".getBytes();
+        datagramPacket = new DatagramPacket(buf, buf.length, inetAddress, mcPort);
+        try {
+            multicastSocket.send(datagramPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -98,8 +112,8 @@ public class Peer implements IClientPeer {
         // Construct message and send it to the MC channel.
     }
 
-    public static void main(String[] args) {
-        if(args.length != 6) {
+    public static void main(String[] args) throws IOException {
+        if(args.length != 7) {
             System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
             return;
         }
@@ -107,8 +121,6 @@ public class Peer implements IClientPeer {
         String[] msgSplit = args[3].split(":");
         String multicastAddress = msgSplit[0];
         String multicastPort = msgSplit[1];
-
-        System.out.println(multicastAddress + " --> " + multicastPort);
 
         msgSplit = args[4].split(":");
         String mdbAddress = msgSplit[0];
@@ -132,7 +144,21 @@ public class Peer implements IClientPeer {
         }
 
         // Create 3 Threads (MC, MDL, MDB).
-        Backup backup = new Backup();
-        backup.start();
+        //Backup backup = new Backup(peer.mdbAddress, peer.mdbPort);
+        //backup.start();
+
+        System.out.println("Ready...");
+
+        if(args[6].equals("0")) {
+            System.out.println("Peer waiting...");
+            byte[] buf = new byte[512];
+            peer.datagramPacket = new DatagramPacket(buf, buf.length);
+            while(true) {
+                peer.multicastSocket.receive(peer.datagramPacket);
+                String message = new String(peer.datagramPacket.getData());
+                System.out.println("Initiator peer enviou: " + message);
+            }
+        }
+
     }
 }

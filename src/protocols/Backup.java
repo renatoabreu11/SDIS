@@ -1,7 +1,5 @@
 package protocols;
 
-import backupService.Message;
-import backupService.MessageHeader;
 import utils.Utils;
 
 import java.io.FileOutputStream;
