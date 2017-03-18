@@ -39,7 +39,7 @@ public class ProtocolDispatcher {
             case "CHUNK":
                 type = Utils.MessageType.CHUNK; numberOfArgs = 5; break;
             case "DELETED":
-                type = Utils.MessageType.DELETED; numberOfArgs = 5; break;
+                type = Utils.MessageType.DELETE; numberOfArgs = 5; break;
             case "REMOVED":
                 type = Utils.MessageType.REMOVED; numberOfArgs = 4; break;
             default:
@@ -95,7 +95,7 @@ public class ProtocolDispatcher {
                 break;
             case GETCHUNK:
             case CHUNK:
-            case DELETED:
+            case DELETE:
             case REMOVED:
             default:
                 return;

@@ -61,7 +61,7 @@ public class MessageHeader {
     public String getMessageHeaderAsString(){
         String header;
         switch(messageType){
-            case DELETED:
+            case DELETE:
                 header = messageType + " " + version + " " + senderId + " " + fileId + " " +  Utils.CRLF + Utils.CRLF;
                 break;
             case PUTCHUNK:

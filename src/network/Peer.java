@@ -1,13 +1,8 @@
 package network;
 
 import channels.*;
-import fileSystem.Chunk;
-import fileSystem.FileManager;
-import fileSystem.Splitter;
-import messageSystem.Message;
-import messageSystem.MessageBody;
-import messageSystem.MessageHeader;
-import channels.RecoveryChannel;
+import fileSystem.*;
+import messageSystem.*;
 import utils.Utils;
 
 import java.io.File;
@@ -39,6 +34,8 @@ public class Peer implements IClientPeer {
     private boolean isInitiator = false;
     private FileManager manager;
 
+    private int numDeleteMessages = 3;
+
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
 
         this.protocolVersion = protocolVersion;
@@ -64,6 +61,7 @@ public class Peer implements IClientPeer {
         isInitiator = true;
         int numTransmission = 1;
 
+        // CAN A REMOTE PEER ACCESS THE LAST MODIFICATION TIME, OR DO WE NEED TO GET THIS FROM THE fileData??????????????
         String lastModified = Long.toString(new File(pathname).lastModified());
 
         // Hashing the file id.
@@ -114,8 +112,23 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void DeleteFile(String pathname) throws RemoteException {
-        // Construct message and send it to the MC channel.
+    public void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException {
+        // CAN A REMOTE PEER ACCESS THE LAST MODIFICATION TIME, OR DO WE NEED TO GET THIS FROM THE fileData??????????????
+        String lastModified = Long.toString(new File(pathname).lastModified());
+
+        // Hashing the file id.
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        String fileId = pathname + lastModified;
+        md.update(fileId.getBytes("UTF-8"));
+        byte[] fileIdHashed = md.digest();
+
+        MessageHeader header = new MessageHeader(Utils.MessageType.DELETE, protocolVersion, id, fileIdHashed.toString());
+        Message message = new Message(header);
+        byte[] buffer = message.getMessageBytes();
+
+        // We send 'numDeleteMessages' messages to make sure every chunk is properly deleted.
+        for(int i = 0; i < numDeleteMessages; i++)
+            mc.sendMessage(buffer);
     }
 
     public void updateFileStorage(Message msgWrapper) {
