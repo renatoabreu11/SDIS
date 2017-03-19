@@ -38,6 +38,12 @@ public class Chunk{
         this.chunkNo = chunkNo;
     }
 
+    public Chunk(String fileId, int chunkNo, byte[] chunkData) {
+        this.fileId = fileId;
+        this.chunkNo = chunkNo;
+        this.chunkData = chunkData;
+    }
+
     /**
      *
      * @param obj

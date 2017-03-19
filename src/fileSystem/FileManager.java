@@ -5,7 +5,6 @@ import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,13 +14,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class FileManager {
-    private Map<String, ArrayList<Chunk>> storage = new HashMap<>();
-    private ArrayList<Chunk> uploading = new ArrayList<>();
+
+    private Map<String, ArrayList<Chunk>> storage;
+    private ArrayList<Chunk> uploading;
+    private ArrayList<Chunk> restoring;
 
     /**
      *
      */
-    public FileManager(){}
+    public FileManager(){
+        storage = new HashMap<>();
+        uploading = new ArrayList<>();
+        restoring = new ArrayList<>();
+    }
 
     /**
      *
@@ -179,6 +184,23 @@ public class FileManager {
             storage.put(c.getFileId(), new ArrayList<>());
 
         storage.get(c.getFileId()).add(c);
+    }
 
+    /**
+     * Restore protocol callable.
+     * @param message
+     */
+    public void addChunkToRestoring(Message message) {
+        MessageHeader header = message.getHeader();
+        MessageBody body = message.getBody();
+
+        String fileId = header.getFileId();
+        int chunkNo = header.getChunkNo();
+        byte[] data = body.getBody();
+
+        Chunk chunk = new Chunk(fileId, chunkNo, data);
+
+        if(!restoring.contains(chunk))
+            restoring.add(chunk);
     }
 }

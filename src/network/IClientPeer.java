@@ -21,7 +21,7 @@ public interface IClientPeer extends Remote {
     /**
      * @param pathname
      */
-    void RestoreFile(String pathname) throws IOException;
+    void RestoreFile(String pathname) throws IOException, InterruptedException;
 
     /**
      * @param pathname the system path for the file to backup.

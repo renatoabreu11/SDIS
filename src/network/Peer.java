@@ -35,7 +35,7 @@ public class Peer implements IClientPeer {
     private int numDeleteMessages = 3;
 
     // Restore protocol auxiliar variables.
-    private Map<String, String> fileNameWithId = new HashMap<>();
+    private ArrayList<FileAssociation> fileAssociations;
     private boolean canSendRestoreMessages = true;
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
@@ -53,6 +53,7 @@ public class Peer implements IClientPeer {
         new Thread(mdr).start();
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+        fileAssociations = new ArrayList<>();
 
         System.out.println("All channels online.");
     }
@@ -75,9 +76,11 @@ public class Peer implements IClientPeer {
         Splitter splitter = new Splitter(fileData);
         splitter.splitFile(replicationDegree, fileIdHashed.toString());
 
-        // Adds a mapping between the 'pathname' and the file id.
-        if(!fileNameWithId.containsKey(pathname))
-            fileNameWithId.put(pathname, fileIdHashed.toString());
+        // Adds a mapping between the 'pathname', the file id and the number of chunks.
+        if(!HasAssociation(pathname)) {
+            FileAssociation fileAssociation = new FileAssociation(pathname, fileId, splitter.getChunks().size());
+            fileAssociations.add(fileAssociation);
+        }
 
         this.manager.addUploadingChunks(splitter.getChunks());
 
@@ -110,6 +113,20 @@ public class Peer implements IClientPeer {
         isInitiator = false;
     }
 
+    /**
+     * Checks to see if there's already a file association with the pathname.
+     * @param pathname
+     * @return
+     */
+    private boolean HasAssociation(String pathname) {
+        for(int i = 0; i < fileAssociations.size(); i++) {
+            if(fileAssociations.get(i).getPathname().equals(pathname))
+                return true;
+        }
+
+        return false;
+    }
+
     public void updateFileStorage(Message msgWrapper) {
         this.manager.updateStorage(msgWrapper);
         if(this.isInitiator)
@@ -121,31 +138,54 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void RestoreFile(String pathname) throws IOException {
+    public void RestoreFile(String pathname) throws IOException, InterruptedException {
         isInitiator = true;
 
-        String fileId = fileNameWithId.get(pathname);
-        if(fileId == null)
+        FileAssociation fileAssociation = GetFileAssociation(pathname);
+        if(fileAssociation == null)
             return;
 
-        ArrayList<Chunk> chunks = new ArrayList<>();
-        int numChunks = 3;
+        String fileId = fileAssociation.getFileId();
+        int numChunks = fileAssociation.getTotalChunks();
+        
         for(int i = 0; i < numChunks; i++) {
             MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, protocolVersion, id, fileId, (i+1));
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
             mc.sendMessage(buf);
+            TimeUnit.MILLISECONDS.sleep(1000);      // SHOULD IT WAIT??????????????????????????????????????
         }
+
+        // Send file to client or restore the file in the curr peer????????????????????????????'
 
         isInitiator = false;
         canSendRestoreMessages = true;
     }
 
+    /**
+     * Gets the file association with the pathname specified.
+     * @param pathname
+     * @return
+     */
+    private FileAssociation GetFileAssociation(String pathname) {
+        for(int i = 0; i < fileAssociations.size(); i++) {
+            if(fileAssociations.get(i).getPathname().equals(pathname))
+                return fileAssociations.get(i);
+        }
+
+        return null;
+    }
+
+    /**
+     * Restore protocol callable.
+     * Called every time the MDR received a message.
+     * Adds a chunk to the file system (if initiator-peer) or stops others from sending the message.
+     * @param msgWrapper
+     */
     public void receiveChunk(Message msgWrapper) {
-        if(this.isInitiator) {
-            // Saves the received chunk.
-            
-        } else
+        if(this.isInitiator)
+            manager.addChunkToRestoring(msgWrapper);        // Saves the received chunk.
+        else
             canSendRestoreMessages = false;     // If a non-initiator peer receives a 'CHUNK' message, this peer doesn't sends his message.
     }
 
