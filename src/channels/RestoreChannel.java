@@ -7,10 +7,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.UnknownHostException;
 
-public class RecoveryChannel extends Channel {
-    public RecoveryChannel(String mcAddress, String mcPort,  Peer parentPeer) throws UnknownHostException, IOException {
+public class RestoreChannel extends Channel {
+
+    public RestoreChannel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
         super(mcAddress, mcPort, parentPeer);
-        System.out.println("Recovery channel online.");
+        System.out.println("Restore channel online.");
     }
 
     @Override

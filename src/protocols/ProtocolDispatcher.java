@@ -102,7 +102,12 @@ public class ProtocolDispatcher {
                 parentPeer.updateFileStorage(msgWrapper);
                 break;
             case GETCHUNK:
+                Restore restore = new Restore(parentPeer, msgWrapper);
+                new Thread(restore).start();
+                break;
             case CHUNK:
+                parentPeer.receiveChunk(msgWrapper);
+                break;
             case DELETE:
                 Delete delete = new Delete(parentPeer, msgWrapper);
                 new Thread(delete).start();
@@ -111,6 +116,4 @@ public class ProtocolDispatcher {
             default: return;
         }
     }
-
-
 }

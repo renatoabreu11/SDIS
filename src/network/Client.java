@@ -55,13 +55,11 @@ public class Client {
             case 2:
                 System.out.println("File pathname: ");
                 pathname = scanner.nextLine();
-
                 stub.RestoreFile(pathname);
                 break;
             case 3:
                 System.out.println("File pathname: ");
                 pathname = scanner.nextLine();
-
                 stub.DeleteFile(pathname);
                 break;
             default: break;

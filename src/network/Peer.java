@@ -15,14 +15,16 @@ import java.rmi.server.UnicastRemoteObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Peer implements IClientPeer {
 
     private ControlChannel mc;
     private BackupChannel mdb;
-    private RecoveryChannel mdr;
+    private RestoreChannel mdr;
 
     private String protocolVersion;
     private String serverAccessPoint;
@@ -32,10 +34,14 @@ public class Peer implements IClientPeer {
     private boolean isInitiator = false;
     private FileManager manager;
 
+    // Delete protocol auxiliar variables.
     private int numDeleteMessages = 3;
 
-    public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
+    // Restore protocol auxiliar variables.
+    private Map<String, String> fileNameWithId = new HashMap<>();
+    private boolean canSendRestoreMessages = true;
 
+    public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
         this.id = id;
         this.serverAccessPoint = serverAccessPoint;
@@ -43,7 +49,7 @@ public class Peer implements IClientPeer {
 
         mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this);
         mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
-        mdr = new RecoveryChannel(multicastInfo[4], multicastInfo[5], this);
+        mdr = new RestoreChannel(multicastInfo[4], multicastInfo[5], this);
 
         new Thread(mc).start();
         new Thread(mdb).start();
@@ -72,11 +78,14 @@ public class Peer implements IClientPeer {
         Splitter splitter = new Splitter(fileData);
         splitter.splitFile(replicationDegree, fileIdHashed.toString());
 
+        // Adds a mapping between the 'pathname' and the file id.
+        if(!fileNameWithId.containsKey(pathname))
+            fileNameWithId.put(pathname, fileIdHashed.toString());
+
         this.manager.addUploadingChunks(splitter.getChunks());
 
         boolean desiredReplicationDegree = false;
         do{
-
             if(numTransmission > 5)
                 break; // do something
 
@@ -104,9 +113,42 @@ public class Peer implements IClientPeer {
         isInitiator = false;
     }
 
+    public void updateFileStorage(Message msgWrapper) {
+        if(this.isInitiator)
+            this.manager.updateUploadingChunks(msgWrapper);
+    }
+
+    public void deleteFileStorage(String fileId) throws IOException {
+        this.manager.deleteStoredChunk(fileId);
+    }
+
     @Override
-    public void RestoreFile(String pathname) throws RemoteException {
-        // Construct message and send it to the MC channel.
+    public void RestoreFile(String pathname) throws IOException {
+        isInitiator = true;
+
+        String fileId = fileNameWithId.get(pathname);
+        if(fileId == null)
+            return;
+
+        ArrayList<Chunk> chunks = new ArrayList<>();
+        int numChunks = 3;
+        for(int i = 0; i < numChunks; i++) {
+            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, protocolVersion, id, fileId, (i+1));
+            Message message = new Message(header);
+            byte[] buf = message.getMessageBytes();
+            mc.sendMessage(buf);
+        }
+
+        isInitiator = false;
+        canSendRestoreMessages = true;
+    }
+
+    public void receiveChunk(Message msgWrapper) {
+        if(this.isInitiator) {
+            // Saves the received chunk.
+            
+        } else
+            canSendRestoreMessages = false;     // If a non-initiator peer receives a 'CHUNK' message, this peer doesn't sends his message.
     }
 
     @Override
@@ -127,15 +169,6 @@ public class Peer implements IClientPeer {
         // We send 'numDeleteMessages' messages to make sure every chunk is properly deleted.
         for(int i = 0; i < numDeleteMessages; i++)
             mc.sendMessage(buffer);
-    }
-
-    public void updateFileStorage(Message msgWrapper) {
-        if(this.isInitiator)
-            this.manager.updateUploadingChunks(msgWrapper);
-    }
-
-    public void deleteFileStorage(String fileId) throws IOException {
-        this.manager.deleteStoredChunk(fileId);
     }
 
     public static void main(String[] args) throws IOException {
@@ -225,11 +258,11 @@ public class Peer implements IClientPeer {
         this.mdb = mdb;
     }
 
-    public RecoveryChannel getMdr() {
+    public RestoreChannel getMdr() {
         return mdr;
     }
 
-    public void setMdr(RecoveryChannel mdr) {
+    public void setMdr(RestoreChannel mdr) {
         this.mdr = mdr;
     }
 
@@ -247,5 +280,13 @@ public class Peer implements IClientPeer {
 
     public void setManager(FileManager manager) {
         this.manager = manager;
+    }
+
+    public boolean isCanSendRestoreMessages() {
+        return canSendRestoreMessages;
+    }
+
+    public void setCanSendRestoreMessages(boolean canSendMessages) {
+        this.canSendRestoreMessages = canSendMessages;
     }
 }

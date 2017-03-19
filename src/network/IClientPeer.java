@@ -19,10 +19,9 @@ public interface IClientPeer extends Remote {
     void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws IOException, NoSuchAlgorithmException, InterruptedException;
 
     /**
-     * @param pathname the system path for the file to backup.
-     * @throws RemoteException
+     * @param pathname
      */
-    void RestoreFile(String pathname) throws RemoteException;
+    void RestoreFile(String pathname) throws IOException;
 
     /**
      * @param pathname the system path for the file to backup.
