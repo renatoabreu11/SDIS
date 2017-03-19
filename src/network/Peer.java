@@ -114,6 +114,7 @@ public class Peer implements IClientPeer {
     }
 
     public void updateFileStorage(Message msgWrapper) {
+        this.manager.updateStorage(msgWrapper);
         if(this.isInitiator)
             this.manager.updateUploadingChunks(msgWrapper);
     }

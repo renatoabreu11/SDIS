@@ -1,5 +1,6 @@
 package protocols;
 
+import fileSystem.Chunk;
 import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
@@ -35,6 +36,8 @@ public class Backup implements Runnable {
         int chunkNo = header.getChunkNo();
 
         byte[] chunkData = body.getBody();
+        Chunk c = new Chunk(fileId, replicationDegree, chunkNo, chunkData);
+        c.updateReplication(senderId);
 
         // Writes to file.
         FileOutputStream fileOutputStream = null;
@@ -43,7 +46,7 @@ public class Backup implements Runnable {
             fileOutputStream.write(chunkData);
 
             // Saves the chunk's info in the file manager.
-            parentPeer.getManager().updateStorage(request);
+            parentPeer.getManager().addChunkToStorage(c);
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
