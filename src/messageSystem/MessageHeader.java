@@ -58,6 +58,10 @@ public class MessageHeader {
         this.fileId = fileId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getMessageHeaderAsString(){
         String header;
         switch(messageType){
@@ -73,55 +77,107 @@ public class MessageHeader {
         return header;
     }
 
+    /**
+     *
+     * @return
+     */
     public byte[] getMessageHeaderAsBytes(){
         String header = getMessageHeaderAsString();
         return header.getBytes();
     }
 
+    /**
+     *
+     * @return
+     */
     public Utils.MessageType getMessageType() {
         return messageType;
     }
 
+    /**
+     *
+     * @param messageType
+     */
     public void setMessageType(Utils.MessageType messageType) {
         this.messageType = messageType;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     *
+     * @param version
+     */
     public void setVersion(String version) {
         this.version = version;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getSenderId() {
         return senderId;
     }
 
+    /**
+     *
+     * @param senderId
+     */
     public void setSenderId(int senderId) {
         this.senderId = senderId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFileId() {
         return fileId;
     }
 
+    /**
+     *
+     * @param fileId
+     */
     public void setFileId(String fileId) {
         this.fileId = fileId;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getChunkNo() {
         return chunkNo;
     }
 
+    /**
+     *
+     * @param chunkNo
+     */
     public void setChunkNo(int chunkNo) {
         this.chunkNo = chunkNo;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getReplicationDegree() {
         return replicationDegree;
     }
 
+    /**
+     *
+     * @param replicationDegree
+     */
     public void setReplicationDegree(int replicationDegree) {
         this.replicationDegree = replicationDegree;
     }

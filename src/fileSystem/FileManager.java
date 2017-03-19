@@ -18,40 +18,78 @@ public class FileManager {
     private Map<String, ArrayList<Chunk>> storage = new HashMap<>();
     private ArrayList<Chunk> uploading = new ArrayList<>();
 
+    /**
+     *
+     */
     public FileManager(){}
 
+    /**
+     *
+     * @return
+     */
     public Map<String, ArrayList<Chunk>> getStorage() {
         return storage;
     }
 
+    /**
+     *
+     * @param storage
+     */
     public void setStorage(Map<String, ArrayList<Chunk>> storage) {
         this.storage = storage;
     }
 
+    /**
+     *
+     */
     public void resetStorage(){
         this.storage.clear();
     }
 
+    /**
+     *
+     */
     public void resetUploadingChunks(){
         this.uploading.clear();
     }
 
+    /**
+     *
+     * @param fileId
+     * @return
+     */
     public ArrayList<Chunk> getFileStorage(String fileId){
         return storage.get(fileId);
     }
 
+    /**
+     *
+     * @param chunks
+     */
     public void addUploadingChunks(ArrayList<Chunk> chunks) {
         uploading = chunks;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<Chunk> getUploading() {
         return uploading;
     }
 
+    /**
+     *
+     * @param uploading
+     */
     public void setUploading(ArrayList<Chunk> uploading) {
         this.uploading = uploading;
     }
 
+    /**
+     *
+     * @return
+     */
     public int chunksToUpload() {
         int nrChunksWithoutReplication = 0;
 
@@ -65,6 +103,10 @@ public class FileManager {
         return nrChunksWithoutReplication;
     }
 
+    /**
+     *
+     * @param msgWrapper
+     */
     public void updateStorage(Message msgWrapper) {
         MessageHeader header = msgWrapper.getHeader();
 
@@ -84,6 +126,10 @@ public class FileManager {
         }
     }
 
+    /**
+     *
+     * @param msgWrapper
+     */
     public void updateUploadingChunks(Message msgWrapper) {
         MessageHeader header = msgWrapper.getHeader();
 
@@ -123,6 +169,10 @@ public class FileManager {
         storage.remove(fileId);
     }
 
+    /**
+     *
+     * @param c
+     */
     public void addChunkToStorage(Chunk c) {
         boolean containsFile = storage.containsKey(c.getFileId());
         if(!containsFile)

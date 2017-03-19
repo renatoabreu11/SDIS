@@ -8,11 +8,23 @@ import java.net.DatagramPacket;
 import java.net.UnknownHostException;
 
 public class BackupChannel extends Channel {
+
+    /**
+     * Backup channel constructor - Joins the multicast group defined in the parameters
+     * @param mcAddress
+     * @param mcPort
+     * @param parentPeer
+     * @throws UnknownHostException
+     * @throws IOException
+     */
     public BackupChannel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
         super(mcAddress, mcPort, parentPeer);
         System.out.println("Backup channel online.");
     }
 
+    /**
+     * This thread, while running, reads the messages sent by other peers to the multicast channel, sending them afterwards to a dispatcher.
+     */
     @Override
     public void run() {
         while (true) {

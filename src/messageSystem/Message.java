@@ -28,6 +28,10 @@ public class Message {
         this.body = null;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getMessageString(){
         if(this.body != null){
             String str = new String(this.body.getBody());
@@ -36,6 +40,11 @@ public class Message {
         else return this.header.getMessageHeaderAsString();
     }
 
+    /**
+     *
+     * @return
+     * @throws IOException
+     */
     public byte[] getMessageBytes() throws IOException {
         byte header[] = this.header.getMessageHeaderAsString().getBytes();
 
@@ -49,18 +58,34 @@ public class Message {
         } else return header;
     }
 
+    /**
+     *
+     * @return
+     */
     public MessageHeader getHeader() {
         return header;
     }
 
+    /**
+     *
+     * @param header
+     */
     public void setHeader(MessageHeader header) {
         this.header = header;
     }
 
+    /**
+     *
+     * @return
+     */
     public MessageBody getBody() {
         return body;
     }
 
+    /**
+     *
+     * @param body
+     */
     public void setBody(MessageBody body) {
         this.body = body;
     }

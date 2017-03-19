@@ -14,6 +14,7 @@ public class Splitter {
     private ArrayList<Chunk> chunks;
 
     /**
+     * Splitter constructor
      * @param fileData file in bytes.
      */
     public Splitter(byte[] fileData){
@@ -21,35 +22,70 @@ public class Splitter {
         this.chunks = new ArrayList<>();
     }
 
+    /**
+     *
+     * @return
+     */
     public byte[] getFileName() {
         return fileData;
     }
 
+    /**
+     *
+     * @param fileName
+     */
     public void setFileName(byte[] fileName) {
         this.fileData = fileName;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayList<Chunk> getChunks() {
         return chunks;
     }
 
+    /**
+     *
+     * @param chunks
+     */
     public void setChunks(ArrayList<Chunk> chunks) {
         this.chunks = chunks;
     }
 
+    /**
+     *
+     */
     public void resetSplitter(){
         fileData = null;
         chunks.clear();
     }
 
+    /**
+     *
+     * @param i
+     * @return
+     */
     public Chunk getChunk(int i){
         return this.chunks.get(i);
     }
 
+    /**
+     *
+     * @param i
+     * @return
+     */
     public byte[] getChunkData(int i){
         return this.chunks.get(i).getChunkData();
     }
 
+    /**
+     *
+     * @param desiredReplicationDegree
+     * @param fileId
+     * @throws IOException
+     */
     public void splitFile(int desiredReplicationDegree, String fileId) throws IOException {
         int currentChunkNo = 0;
 

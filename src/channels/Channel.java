@@ -20,6 +20,14 @@ public abstract class Channel implements Runnable {
     private InetAddress group;
     private Peer parentPeer;
 
+    /**
+     * Checks if the IPV4 address given in the args is valid, and if it is joins a multicast channel defined by the given address and port
+     * @param mcAddress
+     * @param mcPort
+     * @param parentPeer
+     * @throws UnknownHostException
+     * @throws IOException
+     */
     public Channel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
         if(!isValidIPV4(mcAddress)){
             System.out.println("Invalid IPV4 address!");
@@ -36,38 +44,90 @@ public abstract class Channel implements Runnable {
         socket.joinGroup(group);
     }
 
+    /**
+     * Returns the multicast port
+     * @return mcPort
+     */
     public int getMcPort() {
         return mcPort;
     }
 
+    /**
+     * Updates the multicast port
+     * @param mcPort
+     */
     public void setMcPort(int mcPort) {
         this.mcPort = mcPort;
     }
 
+    /**
+     * Returns the multicast socket where the communication was established
+     * @return multicast socket
+     */
     public MulticastSocket getSocket() {
         return socket;
     }
 
+    /**
+     * Updates the multicast socket
+     * @param socket
+     */
     public void setSocket(MulticastSocket socket) {
         this.socket = socket;
     }
 
+    /**
+     * Returns the multicast address
+     * @return multicast address
+     */
     public String getMcAddress() {
         return mcAddress;
     }
 
+    /**
+     * Updates the multicast address
+     * @param mcAddress
+     */
     public void setMcAddress(String mcAddress) {
         this.mcAddress = mcAddress;
     }
 
+    /**
+     * Changes the inetAddress instance
+     * @param group
+     */
     public void setGroup(InetAddress group) {
         this.group = group;
     }
 
+    /**
+     * Returns the inetAddress instance
+     * @return InetAddress
+     */
     public InetAddress getGroup() {
         return this.group;
     }
 
+    /**
+     * Returns the peer where this channel was initialized
+     * @return Peer
+     */
+    public Peer getParentPeer() {
+        return parentPeer;
+    }
+
+    /**
+     * Updates the parent peer
+     * @param parentPeer
+     */
+    public void setParentPeer(Peer parentPeer) {
+        this.parentPeer = parentPeer;
+    }
+
+    /**
+     * Sends a message via the multicast channel
+     * @param message String
+     */
     public void sendMessage(String message){
         byte[] buffer = message.getBytes();
         DatagramPacket packet = null;
@@ -79,6 +139,10 @@ public abstract class Channel implements Runnable {
         }
     }
 
+    /**
+     * Sends a message via the multicast channel
+     * @param message byte[]
+     */
     public void sendMessage(byte[] message){
         DatagramPacket packet = new DatagramPacket(message, message.length, group, mcPort);
         try {
@@ -86,13 +150,5 @@ public abstract class Channel implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public Peer getParentPeer() {
-        return parentPeer;
-    }
-
-    public void setParentPeer(Peer parentPeer) {
-        this.parentPeer = parentPeer;
     }
 }
