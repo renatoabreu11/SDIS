@@ -83,14 +83,13 @@ public class Splitter {
     /**
      *
      * @param desiredReplicationDegree
-     * @param fileId
      * @throws IOException
      */
-    public void splitFile(int desiredReplicationDegree, String fileId) throws IOException {
+    public void splitFile(int desiredReplicationDegree) throws IOException {
         int currentChunkNo = 0;
 
         if(fileData.length <= 64000){
-            Chunk c = new Chunk(fileId, desiredReplicationDegree, currentChunkNo, fileData);
+            Chunk c = new Chunk(desiredReplicationDegree, currentChunkNo, fileData);
             chunks.add(c);
         }else{
             for(int i = 0; i < fileData.length; i++){
@@ -99,7 +98,7 @@ public class Splitter {
                     int minDelimiter = i - 64000;
                     int maxDelimiter = i;
                     byte[] chunkData = copyOfRange(fileData, minDelimiter, maxDelimiter);
-                    Chunk c = new Chunk(fileId, desiredReplicationDegree, currentChunkNo, chunkData);
+                    Chunk c = new Chunk(desiredReplicationDegree, currentChunkNo, chunkData);
                     System.out.println(chunkData.length);
                     System.out.println(Arrays.toString(chunkData));
                     chunks.add(c);
@@ -113,7 +112,7 @@ public class Splitter {
                 int minDelimiter = fileData.length - leftoverBytes;
                 int maxDelimiter = fileData.length;
                 byte[] chunkData = copyOfRange(fileData, minDelimiter, maxDelimiter);
-                Chunk c = new Chunk(fileId, desiredReplicationDegree, currentChunkNo, chunkData);
+                Chunk c = new Chunk(desiredReplicationDegree, currentChunkNo, chunkData);
                 System.out.println(chunkData.length);
                 System.out.println(Arrays.toString(chunkData));
                 chunks.add(c);

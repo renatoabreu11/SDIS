@@ -1,6 +1,7 @@
 package protocols;
 
 import fileSystem.Chunk;
+import fileSystem.File;
 import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
@@ -32,11 +33,11 @@ public class Restore implements Runnable {
         String fileId = request.getHeader().getFileId();
         int chunkNo = request.getHeader().getChunkNo();
 
-        Map<String, ArrayList<Chunk>> storage = parentPeer.getManager().getStorage();
-        ArrayList<Chunk> chunks = storage.get(fileId);
-        if(chunks == null)
+        File file = parentPeer.getManager().getFileStorage(fileId);
+        if(file == null)
             return;
 
+        ArrayList<Chunk> chunks = file.getChunks();
         for(int i = 0; i < chunks.size(); i++) {
             if(chunks.get(i).getChunkNo() == chunkNo) {
                 MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, senderId, fileId, chunkNo);

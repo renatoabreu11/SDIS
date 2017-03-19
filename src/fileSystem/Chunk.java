@@ -4,9 +4,6 @@ import java.util.ArrayList;
 
 public class Chunk{
 
-    private String fileId;
-    private String fileExtension;
-
     private int chunkNo;
     private int replicationDegree;
     private int currReplicationDegree;
@@ -15,13 +12,11 @@ public class Chunk{
 
     /**
      *
-     * @param fileId
      * @param replicationDegree
      * @param chunkNo
      * @param chunkData
      */
-    public Chunk(String fileId, int replicationDegree, int chunkNo, byte[] chunkData){
-        this.fileId = fileId;
+    public Chunk( int replicationDegree, int chunkNo, byte[] chunkData){
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
         this.currReplicationDegree = 0;
@@ -30,16 +25,18 @@ public class Chunk{
 
     /**
      *
-     * @param fileId
      * @param chunkNo
      */
-    public Chunk(String fileId, int chunkNo){
-        this.fileId = fileId;
+    public Chunk(int chunkNo){
         this.chunkNo = chunkNo;
     }
 
-    public Chunk(String fileId, int chunkNo, byte[] chunkData) {
-        this.fileId = fileId;
+    /**
+     *
+     * @param chunkNo
+     * @param chunkData
+     */
+    public Chunk(int chunkNo, byte[] chunkData) {
         this.chunkNo = chunkNo;
         this.chunkData = chunkData;
     }
@@ -52,7 +49,7 @@ public class Chunk{
     public boolean equals(Object obj){
         if (obj instanceof Chunk) {
             Chunk c = (Chunk) obj;
-            return (c.fileId.equals(this.fileId) && c.chunkNo == this.chunkNo);
+            return (c.chunkNo == this.chunkNo);
         } else
             return false;
     }
@@ -125,22 +122,6 @@ public class Chunk{
      *
      * @return
      */
-    public String getFileExtension() {
-        return fileExtension;
-    }
-
-    /**
-     *
-     * @param fileExtension
-     */
-    public void setFileExtension(String fileExtension) {
-        this.fileExtension = fileExtension;
-    }
-
-    /**
-     *
-     * @return
-     */
     public boolean desiredReplication(){
         return (replicationDegree == currReplicationDegree);
     }
@@ -157,22 +138,6 @@ public class Chunk{
      */
     public void subReplicationDegree(){
         this.currReplicationDegree--;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getFileId() {
-        return fileId;
-    }
-
-    /**
-     *
-     * @param fileId
-     */
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
     }
 
     /**

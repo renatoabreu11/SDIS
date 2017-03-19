@@ -24,4 +24,7 @@ public class Utils {
     {
         return IPV4_PATTERN.matcher(s).matches();
     }
+
+    public final static int BackupRetransmissions = 5;
+    public final static int DeleteRetransmissions = 3;
 }

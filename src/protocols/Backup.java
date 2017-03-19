@@ -37,7 +37,7 @@ public class Backup implements Runnable {
         int replicationDegree = header.getReplicationDegree();
 
         byte[] chunkData = body.getBody();
-        Chunk c = new Chunk(fileId, replicationDegree, chunkNo, chunkData);
+        Chunk c = new Chunk(replicationDegree, chunkNo, chunkData);
         c.updateReplication(senderId);
 
         // Writes to file.
@@ -47,7 +47,7 @@ public class Backup implements Runnable {
             fileOutputStream.write(chunkData);
 
             // Saves the chunk's info in the file manager.
-            parentPeer.getManager().addChunkToStorage(c);
+            parentPeer.getManager().addChunkToStorage(fileId, c);
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);

@@ -5,7 +5,6 @@ import fileSystem.*;
 import messageSystem.*;
 import utils.Utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -16,6 +15,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static utils.Utils.BackupRetransmissions;
 
 public class Peer implements IClientPeer {
 
@@ -29,15 +30,11 @@ public class Peer implements IClientPeer {
     private IClientPeer stub;
 
     private boolean isInitiator = false;
+    private boolean logSystem = true;
     private FileManager manager;
 
-    // Delete protocol auxiliar variables.
-    private int numDeleteMessages = 3;
-
     // Restore protocol auxiliar variables.
-    private ArrayList<FileAssociation> fileAssociations;
     private boolean canSendRestoreMessages = true;
-    private boolean logSystem = true;
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
@@ -54,7 +51,6 @@ public class Peer implements IClientPeer {
         new Thread(mdr).start();
 
         this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
-        fileAssociations = new ArrayList<>();
 
         System.out.println("All channels online.");
     }
@@ -69,7 +65,7 @@ public class Peer implements IClientPeer {
         int numTransmission = 1;
 
         // CAN A REMOTE PEER ACCESS THE LAST MODIFICATION TIME, OR DO WE NEED TO GET THIS FROM THE fileData??????????????
-        String lastModified = Long.toString(new File(pathname).lastModified());
+        String lastModified = Long.toString(new java.io.File(pathname).lastModified());
 
         // Hashing the file id.
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -77,17 +73,15 @@ public class Peer implements IClientPeer {
         md.update(fileId.getBytes("UTF-8"));
         byte[] fileIdHashed = md.digest();
         String fileIdHashedStr = new String(fileIdHashed);
-        System.out.println(fileIdHashedStr);
 
         // Splitting the file into chunks.
         Splitter splitter = new Splitter(fileData);
-        splitter.splitFile(replicationDegree, fileId);
+        splitter.splitFile(replicationDegree);
 
         // Adds a mapping between the 'pathname', the file id and the number of chunks.
-        if(!HasAssociation(pathname)) {
-            FileAssociation fileAssociation = new FileAssociation(pathname, fileId, splitter.getChunks().size());
-            fileAssociations.add(fileAssociation);
-        }
+        //Aqui é o file id com hash ou sem?
+        File file = new File(pathname, fileId, splitter.getChunks().size());
+        manager.addFileToStorage(file);
 
         this.manager.addUploadingChunks(splitter.getChunks());
 
@@ -96,7 +90,7 @@ public class Peer implements IClientPeer {
 
         boolean desiredReplicationDegree = false;
         do{
-            if(numTransmission > 5)
+            if(numTransmission > BackupRetransmissions)
                 break; // do something
 
             ArrayList<Chunk> uploadingChunks = this.manager.getUploading();
@@ -123,20 +117,6 @@ public class Peer implements IClientPeer {
         isInitiator = false;
     }
 
-    /**
-     * Checks to see if there's already a file association with the pathname.
-     * @param pathname
-     * @return
-     */
-    private boolean HasAssociation(String pathname) {
-        for(int i = 0; i < fileAssociations.size(); i++) {
-            if(fileAssociations.get(i).getPathname().equals(pathname))
-                return true;
-        }
-
-        return false;
-    }
-
     public void updateFileStorage(Message msgWrapper) {
         this.manager.updateStorage(msgWrapper);
         if(this.isInitiator)
@@ -151,12 +131,12 @@ public class Peer implements IClientPeer {
     public void RestoreFile(String pathname) throws IOException, InterruptedException {
         isInitiator = true;
 
-        FileAssociation fileAssociation = GetFileAssociation(pathname);
-        if(fileAssociation == null)
+        File file = manager.getFile(pathname);
+        if(file == null)
             return;
 
-        String fileId = fileAssociation.getFileId();
-        int numChunks = fileAssociation.getTotalChunks();
+        String fileId = file.getFileId();
+        int numChunks = file.getNumChunks();
         
         for(int i = 0; i < numChunks; i++) {
             MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, protocolVersion, id, fileId, (i+1));
@@ -170,20 +150,6 @@ public class Peer implements IClientPeer {
 
         isInitiator = false;
         canSendRestoreMessages = true;
-    }
-
-    /**
-     * Gets the file association with the pathname specified.
-     * @param pathname
-     * @return
-     */
-    private FileAssociation GetFileAssociation(String pathname) {
-        for(int i = 0; i < fileAssociations.size(); i++) {
-            if(fileAssociations.get(i).getPathname().equals(pathname))
-                return fileAssociations.get(i);
-        }
-
-        return null;
     }
 
     /**
@@ -202,7 +168,7 @@ public class Peer implements IClientPeer {
     @Override
     public void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException {
         // CAN A REMOTE PEER ACCESS THE LAST MODIFICATION TIME, OR DO WE NEED TO GET THIS FROM THE fileData??????????????
-        String lastModified = Long.toString(new File(pathname).lastModified());
+        String lastModified = Long.toString(new java.io.File(pathname).lastModified());
 
         // Hashing the file id.
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -215,7 +181,7 @@ public class Peer implements IClientPeer {
         byte[] buffer = message.getMessageBytes();
 
         // We send 'numDeleteMessages' messages to make sure every chunk is properly deleted.
-        for(int i = 0; i < numDeleteMessages; i++)
+        for(int i = 0; i < Utils.DeleteRetransmissions; i++)
             mc.sendMessage(buffer);
     }
 

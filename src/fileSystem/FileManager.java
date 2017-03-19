@@ -15,9 +15,11 @@ import java.util.Map;
 
 public class FileManager {
 
-    private Map<String, ArrayList<Chunk>> storage;
+    private Map<String, File> storage; //String continua a ser o fileIdhashed. Storage tem a informação de todos os ficheiros, quer eles estejam no pc ou não. Se estiverem a lista de chunks não é vazia
+    //Fiz isto para reduzir o numero de estruturas que guardam a informação. A procura torna-se mais rápido uma vez que é a partir de um hashmap
     private ArrayList<Chunk> uploading;
     private ArrayList<Chunk> restoring;
+    private String backupLocation = "/tmp";
 
     /**
      *
@@ -32,7 +34,7 @@ public class FileManager {
      *
      * @return
      */
-    public Map<String, ArrayList<Chunk>> getStorage() {
+    public Map<String, File> getStorage() {
         return storage;
     }
 
@@ -40,7 +42,7 @@ public class FileManager {
      *
      * @param storage
      */
-    public void setStorage(Map<String, ArrayList<Chunk>> storage) {
+    public void setStorage(Map<String, File> storage) {
         this.storage = storage;
     }
 
@@ -63,8 +65,22 @@ public class FileManager {
      * @param fileId
      * @return
      */
-    public ArrayList<Chunk> getFileStorage(String fileId){
+    public File getFileStorage(String fileId){
         return storage.get(fileId);
+    }
+
+    /**
+     *
+     * @param pathname
+     * @return
+     */
+    public File getFile(String pathname){
+        Map<String, File> map =  storage;
+        for (File f : map.values()) {
+           if(f.getPathname().equals(pathname))
+               return f;
+        }
+        return null;
     }
 
     /**
@@ -89,6 +105,15 @@ public class FileManager {
      */
     public void setUploading(ArrayList<Chunk> uploading) {
         this.uploading = uploading;
+    }
+
+    /**
+     *
+     */
+    public boolean addFileToStorage(File f){
+        if(storage.put(f.getFileId(), f) == null)
+            return false;
+        else return true;
     }
 
     /**
@@ -119,15 +144,9 @@ public class FileManager {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        ArrayList<Chunk> chunks = this.getFileStorage(fileId);
-        if(chunks != null){
-            Chunk c = new Chunk(fileId, chunkNo);
-            for(int i = 0; i < chunks.size(); i++){
-                if(c.equals(chunks.get(i))){
-                    chunks.get(i).updateReplication(senderId);
-                    break;
-                }
-            }
+        File file = this.getFileStorage(fileId);
+        if(file != null){
+            file.updateChunk(chunkNo, senderId);
         }
     }
 
@@ -138,12 +157,10 @@ public class FileManager {
     public void updateUploadingChunks(Message msgWrapper) {
         MessageHeader header = msgWrapper.getHeader();
 
-        String version = header.getVersion();
         int senderId = header.getSenderId();
-        String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        Chunk c = new Chunk(fileId, chunkNo);
+        Chunk c = new Chunk(chunkNo);
         for(int i = 0; i < uploading.size(); i++){
             if(c.equals(uploading.get(i))){
                 uploading.get(i).updateReplication(senderId);
@@ -159,14 +176,15 @@ public class FileManager {
      * @throws IOException
      */
     public void deleteStoredChunk(String fileId) throws IOException {
-        ArrayList<Chunk> fileChunks = storage.get(fileId);
-        if(fileChunks == null)
+        File file = storage.get(fileId);
+        if(file == null)
             return;
 
         // Removes all the chunk's files from the computer.
-        for(int i = 0; i < fileChunks.size(); i++) {
-            Chunk chunk = fileChunks.get(i);
-            Path path = Paths.get(chunk.getFileId() + chunk.getChunkNo() + chunk.getFileExtension());
+        for(int i = 0; i < file.getChunks().size(); i++) {
+            Chunk chunk = file.getChunks().get(i);
+            //Os chunks não precisam de extensão
+            Path path = Paths.get(fileId + chunk.getChunkNo() + ".txt");
             Files.delete(path);
         }
 
@@ -178,12 +196,8 @@ public class FileManager {
      *
      * @param c
      */
-    public void addChunkToStorage(Chunk c) {
-        boolean containsFile = storage.containsKey(c.getFileId());
-        if(!containsFile)
-            storage.put(c.getFileId(), new ArrayList<>());
-
-        storage.get(c.getFileId()).add(c);
+    public void addChunkToStorage(String fileId, Chunk c) {
+        storage.get(fileId).addChunk(c);
     }
 
     /**
@@ -198,9 +212,17 @@ public class FileManager {
         int chunkNo = header.getChunkNo();
         byte[] data = body.getBody();
 
-        Chunk chunk = new Chunk(fileId, chunkNo, data);
+        Chunk chunk = new Chunk(chunkNo, data);
 
         if(!restoring.contains(chunk))
             restoring.add(chunk);
+    }
+
+    public String getBackupLocation() {
+        return backupLocation;
+    }
+
+    public void setBackupLocation(String backupLocation) {
+        this.backupLocation = backupLocation;
     }
 }
