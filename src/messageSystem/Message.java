@@ -29,8 +29,10 @@ public class Message {
     }
 
     public String getMessageString(){
-        if(this.body != null)
-            return this.header.getMessageHeaderAsString() + this.body.getBody().toString();
+        if(this.body != null){
+            String str = new String(this.body.getBody());
+            return this.header.getMessageHeaderAsString() + str;
+        }
         else return this.header.getMessageHeaderAsString();
     }
 

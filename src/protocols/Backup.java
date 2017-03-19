@@ -34,6 +34,7 @@ public class Backup implements Runnable {
         int senderId = header.getSenderId();
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
+        int replicationDegree = header.getReplicationDegree();
 
         byte[] chunkData = body.getBody();
         Chunk c = new Chunk(fileId, replicationDegree, chunkNo, chunkData);
