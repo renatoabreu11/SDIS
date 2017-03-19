@@ -14,7 +14,7 @@ public class ProtocolDispatcher {
 
     public ProtocolDispatcher(String message){
         this.message = message;
-        String[] msgSplit = this.message.split("\\R+");
+        String[] msgSplit = this.message.split("\\R\\R", 2);
 
         String msgHeader, msgBody = null;
         if(msgSplit.length == 0 || msgSplit.length > 2)
@@ -46,8 +46,10 @@ public class ProtocolDispatcher {
                 return;
         }
 
+        System.out.println(headerSplit.length);
+        System.out.println(numberOfArgs);
         if(headerSplit.length != numberOfArgs)
-            return;     //IRRELEVANTE? QUANDO E QUE PODERIA ACONTECER????????????????????
+            return;
 
         MessageHeader header;
         MessageBody body;
@@ -68,6 +70,7 @@ public class ProtocolDispatcher {
         }else
             header = new MessageHeader(type, version, senderId, fileId);
 
+        System.out.println(header.getMessageHeaderAsString());
         if(msgBody != null){
             body = new MessageBody(msgBody.getBytes());
             msgWrapper = new Message(header, body);

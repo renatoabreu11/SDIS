@@ -33,7 +33,7 @@ public class BackupChannel extends Channel {
             try {
                 this.getSocket().receive(dgp);
                 String message = new String(dgp.getData());
-                System.out.println("MDB message: " + message);
+                //System.out.println("MDB message: " + message);
 
                 ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
                 dispatcher.dispatchRequest(getParentPeer());

@@ -37,6 +37,7 @@ public class Peer implements IClientPeer {
     // Restore protocol auxiliar variables.
     private ArrayList<FileAssociation> fileAssociations;
     private boolean canSendRestoreMessages = true;
+    private boolean logSystem = true;
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
@@ -60,6 +61,10 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
+
+        if(logSystem)
+            System.out.println("Remote interface Backup requested!");
+
         isInitiator = true;
         int numTransmission = 1;
 
@@ -71,10 +76,12 @@ public class Peer implements IClientPeer {
         String fileId = pathname + lastModified;
         md.update(fileId.getBytes("UTF-8"));
         byte[] fileIdHashed = md.digest();
+        String fileIdHashedStr = new String(fileIdHashed);
+        System.out.println(fileIdHashedStr);
 
         // Splitting the file into chunks.
         Splitter splitter = new Splitter(fileData);
-        splitter.splitFile(replicationDegree, fileIdHashed.toString());
+        splitter.splitFile(replicationDegree, fileId);
 
         // Adds a mapping between the 'pathname', the file id and the number of chunks.
         if(!HasAssociation(pathname)) {
@@ -83,6 +90,9 @@ public class Peer implements IClientPeer {
         }
 
         this.manager.addUploadingChunks(splitter.getChunks());
+
+        if(logSystem)
+            System.out.println("Starting to send chunks to the data channel!");
 
         boolean desiredReplicationDegree = false;
         do{
@@ -93,7 +103,7 @@ public class Peer implements IClientPeer {
             Iterator<Chunk> it = uploadingChunks.iterator();
             while(it.hasNext()){
                 Chunk c = it.next();
-                MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashed.toString(), c.getChunkNo(), replicationDegree);
+                MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashedStr, c.getChunkNo(), replicationDegree);
                 MessageBody body = new MessageBody(c.getChunkData());
                 Message message = new Message(header, body);
                 byte[] buffer = message.getMessageBytes();
@@ -229,6 +239,8 @@ public class Peer implements IClientPeer {
 
         String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
 
+        System.setProperty("java.rmi.server.hostname","192.168.1.8");
+
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
         try {
@@ -236,7 +248,7 @@ public class Peer implements IClientPeer {
             int port = peer.id + 1098;
 
             Registry registry = LocateRegistry.createRegistry(port);
-            registry.bind(peer.getServerAccessPoint(), peer.getStub());
+            registry.bind("IClientPeer", peer.getStub());
         } catch (RemoteException e) {
             System.out.println(e.toString());
             e.printStackTrace();
