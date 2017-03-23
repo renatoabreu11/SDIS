@@ -13,6 +13,9 @@ public class ProtocolDispatcher {
     private Message msgWrapper;
 
     public ProtocolDispatcher(String message){
+        // Remove if not testing.
+        System.out.println(message);
+
         this.message = message;
         String[] msgSplit = this.message.split("\\R\\R", 2);
 

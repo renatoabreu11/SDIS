@@ -185,6 +185,12 @@ public class Peer implements IClientPeer {
             mc.sendMessage(buffer);
     }
 
+    @Override
+    public void TestMessage(String message) {
+        byte[] buffer = message.getBytes();
+        mc.sendMessage(buffer);
+    }
+
     public static void main(String[] args) throws IOException, AlreadyBoundException {
         if(args.length != 6) {
             System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
@@ -205,7 +211,8 @@ public class Peer implements IClientPeer {
 
         String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
 
-        System.setProperty("java.rmi.server.hostname","192.168.1.8");
+        // Overrides the RMI connection to the actual server, instead of the localhost address.
+        System.setProperty("java.rmi.server.hostname",Utils.IPV4_ADDRESS);
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 

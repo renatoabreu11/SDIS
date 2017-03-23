@@ -28,4 +28,6 @@ public interface IClientPeer extends Remote {
      * @throws RemoteException
      */
     void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException;
+
+    void TestMessage(String message);
 }

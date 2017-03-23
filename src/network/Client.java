@@ -35,7 +35,8 @@ public class Client {
                 "2 - Restore a file\n" +
                 "3 - Delete a file\n" +
                 "4 - Manage local service storage\n" +
-                "5 - Retrieve local service state information\n\n" +
+                "5 - Retrieve local service state information\n" +
+                "6 - Test Message\n\n" +
                 "Select an option: ");
         Scanner scanner = new Scanner(System.in);
         int decider = scanner.nextInt();
@@ -61,6 +62,11 @@ public class Client {
                 System.out.println("File pathname: ");
                 pathname = scanner.nextLine();
                 stub.DeleteFile(pathname);
+                break;
+            case 6:
+                System.out.println("Message to send: ");
+                String message = scanner.nextLine();
+                stub.TestMessage(message);
                 break;
             default: break;
         }
