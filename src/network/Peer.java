@@ -186,7 +186,7 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void TestMessage(String message) {
+    public void TestMessage(String message) throws IOException {
         byte[] buffer = message.getBytes();
         mc.sendMessage(buffer);
     }
