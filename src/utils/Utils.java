@@ -27,4 +27,6 @@ public class Utils {
 
     public final static int BackupRetransmissions = 5;
     public final static int DeleteRetransmissions = 3;
+
+    public final static int RMI_PORT = 1099;
 }

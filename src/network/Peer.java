@@ -180,12 +180,12 @@ public class Peer implements IClientPeer {
         Message message = new Message(header);
         byte[] buffer = message.getMessageBytes();
 
-        // We send 'numDeleteMessages' messages to make sure every chunk is properly deleted.
+        // We send 'Utils.DeleteRetransmissions' messages to make sure every chunk is properly deleted.
         for(int i = 0; i < Utils.DeleteRetransmissions; i++)
             mc.sendMessage(buffer);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, AlreadyBoundException {
         if(args.length != 6) {
             System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
             return;
@@ -209,20 +209,13 @@ public class Peer implements IClientPeer {
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
-        try {
-            // Supposedly the RMI is initialized only on one machine...
-            int port = peer.id + 1098;
+        Registry registry;
+        if(peer.id == 1)
+            registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
+        else
+            registry = LocateRegistry.getRegistry();
 
-            Registry registry = LocateRegistry.createRegistry(port);
-            registry.bind("IClientPeer", peer.getStub());
-        } catch (RemoteException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        } catch (AlreadyBoundException e) {
-            System.out.println(e.toString());
-            e.printStackTrace();
-        }
-
+        registry.bind("IClientPeer", peer.getStub());
         System.out.println("Server is ready.");
     }
 
