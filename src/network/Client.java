@@ -17,7 +17,7 @@ public class Client {
     private static IClientPeer stub;
 
     public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
-        String hostname = "localhost";
+        String hostname = "172.30.13.153";
         String remoteObjectName = "IClientPeer";
 
         registry = LocateRegistry.getRegistry(hostname);

@@ -7,6 +7,7 @@ import network.Peer;
 import utils.Utils;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class ProtocolDispatcher {
     private String message;
@@ -48,9 +49,7 @@ public class ProtocolDispatcher {
             default:
                 return;
         }
-
-        System.out.println(headerSplit.length);
-        System.out.println(numberOfArgs);
+        
         if(headerSplit.length != numberOfArgs)
             return;
 

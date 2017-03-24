@@ -6,6 +6,7 @@ import messageSystem.*;
 import utils.Utils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -70,17 +71,20 @@ public class Peer implements IClientPeer {
         // Hashing the file id.
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         String fileId = pathname + lastModified;
-        md.update(fileId.getBytes("UTF-8"));
+        md.update(fileId.getBytes(StandardCharsets.UTF_8));
         byte[] fileIdHashed = md.digest();
-        String fileIdHashedStr = new String(fileIdHashed);
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : fileIdHashed) {
+            sb.append(String.format("%02X", b));
+        }
+        String fileIdHashedStr = sb.toString();
 
         // Splitting the file into chunks.
         Splitter splitter = new Splitter(fileData);
         splitter.splitFile(replicationDegree);
 
-        // Adds a mapping between the 'pathname', the file id and the number of chunks.
-        //Aqui é o file id com hash ou sem?
-        File file = new File(pathname, fileId, splitter.getChunks().size());
+        File file = new File(pathname, fileIdHashedStr, splitter.getChunks().size());
         manager.addFileToStorage(file);
 
         this.manager.addUploadingChunks(splitter.getChunks());
@@ -216,13 +220,12 @@ public class Peer implements IClientPeer {
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
-        Registry registry;
-        if(peer.id == 1)
+        if(peer.id == 1) {
+            Registry registry;
             registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
-        else
-            registry = LocateRegistry.getRegistry();
+            registry.bind("IClientPeer", peer.getStub());
+        }
 
-        registry.bind("IClientPeer", peer.getStub());
         System.out.println("Server is ready.");
     }
 
