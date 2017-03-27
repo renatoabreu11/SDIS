@@ -43,7 +43,7 @@ public class Backup implements Runnable {
         // Writes to file.
         FileOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = new FileOutputStream(fileId + chunkNo + ".txt");
+            fileOutputStream = new FileOutputStream(fileId + chunkNo);
             fileOutputStream.write(chunkData);
 
             // Saves the chunk's info in the file manager.

@@ -19,6 +19,7 @@ public class ProtocolDispatcher implements Runnable{
         executor = Executors.newFixedThreadPool(5);
         execute = new AtomicBoolean(true);
         this.parentPeer = parentPeer;
+        messages = new ConcurrentLinkedQueue<>();
     }
 
     @Override

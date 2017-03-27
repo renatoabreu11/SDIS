@@ -193,10 +193,15 @@ public class FileManager {
     }
 
     /**
-     *
+     * If a peer is receiving a chunk from a file it doesn't have on the 'storage', it creates the file
+     * first and then it adds the chunk to the file array.
      * @param c
      */
     public void addChunkToStorage(String fileId, Chunk c) {
+        if(!storage.containsKey(fileId)) {
+            _File _file = new _File(null, fileId, 0);
+            storage.put(fileId, _file);
+        }
         storage.get(fileId).addChunk(c);
     }
 

@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -43,7 +42,6 @@ public class Peer implements IClientPeer {
     // Manage disk space auxiliar variables.
     private long maxDiskSpace = 74;
 
-
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
         this.id = id;
@@ -68,7 +66,6 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
-
         if(logSystem)
             System.out.println("Remote interface Backup requested!");
 
@@ -202,7 +199,7 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void ManageDiskSpace(long client_maxDiskSpace) {
+    public void ManageDiskSpace(long client_maxDiskSpace) throws IOException {
         long freeCurrSpace;
 
         switch(System.getProperty("os.name")) {
