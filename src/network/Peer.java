@@ -3,6 +3,7 @@ package network;
 import channels.*;
 import fileSystem.*;
 import messageSystem.*;
+import protocols.ProtocolDispatcher;
 import utils.Utils;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class Peer implements IClientPeer {
     private ControlChannel mc;
     private BackupChannel mdb;
     private RestoreChannel mdr;
+    private ProtocolDispatcher dispatcher;
 
     private String protocolVersion;
     private String serverAccessPoint;
@@ -45,12 +47,15 @@ public class Peer implements IClientPeer {
         mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this);
         mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
         mdr = new RestoreChannel(multicastInfo[4], multicastInfo[5], this);
+        dispatcher = new ProtocolDispatcher(this);
 
         new Thread(mc).start();
         new Thread(mdb).start();
         new Thread(mdr).start();
+        new Thread(dispatcher).start();
 
-        this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
+        if(id == 1)
+            this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
         System.out.println("All channels online.");
     }
@@ -211,18 +216,21 @@ public class Peer implements IClientPeer {
 
         String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
 
+        System.out.println(Arrays.toString(multicastInfo));
+
         // Overrides the RMI connection to the actual server, instead of the localhost address.
         System.setProperty("java.rmi.server.hostname",Utils.IPV4_ADDRESS);
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
         Registry registry;
-        if(peer.id == 1)
+        if(peer.id == 1){
             registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
+            registry.bind("IClientPeer", peer.getStub());
+        }
         else
             registry = LocateRegistry.getRegistry();
 
-        registry.bind("IClientPeer", peer.getStub());
         System.out.println("Server is ready.");
     }
 
@@ -301,6 +309,15 @@ public class Peer implements IClientPeer {
     public boolean isCanSendRestoreMessages() {
         return canSendRestoreMessages;
     }
+
+    public ProtocolDispatcher getDispatcher() {
+        return dispatcher;
+    }
+
+    public void setDispatcher(ProtocolDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
+    }
+
 
     public void setCanSendRestoreMessages(boolean canSendMessages) {
         this.canSendRestoreMessages = canSendMessages;

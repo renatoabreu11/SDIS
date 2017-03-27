@@ -1,7 +1,9 @@
 package channels;
 
+import messageSystem.Message;
 import network.Peer;
 import protocols.ProtocolDispatcher;
+import sun.rmi.server.Dispatcher;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -35,8 +37,7 @@ public class BackupChannel extends Channel {
                 String message = new String(dgp.getData());
                 //System.out.println("MDB message: " + message);
 
-                ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
-                dispatcher.dispatchRequest(getParentPeer());
+                this.getParentPeer().getDispatcher().addMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }

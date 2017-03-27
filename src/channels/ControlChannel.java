@@ -1,5 +1,6 @@
 package channels;
 
+import messageSystem.Message;
 import network.Peer;
 import protocols.ProtocolDispatcher;
 
@@ -33,8 +34,7 @@ public class ControlChannel extends Channel {
                 String message = new String(dgp.getData());
                 System.out.println("MC message: " + message);
 
-                ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
-                dispatcher.dispatchRequest(getParentPeer());
+                this.getParentPeer().getDispatcher().addMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }

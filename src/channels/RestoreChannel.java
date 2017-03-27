@@ -1,5 +1,6 @@
 package channels;
 
+import messageSystem.Message;
 import network.Peer;
 import protocols.ProtocolDispatcher;
 
@@ -34,8 +35,7 @@ public class RestoreChannel extends Channel {
                 String message = new String(dgp.getData());
                 System.out.println("MDR message: " + message);
 
-                ProtocolDispatcher dispatcher = new ProtocolDispatcher(message);
-                dispatcher.dispatchRequest(getParentPeer());
+                this.getParentPeer().getDispatcher().addMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }

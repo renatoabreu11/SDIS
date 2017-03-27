@@ -29,5 +29,5 @@ public class Utils {
     public final static int DeleteRetransmissions = 3;
 
     public final static int RMI_PORT = 1099;
-    public final static String IPV4_ADDRESS = "172.30.13.153";
+    public final static String IPV4_ADDRESS = "192.168.108.57";
 }

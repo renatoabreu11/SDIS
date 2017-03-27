@@ -1,5 +1,7 @@
 package network;
 
+import utils.Utils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +19,7 @@ public class Client {
     private static IClientPeer stub;
 
     public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
-        String hostname = "localhost";
+        String hostname = Utils.IPV4_ADDRESS;
         String remoteObjectName = "IClientPeer";
 
         registry = LocateRegistry.getRegistry(hostname);

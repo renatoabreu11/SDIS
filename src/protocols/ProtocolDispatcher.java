@@ -1,125 +1,84 @@
 package protocols;
 
 import messageSystem.Message;
-import messageSystem.MessageBody;
-import messageSystem.MessageHeader;
 import network.Peer;
-import utils.Utils;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ProtocolDispatcher {
-    private String message;
-    private Message msgWrapper;
+public class ProtocolDispatcher implements Runnable{
+    private Peer parentPeer;
+    private AtomicBoolean execute;
+    private ExecutorService executor;
+    private ConcurrentLinkedQueue<Message> messages;
 
-    public ProtocolDispatcher(String message){
-        // Remove if not testing.
-        System.out.println(message);
+    public ProtocolDispatcher(Peer parentPeer){
+        executor = Executors.newFixedThreadPool(5);
+        execute = new AtomicBoolean(true);
+        this.parentPeer = parentPeer;
+    }
 
-        this.message = message;
-        String[] msgSplit = this.message.split("\\R\\R", 2);
-
-        String msgHeader, msgBody = null;
-        if(msgSplit.length == 0 || msgSplit.length > 2)
-            return; //message discarded
-        else if (msgSplit.length == 2)
-            msgBody = msgSplit[1];
-
-        msgHeader = msgSplit[0];
-
-        String[] headerSplit = msgHeader.split("\\s+");
-
-        Utils.MessageType type;
-        int numberOfArgs;
-
-        switch(headerSplit[0]){
-            case "PUTCHUNK":
-                type = Utils.MessageType.PUTCHUNK; numberOfArgs = 6; break;
-            case "STORED":
-                type = Utils.MessageType.STORED; numberOfArgs = 5; break;
-            case "GETCHUNK":
-                type = Utils.MessageType.GETCHUNK; numberOfArgs = 5; break;
-            case "CHUNK":
-                type = Utils.MessageType.CHUNK; numberOfArgs = 5; break;
-            case "DELETE":
-                type = Utils.MessageType.DELETE; numberOfArgs = 5; break;
-            case "REMOVED":
-                type = Utils.MessageType.REMOVED; numberOfArgs = 4; break;
-            default:
-                return;
+    @Override
+    public void run() {
+        try {
+            while (execute.get() || !executor.isTerminated()) {
+                Message message;
+                while ((message = messages.poll()) != null) {
+                    dispatchRequest(message);
+                }
+                // Sleep in case there wasn't any runnable in the queue. This helps to avoid hogging the CPU.
+                Thread.sleep(1);
+            }
+        } catch (RuntimeException | InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        System.out.println(headerSplit.length);
-        System.out.println(numberOfArgs);
-        if(headerSplit.length != numberOfArgs)
-            return;
-
-        MessageHeader header;
-        MessageBody body;
-        String version, fileId;
-        int senderId, chunkNo, replicationDegree;
-
-        version = headerSplit[1];
-        senderId = Integer.parseInt(headerSplit[2]);
-        fileId = headerSplit[3];
-
-        if(type == Utils.MessageType.PUTCHUNK){
-            chunkNo = Integer.parseInt(headerSplit[4]);
-            replicationDegree = Integer.parseInt(headerSplit[5]);
-            header = new MessageHeader(type, version, senderId, fileId, chunkNo, replicationDegree);
-        }else if(type == Utils.MessageType.GETCHUNK || type == Utils.MessageType.CHUNK || type == Utils.MessageType.REMOVED){
-            chunkNo = Integer.parseInt(headerSplit[4]);
-            header = new MessageHeader(type, version, senderId, fileId, chunkNo);
-        }else
-            header = new MessageHeader(type, version, senderId, fileId);
-
-        System.out.println(header.getMessageHeaderAsString());
-        if(msgBody != null){
-            body = new MessageBody(msgBody.getBytes());
-            msgWrapper = new Message(header, body);
-        }else
-            msgWrapper = new Message(header);
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Message getMsgWrapper() {
-        return msgWrapper;
-    }
-
-    public void setMsgWrapper(Message msgWrapper) {
-        this.msgWrapper = msgWrapper;
-    }
-
-    public void dispatchRequest(Peer parentPeer) throws IOException {
-        System.out.println(msgWrapper.getMessageString());
-        switch(msgWrapper.getHeader().getMessageType()){
+    public void dispatchRequest(Message message) throws IOException {
+        System.out.println(message.getMessageString());
+        switch(message.getHeader().getMessageType()){
             case PUTCHUNK:
-                Backup backup = new Backup(parentPeer, msgWrapper);
-                new Thread(backup).start();
+                Backup backup = new Backup(parentPeer, message);
+                executor.execute(backup);
                 break;
             case STORED:
-                parentPeer.updateFileStorage(msgWrapper);
+                parentPeer.updateFileStorage(message);
                 break;
             case GETCHUNK:
-                Restore restore = new Restore(parentPeer, msgWrapper);
-                new Thread(restore).start();
+                Restore restore = new Restore(parentPeer, message);
+                executor.execute(restore);
                 break;
             case CHUNK:
-                parentPeer.receiveChunk(msgWrapper);
+                parentPeer.receiveChunk(message);
                 break;
             case DELETE:
-                Delete delete = new Delete(parentPeer, msgWrapper);
-                new Thread(delete).start();
+                Delete delete = new Delete(parentPeer, message);
+                executor.execute(delete);
                 break;
             case REMOVED:
             default: return;
         }
+    }
+
+    public Peer getParentPeer() {
+        return parentPeer;
+    }
+
+    public void setParentPeer(Peer parentPeer) {
+        this.parentPeer = parentPeer;
+    }
+
+    public void setMessages(ConcurrentLinkedQueue<Message> messages) {
+        this.messages = messages;
+    }
+
+    public void addMessage(String msgWrapper) {
+        Message message = new Message(msgWrapper);
+        messages.add(message);
     }
 }
