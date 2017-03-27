@@ -41,7 +41,9 @@ public class Restore implements Runnable {
         for(int i = 0; i < chunks.size(); i++) {
             if(chunks.get(i).getChunkNo() == chunkNo) {
                 MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, senderId, fileId, chunkNo);
-                MessageBody body = new MessageBody(chunks.get(i).getChunkData());
+                //ir ao ficheiro de backup e ler
+                //alterar isto
+                MessageBody body = new MessageBody(null);
                 Message message = new Message(header, body);
                 try {
                     byte[] buffer = message.getMessageBytes();
