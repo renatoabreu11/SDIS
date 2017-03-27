@@ -1,7 +1,5 @@
 package network;
 
-import utils.Utils;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,8 +17,13 @@ public class Client {
     private static IClientPeer stub;
 
     public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
-        String hostname = Utils.IPV4_ADDRESS;
-        String remoteObjectName = "IClientPeer";
+        /*if(args.length != 2) {
+
+            return;
+        }*/
+        System.out.println(System.getProperty("os.name"));
+        String hostname = args[0];
+        String remoteObjectName = args[1];
 
         registry = LocateRegistry.getRegistry(hostname);
         stub = (IClientPeer) registry.lookup(remoteObjectName);
@@ -37,8 +40,7 @@ public class Client {
                 "2 - Restore a file\n" +
                 "3 - Delete a file\n" +
                 "4 - Manage local service storage\n" +
-                "5 - Retrieve local service state information\n" +
-                "6 - Test Message\n\n" +
+                "5 - Retrieve local service state information\n\n" +
                 "Select an option: ");
         Scanner scanner = new Scanner(System.in);
         int decider = scanner.nextInt();
@@ -46,7 +48,7 @@ public class Client {
 
         switch (decider) {
             case 1:
-                System.out.print("File pathname: ");
+                System.out.print("_File pathname: ");
                 String pathname = scanner.nextLine();
                 System.out.print("Replication degree: ");
                 int replicationDegree = scanner.nextInt();
@@ -56,19 +58,19 @@ public class Client {
                 stub.BackupFile(fileData, pathname, replicationDegree);
                 break;
             case 2:
-                System.out.println("File pathname: ");
+                System.out.println("_File pathname: ");
                 pathname = scanner.nextLine();
                 stub.RestoreFile(pathname);
                 break;
             case 3:
-                System.out.println("File pathname: ");
+                System.out.println("_File pathname: ");
                 pathname = scanner.nextLine();
                 stub.DeleteFile(pathname);
                 break;
-            case 6:
-                System.out.println("Message to send: ");
-                String message = scanner.nextLine();
-                stub.TestMessage(message);
+            case 4:
+                System.out.println("Max disk space available (in KBytes): ");
+                long maxDiskSpace = scanner.nextLong();
+                stub.ManageDiskSpace(maxDiskSpace);
                 break;
             default: break;
         }

@@ -29,5 +29,5 @@ public interface IClientPeer extends Remote {
      */
     void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException;
 
-    void TestMessage(String message) throws IOException;
+    void ManageDiskSpace(long maxDiskSpace);
 }

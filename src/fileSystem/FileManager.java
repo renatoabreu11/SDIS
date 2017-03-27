@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class FileManager {
 
-    private Map<String, File> storage; //String continua a ser o fileIdhashed. Storage tem a informação de todos os ficheiros, quer eles estejam no pc ou não. Se estiverem a lista de chunks não é vazia
+    private Map<String, _File> storage; //String continua a ser o fileIdhashed. Storage tem a informação de todos os ficheiros, quer eles estejam no pc ou não. Se estiverem a lista de chunks não é vazia
     //Fiz isto para reduzir o numero de estruturas que guardam a informação. A procura torna-se mais rápido uma vez que é a partir de um hashmap
     private ArrayList<Chunk> uploading;
     private ArrayList<Chunk> restoring;
@@ -34,7 +34,7 @@ public class FileManager {
      *
      * @return
      */
-    public Map<String, File> getStorage() {
+    public Map<String, _File> getStorage() {
         return storage;
     }
 
@@ -42,7 +42,7 @@ public class FileManager {
      *
      * @param storage
      */
-    public void setStorage(Map<String, File> storage) {
+    public void setStorage(Map<String, _File> storage) {
         this.storage = storage;
     }
 
@@ -65,7 +65,7 @@ public class FileManager {
      * @param fileId
      * @return
      */
-    public File getFileStorage(String fileId){
+    public _File getFileStorage(String fileId){
         return storage.get(fileId);
     }
 
@@ -74,9 +74,9 @@ public class FileManager {
      * @param pathname
      * @return
      */
-    public File getFile(String pathname){
-        Map<String, File> map =  storage;
-        for (File f : map.values()) {
+    public _File getFile(String pathname){
+        Map<String, _File> map =  storage;
+        for (_File f : map.values()) {
            if(f.getPathname().equals(pathname))
                return f;
         }
@@ -110,7 +110,7 @@ public class FileManager {
     /**
      *
      */
-    public boolean addFileToStorage(File f){
+    public boolean addFileToStorage(_File f){
         if(storage.put(f.getFileId(), f) == null)
             return false;
         else return true;
@@ -144,7 +144,7 @@ public class FileManager {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        File file = this.getFileStorage(fileId);
+        _File file = this.getFileStorage(fileId);
         if(file != null){
             file.updateChunk(chunkNo, senderId);
         }
@@ -176,7 +176,7 @@ public class FileManager {
      * @throws IOException
      */
     public void deleteStoredChunk(String fileId) throws IOException {
-        File file = storage.get(fileId);
+        _File file = storage.get(fileId);
         if(file == null)
             return;
 

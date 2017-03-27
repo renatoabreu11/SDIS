@@ -1,7 +1,7 @@
 package protocols;
 
 import fileSystem.Chunk;
-import fileSystem.File;
+import fileSystem._File;
 import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
@@ -10,7 +10,6 @@ import utils.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +32,7 @@ public class Restore implements Runnable {
         String fileId = request.getHeader().getFileId();
         int chunkNo = request.getHeader().getChunkNo();
 
-        File file = parentPeer.getManager().getFileStorage(fileId);
+        _File file = parentPeer.getManager().getFileStorage(fileId);
         if(file == null)
             return;
 

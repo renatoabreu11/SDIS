@@ -2,7 +2,7 @@ package fileSystem;
 
 import java.util.ArrayList;
 
-public class File {
+public class _File {
 
     private String fileId;
     private String pathname;
@@ -10,7 +10,7 @@ public class File {
     private int numChunks;
     private String fileExtension; //Um file pode não ter extensão, não esquecer. Os chunks não precisam de conhecer a sua extensão, penso eu
 
-    public File(String pathname, String fileId, int totalChunks) {
+    public _File(String pathname, String fileId, int totalChunks) {
         this.pathname = pathname;
         this.fileId = fileId;
         numChunks = totalChunks;

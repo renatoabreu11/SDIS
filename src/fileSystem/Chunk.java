@@ -1,8 +1,9 @@
 package fileSystem;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class Chunk{
+public class Chunk implements Comparable<Chunk>{
 
     private int chunkNo;
     private int replicationDegree;
@@ -178,5 +179,13 @@ public class Chunk{
      */
     public void setPeers(ArrayList<Integer> peers) {
         this.peers = peers;
+    }
+
+    @Override
+    public int compareTo(Chunk chunk) {
+        if(this.replicationDegree > chunk.getReplicationDegree())
+            return 1;
+        else
+            return 0;
     }
 }

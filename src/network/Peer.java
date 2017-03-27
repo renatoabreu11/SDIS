@@ -6,6 +6,7 @@ import messageSystem.*;
 import protocols.ProtocolDispatcher;
 import utils.Utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
@@ -39,6 +40,10 @@ public class Peer implements IClientPeer {
     // Restore protocol auxiliar variables.
     private boolean canSendRestoreMessages = true;
 
+    // Manage disk space auxiliar variables.
+    private long maxDiskSpace = 74;
+
+
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
         this.id = id;
@@ -63,7 +68,6 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
-
 
         if(logSystem)
             System.out.println("Remote interface Backup requested!");
@@ -90,7 +94,9 @@ public class Peer implements IClientPeer {
         Splitter splitter = new Splitter(fileData);
         splitter.splitFile(replicationDegree);
 
-        File file = new File(pathname, fileIdHashedStr, splitter.getChunks().size());
+        // Adds a mapping between the 'pathname', the file id and the number of chunks.
+        //Aqui é o file id com hash ou sem?
+        _File file = new _File(pathname, fileId, splitter.getChunks().size());
         manager.addFileToStorage(file);
 
         this.manager.addUploadingChunks(splitter.getChunks());
@@ -141,7 +147,7 @@ public class Peer implements IClientPeer {
     public void RestoreFile(String pathname) throws IOException, InterruptedException {
         isInitiator = true;
 
-        File file = manager.getFile(pathname);
+        _File file = manager.getFile(pathname);
         if(file == null)
             return;
 
@@ -196,9 +202,46 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void TestMessage(String message) throws IOException {
-        byte[] buffer = message.getBytes();
-        mc.sendMessage(buffer);
+    public void ManageDiskSpace(long client_maxDiskSpace) {
+        long freeCurrSpace;
+
+        switch(System.getProperty("os.name")) {
+            case "Linux":
+                freeCurrSpace = new File("/").getFreeSpace() / 1000;
+                break;
+            case "Windows":
+                freeCurrSpace = new File("C:").getFreeSpace() / 1000;
+                break;
+            default: freeCurrSpace = 0; break;
+        }
+
+        if(client_maxDiskSpace > freeCurrSpace) {
+            System.out.println("The peer doesn't have that much free space.");
+            return;
+        }
+
+        // If the max disk space ir lower than what the user provided...
+        if(client_maxDiskSpace < maxDiskSpace) {
+            deleteFilesHigherRD();
+        }
+    }
+
+    private void deleteFilesHigherRD() {
+        Map<String, _File> storedFiles = manager.getStorage();
+        Iterator it = storedFiles.entrySet().iterator();
+
+        ArrayList<Chunk> chunkList = new ArrayList<>();
+        while(it.hasNext()) {
+            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            _File file = entry.getValue();
+
+            for(int i = 0; i < file.getNumChunks(); i++)
+                chunkList.add(file.getChunks().get(i));
+        }
+
+        Collections.sort(chunkList);
+
+
     }
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
