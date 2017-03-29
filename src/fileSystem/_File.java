@@ -92,4 +92,17 @@ public class _File {
     public void setNumChunks(int numChunks) {
         this.numChunks = numChunks;
     }
+
+    /**
+     * Returns the number of bytes all the chunks of this file occupies.
+     * @return
+     */
+    public long getFileBytesSize() {
+        long numBytes = 0;
+
+        for(Chunk chunk : chunks)
+            numBytes += chunk.getChunkData().length;
+
+        return numBytes;
+    }
 }

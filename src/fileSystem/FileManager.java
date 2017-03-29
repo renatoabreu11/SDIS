@@ -230,4 +230,18 @@ public class FileManager {
     public void setBackupLocation(String backupLocation) {
         this.backupLocation = backupLocation;
     }
+
+    public long getCurrOccupiedSize() {
+        Iterator it = storage.entrySet().iterator();
+        long numBytes = 0;
+
+        while(it.hasNext()) {
+            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            _File file = entry.getValue();
+
+            numBytes += file.getFileBytesSize();
+        }
+
+        return numBytes;
+    }
 }
