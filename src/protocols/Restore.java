@@ -60,7 +60,7 @@ public class Restore implements Runnable {
     }
 
     private void SendMessage(byte[] buffer) {
-        if(parentPeer.getProtocol() instanceof RestoreInitiator)
+        if(parentPeer.getProtocol() == null) //confirmar isto
             parentPeer.sendMessageMDR(buffer);
     }
 }

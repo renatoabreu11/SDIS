@@ -1,21 +1,18 @@
 package fileSystem;
 
 import messageSystem.Message;
-import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileManager {
     private ConcurrentHashMap<String, _File> storage = new ConcurrentHashMap<>();
-    private ArrayList<Chunk> restoring = new ArrayList<>();
     private String backupLocation = "/tmp";
 
     /**
@@ -148,24 +145,6 @@ public class FileManager {
             storage.put(fileId, _file);
         }
         storage.get(fileId).addChunk(c);
-    }
-
-    /**
-     * Restore protocol callable.
-     * @param message
-     */
-    public void addChunkToRestoring(Message message) {
-        MessageHeader header = message.getHeader();
-        MessageBody body = message.getBody();
-
-        String fileId = header.getFileId();
-        int chunkNo = header.getChunkNo();
-        byte[] data = body.getBody();
-
-        Chunk chunk = new Chunk(chunkNo, data);
-
-        if(!restoring.contains(chunk))
-            restoring.add(chunk);
     }
 
     public String getBackupLocation() {

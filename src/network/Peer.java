@@ -4,10 +4,7 @@ import channels.*;
 import fileSystem.*;
 import messageSystem.*;
 import protocols.ProtocolDispatcher;
-import protocols.initiator.BackupInitiator;
-import protocols.initiator.DeleteInitiator;
-import protocols.initiator.ProtocolInitiator;
-import protocols.initiator.RestoreInitiator;
+import protocols.initiator.*;
 import utils.Utils;
 
 import java.io.File;
@@ -99,8 +96,8 @@ public class Peer implements IClientPeer {
      * @param msgWrapper
      */
     public void receiveChunk(Message msgWrapper) {
-        if(this.protocol instanceof BackupInitiator)
-            manager.addChunkToRestoring(msgWrapper);
+        if(this.protocol instanceof RestoreInitiator)
+            ((RestoreInitiator) this.protocol).addChunkToRestoring(msgWrapper);
     }
 
     @Override
@@ -119,6 +116,10 @@ public class Peer implements IClientPeer {
      */
     @Override
     public void ManageDiskSpace(long client_maxDiskSpace) throws IOException {
+        protocol = new ManageDiskInitiator(protocolVersion, true, this, client_maxDiskSpace);
+        protocol.startProtocol();
+        protocol.endProtocol();
+        protocol = null;
         long freeCurrSpace;
 
         switch(System.getProperty("os.name")) {

@@ -55,7 +55,7 @@ public class Manage implements Runnable {
                 Message message = new Message(header, body);
 
                 byte[] buffer = message.getMessageBytes();
-                parentPeer.getMdb().sendMessage(buffer);
+                parentPeer.sendMessageMDB(buffer);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (IOException e) {

@@ -1,5 +1,6 @@
 package protocols.initiator;
 
+import messageSystem.Message;
 import network.Peer;
 
 import java.io.IOException;
