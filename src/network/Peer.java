@@ -198,6 +198,12 @@ public class Peer implements IClientPeer {
             mc.sendMessage(buffer);
     }
 
+    /**
+     * Client callable.
+     * Handles the disk space.
+     * @param client_maxDiskSpace
+     * @throws IOException
+     */
     @Override
     public void ManageDiskSpace(long client_maxDiskSpace) throws IOException {
         long freeCurrSpace;
@@ -217,43 +223,8 @@ public class Peer implements IClientPeer {
             return;
         }
 
-        if(client_maxDiskSpace < manager.getCurrOccupiedSize()) {
-            ArrayList<Chunk> orderedChunks = deleteFilesHigherRD();
-            int i = 0;
-            Chunk currChunkToDelete = orderedChunks.get(i);
-            boolean found = false;
-
-            do {
-                Iterator it = manager.getStorage().entrySet().iterator();
-
-                // Searches for the file which contains the chunk to be removed,
-                // because we need to assign to the message a fileId.
-                while(it.hasNext()) {
-                    Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
-                    _File file = entry.getValue();
-
-                    if(file.getChunks().contains(currChunkToDelete)) {
-                        found = true;
-                        String fileId = entry.getKey();
-                        MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, protocolVersion, id, fileId, currChunkToDelete.getChunkNo());
-                        Message message = new Message(header);
-                        byte[] buffer = message.getMessageBytes();
-                        mc.sendMessage(buffer);
-                        break;
-                    }
-                }
-
-                // Safety measure.
-                if(!found) {
-                    System.out.println("ERROR: couldn't find the file to remove. Aborting...");
-                    return;
-                }
-
-                i++;
-                currChunkToDelete = orderedChunks.get(i);
-                found = false;
-            } while(client_maxDiskSpace < manager.getCurrOccupiedSize());
-        }
+        if(client_maxDiskSpace < manager.getCurrOccupiedSize())
+            manageChunks(client_maxDiskSpace);
 
         maxDiskSpace = client_maxDiskSpace;
     }
@@ -277,6 +248,52 @@ public class Peer implements IClientPeer {
 
         Collections.sort(chunkList);
         return chunkList;
+    }
+
+    /**
+     * Removes the chunks which have a higher replication degree until the available space is
+     * lower or equal than the amount the user specified.
+     * Sends a message to the MC every time a chunk is deleted, ir order to try to maintain the
+     * replication degree.s
+     * @param client_maxDiskSpace
+     * @throws IOException
+     */
+    private void manageChunks(long client_maxDiskSpace) throws IOException {
+        ArrayList<Chunk> orderedChunks = deleteFilesHigherRD();
+        int i = 0;
+        Chunk currChunkToDelete = orderedChunks.get(i);
+        boolean found = false;
+
+        do {
+            Iterator it = manager.getStorage().entrySet().iterator();
+
+            // Searches for the file which contains the chunk to be removed,
+            // because we need to assign to the message a fileId.
+            while(it.hasNext()) {
+                Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+                _File file = entry.getValue();
+
+                if(file.getChunks().contains(currChunkToDelete)) {
+                    found = true;
+                    String fileId = entry.getKey();
+                    MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, protocolVersion, id, fileId, currChunkToDelete.getChunkNo());
+                    Message message = new Message(header);
+                    byte[] buffer = message.getMessageBytes();
+                    mc.sendMessage(buffer);
+                    break;
+                }
+            }
+
+            // Safety measure.
+            if(!found) {
+                System.out.println("ERROR: couldn't find the file to remove. Aborting...");
+                return;
+            }
+
+            i++;
+            currChunkToDelete = orderedChunks.get(i);
+            found = false;
+        } while(client_maxDiskSpace < manager.getCurrOccupiedSize());
     }
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
