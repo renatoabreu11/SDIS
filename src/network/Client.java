@@ -17,10 +17,10 @@ public class Client {
     private static IClientPeer stub;
 
     public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
-        /*if(args.length != 2) {
-
+        if(args.length != 2) {
+            System.out.println("Usage: java -jar Client <host_name> <remote_object_name>");
             return;
-        }*/
+        }
         System.out.println(System.getProperty("os.name"));
         String hostname = args[0];
         String remoteObjectName = args[1];
@@ -73,7 +73,8 @@ public class Client {
                 stub.ManageDiskSpace(maxDiskSpace);
                 break;
             case 5:
-
+                stub.RetrieveInformation();
+                break;
             default: break;
         }
 
