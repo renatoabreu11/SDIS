@@ -62,6 +62,9 @@ public class ProtocolDispatcher implements Runnable{
                 executor.execute(delete);
                 break;
             case REMOVED:
+                Manage manage = new Manage(parentPeer, message);
+                executor.execute(manage);
+                break;
             default: return;
         }
     }

@@ -36,6 +36,9 @@ public class Peer implements IClientPeer {
     private boolean logSystem = true;
     private FileManager manager;
 
+    // Backup protocol auxiliar variables.
+    private ArrayList<Chunk> chunkBackingUp = new ArrayList<>();
+
     // Restore protocol auxiliar variables.
     private boolean canSendRestoreMessages = true;
 
@@ -103,8 +106,11 @@ public class Peer implements IClientPeer {
 
         boolean desiredReplicationDegree = false;
         do{
-            if(numTransmission > BackupRetransmissions)
-                break; // do something
+            if(numTransmission > BackupRetransmissions) {
+                System.out.println("WARNING: number of retransmission exceeded. Aborting...");
+                return;
+                // Is this enough????????????????????????????????????????????????????????????
+            }
 
             ArrayList<Chunk> uploadingChunks = this.manager.getUploading();
             Iterator<Chunk> it = uploadingChunks.iterator();
@@ -327,8 +333,7 @@ public class Peer implements IClientPeer {
         if(peer.id == 1){
             registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
             registry.bind("IClientPeer", peer.getStub());
-        }
-        else
+        } else
             registry = LocateRegistry.getRegistry();
 
         System.out.println("Server is ready.");
@@ -429,5 +434,21 @@ public class Peer implements IClientPeer {
 
     public void setMaxDiskSpace(long maxDiskSpace) {
         this.maxDiskSpace = maxDiskSpace;
+    }
+
+    public ArrayList<Chunk> getChunkBackingUp() {
+        return chunkBackingUp;
+    }
+
+    public void setChunkBackingUp(ArrayList<Chunk> chunkBackingUp) {
+        this.chunkBackingUp = chunkBackingUp;
+    }
+
+    public void addChunkBackingUp(Chunk chunk) {
+        this.chunkBackingUp.add(chunk);
+    }
+
+    public void removeChunkBackingUp(Chunk chunk) {
+        this.chunkBackingUp.remove(chunk);
     }
 }

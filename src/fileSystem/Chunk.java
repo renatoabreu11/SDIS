@@ -1,7 +1,7 @@
 package fileSystem;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 
 public class Chunk implements Comparable<Chunk>{
 
@@ -50,7 +50,8 @@ public class Chunk implements Comparable<Chunk>{
     public boolean equals(Object obj){
         if (obj instanceof Chunk) {
             Chunk c = (Chunk) obj;
-            return (c.chunkNo == this.chunkNo);
+            // SEE IF THIS DOESN'T BLOW UP THE COMPARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            return (c.chunkNo == this.chunkNo && Arrays.equals(c.chunkData, this.chunkData));
         } else
             return false;
     }

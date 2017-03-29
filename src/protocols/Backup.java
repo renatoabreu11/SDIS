@@ -27,8 +27,8 @@ public class Backup implements Runnable {
 
     @Override
     public void run() {
-        MessageBody body = request.getBody();
         MessageHeader header = request.getHeader();
+        MessageBody body = request.getBody();
 
         String version = header.getVersion();
         int senderId = header.getSenderId();
@@ -37,7 +37,7 @@ public class Backup implements Runnable {
         int replicationDegree = header.getReplicationDegree();
 
         byte[] chunkData = body.getBody();
-        Chunk c = new Chunk(replicationDegree, chunkNo, chunkData);
+        Chunk chunk = new Chunk(replicationDegree, chunkNo, chunkData);
 
         // Only keeps the chunk if there's available space.
         long futureOccupiedSpace = chunkData.length + parentPeer.getManager().getCurrOccupiedSize();
@@ -46,7 +46,8 @@ public class Backup implements Runnable {
             return;
         }
 
-        c.updateReplication(senderId);
+        parentPeer.addChunkBackingUp(chunk);
+        chunk.updateReplication(senderId);
 
         // Writes to file.
         FileOutputStream fileOutputStream = null;
@@ -55,7 +56,7 @@ public class Backup implements Runnable {
             fileOutputStream.write(chunkData);
 
             // Saves the chunk's info in the file manager.
-            parentPeer.getManager().addChunkToStorage(fileId, c);
+            parentPeer.getManager().addChunkToStorage(fileId, chunk);
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
@@ -66,6 +67,7 @@ public class Backup implements Runnable {
 
             // Sends the message to the initiator peer.
             parentPeer.getMc().sendMessage(responseBytes);
+            parentPeer.removeChunkBackingUp(chunk);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

@@ -244,4 +244,24 @@ public class FileManager {
 
         return numBytes;
     }
+
+    /**
+     * Given the fileId and the chunk number, it returns the corresponding chunk.
+     * @param fileId
+     * @param chunkNo
+     * @return
+     */
+    public Chunk getChunk(String fileId, int chunkNo) {
+        _File file = storage.get(fileId);
+        if(file == null) {
+            return null;
+        }
+
+        for(Chunk chunk : file.getChunks()) {
+            if(chunk.getChunkNo() == chunkNo)
+                return chunk;
+        }
+
+        return null;
+    }
 }
