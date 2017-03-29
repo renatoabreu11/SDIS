@@ -175,7 +175,7 @@ public class FileManager {
      * @param fileId name of the file to delete.
      * @throws IOException
      */
-    public void deleteStoredChunk(String fileId) throws IOException {
+    public void deleteStoredChunks(String fileId) throws IOException {
         _File file = storage.get(fileId);
         if(file == null)
             return;
@@ -183,13 +183,32 @@ public class FileManager {
         // Removes all the chunk's files from the computer.
         for(int i = 0; i < file.getChunks().size(); i++) {
             Chunk chunk = file.getChunks().get(i);
-            //Os chunks não precisam de extensão
-            Path path = Paths.get(fileId + chunk.getChunkNo() + ".txt");
+            Path path = Paths.get(fileId + chunk.getChunkNo());
             Files.delete(path);
         }
 
         // Removes the entry on the map.
         storage.remove(fileId);
+    }
+
+    /**
+     * Given the fileId and the chunk number, removes the chunk associated with it, from both the
+     * system and the map.
+     * @param fileId
+     * @param chunkNo
+     * @throws IOException
+     */
+    public void deleteStoredChunk(String fileId, int chunkNo) throws IOException {
+        _File file = storage.get(fileId);
+
+        for(Chunk chunk : file.getChunks()) {
+            if(chunk.getChunkNo() == chunkNo) {
+                Path path = Paths.get(fileId + chunkNo);
+                Files.delete(path);
+                file.removeChunk(chunk);
+                break;
+            }
+        }
     }
 
     /**

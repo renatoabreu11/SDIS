@@ -46,7 +46,9 @@ public class Backup implements Runnable {
             return;
         }
 
+        // Manage disk space related.
         parentPeer.addChunkBackingUp(chunk);
+
         chunk.updateReplication(senderId);
 
         // Writes to file.
@@ -67,6 +69,8 @@ public class Backup implements Runnable {
 
             // Sends the message to the initiator peer.
             parentPeer.getMc().sendMessage(responseBytes);
+
+            // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

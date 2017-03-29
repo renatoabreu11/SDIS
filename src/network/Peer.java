@@ -143,7 +143,7 @@ public class Peer implements IClientPeer {
     }
 
     public void deleteFileStorage(String fileId) throws IOException {
-        this.manager.deleteStoredChunk(fileId);
+        this.manager.deleteStoredChunks(fileId);
     }
 
     @Override
@@ -236,27 +236,6 @@ public class Peer implements IClientPeer {
     }
 
     /**
-     * Returns all the chunks stored in the peer sorted by their duplication degree.
-     * @return
-     */
-    private ArrayList<Chunk> deleteFilesHigherRD() {
-        Map<String, _File> storedFiles = manager.getStorage();
-        Iterator it = storedFiles.entrySet().iterator();
-
-        ArrayList<Chunk> chunkList = new ArrayList<>();
-        while(it.hasNext()) {
-            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
-            _File file = entry.getValue();
-
-            for(int i = 0; i < file.getNumChunks(); i++)
-                chunkList.add(file.getChunks().get(i));
-        }
-
-        Collections.sort(chunkList);
-        return chunkList;
-    }
-
-    /**
      * Removes the chunks which have a higher replication degree until the available space is
      * lower or equal than the amount the user specified.
      * Sends a message to the MC every time a chunk is deleted, ir order to try to maintain the
@@ -265,7 +244,7 @@ public class Peer implements IClientPeer {
      * @throws IOException
      */
     private void manageChunks(long client_maxDiskSpace) throws IOException {
-        ArrayList<Chunk> orderedChunks = deleteFilesHigherRD();
+        ArrayList<Chunk> orderedChunks = getFilesHigherRD();
         int i = 0;
         Chunk currChunkToDelete = orderedChunks.get(i);
         boolean found = false;
@@ -282,10 +261,12 @@ public class Peer implements IClientPeer {
                 if(file.getChunks().contains(currChunkToDelete)) {
                     found = true;
                     String fileId = entry.getKey();
+
                     MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, protocolVersion, id, fileId, currChunkToDelete.getChunkNo());
                     Message message = new Message(header);
                     byte[] buffer = message.getMessageBytes();
                     mc.sendMessage(buffer);
+                    manager.deleteStoredChunk(fileId, currChunkToDelete.getChunkNo());
                     break;
                 }
             }
@@ -300,6 +281,27 @@ public class Peer implements IClientPeer {
             currChunkToDelete = orderedChunks.get(i);
             found = false;
         } while(client_maxDiskSpace < manager.getCurrOccupiedSize());
+    }
+
+    /**
+     * Returns all the chunks stored in the peer sorted by their duplication degree.
+     * @return
+     */
+    private ArrayList<Chunk> getFilesHigherRD() {
+        Map<String, _File> storedFiles = manager.getStorage();
+        Iterator it = storedFiles.entrySet().iterator();
+
+        ArrayList<Chunk> chunkList = new ArrayList<>();
+        while(it.hasNext()) {
+            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            _File file = entry.getValue();
+
+            for(int i = 0; i < file.getNumChunks(); i++)
+                chunkList.add(file.getChunks().get(i));
+        }
+
+        Collections.sort(chunkList);
+        return chunkList;
     }
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
