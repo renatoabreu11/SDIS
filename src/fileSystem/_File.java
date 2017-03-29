@@ -8,46 +8,82 @@ public class _File {
     private String pathname;
     private ArrayList<Chunk> chunks = new ArrayList<>();
     private int numChunks;
-    private String fileExtension; //Um file pode não ter extensão, não esquecer. Os chunks não precisam de conhecer a sua extensão, penso eu
-
+    private String fileExtension;
     public _File(String pathname, String fileId, int totalChunks) {
         this.pathname = pathname;
         this.fileId = fileId;
         numChunks = totalChunks;
     }
 
+    /**
+     * Return the file pathname
+     * @return String pathname
+     */
     public String getPathname() {
         return pathname;
     }
 
+    /**
+     * Set the file pathname
+     * @param pathname
+     */
     public void setPathname(String pathname) {
         this.pathname = pathname;
     }
 
+    /**
+     * Get the file identifier
+     * @return
+     */
     public String getFileId() {
         return fileId;
     }
 
+    /**
+     * Set the file identifier
+     * @param fileId
+     */
     public void setFileId(String fileId) {
         this.fileId = fileId;
     }
 
+    /**
+     * Get the chunks that belong to this file
+     * @return
+     */
     public ArrayList<Chunk> getChunks() {
         return chunks;
     }
 
+    /**
+     * Set the array list of chunks that compose this file
+     * @param chunks
+     */
     public void setChunks(ArrayList<Chunk> chunks) {
         this.chunks = chunks;
     }
 
+    /**
+     * Get the file extension
+     * @return
+     */
     public String getFileExtension() {
         return fileExtension;
     }
 
+    /**
+     * Set the file extension
+     * @param fileExtension
+     */
     public void setFileExtension(String fileExtension) {
         this.fileExtension = fileExtension;
     }
 
+    /**
+     * Add a new chunk to the file chunks, if it doesn't exist
+     * @param c
+     * @return
+     */
     public boolean addChunk(Chunk c){
         boolean found = false;
         for(int i = 0; i < this.chunks.size(); i++){
@@ -64,6 +100,11 @@ public class _File {
         return true;
     }
 
+    /**
+     * Remove a chunk from the list of file chunks
+     * @param c
+     * @return
+     */
     public boolean removeChunk(Chunk c){
         for(int i = 0; i < this.chunks.size(); i++){
             if(chunks.get(i).equals(c)){
@@ -75,6 +116,12 @@ public class _File {
         return false;
     }
 
+    /**
+     * Update the current replication degree of a chunk
+     * @param chunkNo
+     * @param senderId
+     * @return
+     */
     public boolean updateChunk(int chunkNo, int senderId) {
         for(int i = 0; i < this.chunks.size(); i++){
             if(chunks.get(i).getChunkNo() == chunkNo){
@@ -85,10 +132,18 @@ public class _File {
         return false;
     }
 
+    /**
+     * Get the number of chunks from which the file is composed
+     * @return
+     */
     public int getNumChunks() {
         return numChunks;
     }
 
+    /**
+     * Set the number of chunks
+     * @param numChunks
+     */
     public void setNumChunks(int numChunks) {
         this.numChunks = numChunks;
     }

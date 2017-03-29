@@ -1,9 +1,6 @@
 package fileSystem;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -11,7 +8,7 @@ import static java.util.Arrays.copyOfRange;
 
 public class Splitter {
     private byte[] fileData;
-    private ArrayList<Chunk> chunks;
+    private ArrayList<Chunk> chunks = new ArrayList<>();
 
     /**
      * Splitter constructor
@@ -19,27 +16,26 @@ public class Splitter {
      */
     public Splitter(byte[] fileData){
         this.fileData = fileData;
-        this.chunks = new ArrayList<>();
     }
 
     /**
-     *
+     * Gets the byte array that contains the file data
      * @return
      */
-    public byte[] getFileName() {
+    public byte[] getFileData() {
         return fileData;
     }
 
     /**
-     *
-     * @param fileName
+     * Set the byte array that contains the file data
+     * @param fileData
      */
-    public void setFileName(byte[] fileName) {
-        this.fileData = fileName;
+    public void setFileData(byte[] fileData) {
+        this.fileData = fileData;
     }
 
     /**
-     *
+     * Get the all chunks
      * @return
      */
     public ArrayList<Chunk> getChunks() {
@@ -47,7 +43,7 @@ public class Splitter {
     }
 
     /**
-     *
+     * Set the chunks list
      * @param chunks
      */
     public void setChunks(ArrayList<Chunk> chunks) {
@@ -55,7 +51,7 @@ public class Splitter {
     }
 
     /**
-     *
+     * Clears the file data and the respective chunks
      */
     public void resetSplitter(){
         fileData = null;
@@ -63,7 +59,7 @@ public class Splitter {
     }
 
     /**
-     *
+     * Get the chunk at the given position
      * @param i
      * @return
      */
@@ -72,7 +68,7 @@ public class Splitter {
     }
 
     /**
-     *
+     * Get the chunk data at the given position
      * @param i
      * @return
      */
@@ -81,7 +77,7 @@ public class Splitter {
     }
 
     /**
-     *
+     * Accordingly to the filedata, splits the data in chunks of 64KB.
      * @param desiredReplicationDegree
      * @throws IOException
      */

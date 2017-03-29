@@ -1,6 +1,5 @@
 package messageSystem;
 
-
 import utils.Utils;
 
 import java.io.ByteArrayOutputStream;
@@ -31,7 +30,7 @@ public class Message {
     }
 
     /**
-     *
+     * Given a string message, parses it accordingly to the specification
      * @param message
      */
     public Message(String message){
@@ -93,7 +92,7 @@ public class Message {
     }
 
     /**
-     *
+     * Return the message as a string
      * @return
      */
     public String getMessageString(){
@@ -105,7 +104,7 @@ public class Message {
     }
 
     /**
-     *
+     * Return the message as a byte array
      * @return
      * @throws IOException
      */
@@ -123,7 +122,7 @@ public class Message {
     }
 
     /**
-     *
+     * Get the message header
      * @return
      */
     public MessageHeader getHeader() {
@@ -131,7 +130,7 @@ public class Message {
     }
 
     /**
-     *
+     * Set the message header
      * @param header
      */
     public void setHeader(MessageHeader header) {
@@ -139,7 +138,7 @@ public class Message {
     }
 
     /**
-     *
+     * Get the message body
      * @return
      */
     public MessageBody getBody() {
@@ -147,7 +146,7 @@ public class Message {
     }
 
     /**
-     *
+     * Set the message body
      * @param body
      */
     public void setBody(MessageBody body) {

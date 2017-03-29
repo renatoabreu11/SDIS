@@ -4,6 +4,10 @@ import channels.*;
 import fileSystem.*;
 import messageSystem.*;
 import protocols.ProtocolDispatcher;
+import protocols.initiator.BackupInitiator;
+import protocols.initiator.DeleteInitiator;
+import protocols.initiator.ProtocolInitiator;
+import protocols.initiator.RestoreInitiator;
 import utils.Utils;
 
 import java.io.File;
@@ -26,21 +30,16 @@ public class Peer implements IClientPeer {
     private BackupChannel mdb;
     private RestoreChannel mdr;
     private ProtocolDispatcher dispatcher;
+    private ProtocolInitiator protocol = null;
+    private FileManager manager;
 
+    private int id;
     private String protocolVersion;
     private String serverAccessPoint;
-    private int id;
     private IClientPeer stub;
-
-    private boolean isInitiator = false;
-    private boolean logSystem = true;
-    private FileManager manager;
 
     // Backup protocol auxiliar variables.
     private ArrayList<Chunk> chunkBackingUp = new ArrayList<>();
-
-    // Restore protocol auxiliar variables.
-    private boolean canSendRestoreMessages = true;
 
     // Manage disk space auxiliar variables.
     private long maxDiskSpace = 74;
@@ -69,77 +68,16 @@ public class Peer implements IClientPeer {
 
     @Override
     public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
-        if(logSystem)
-            System.out.println("Remote interface Backup requested!");
-
-        isInitiator = true;
-        int numTransmission = 1;
-
-        // CAN A REMOTE PEER ACCESS THE LAST MODIFICATION TIME, OR DO WE NEED TO GET THIS FROM THE fileData??????????????
-        String lastModified = Long.toString(new java.io.File(pathname).lastModified());
-
-        // Hashing the file id.
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        String fileId = pathname + lastModified;
-        md.update(fileId.getBytes(StandardCharsets.UTF_8));
-        byte[] fileIdHashed = md.digest();
-
-        StringBuilder sb = new StringBuilder();
-        for (byte b : fileIdHashed) {
-            sb.append(String.format("%02X", b));
-        }
-        String fileIdHashedStr = sb.toString();
-
-        // Splitting the file into chunks.
-        Splitter splitter = new Splitter(fileData);
-        splitter.splitFile(replicationDegree);
-
-        // Adds a mapping between the 'pathname', the file id and the number of chunks.
-        //Aqui é o file id com hash ou sem?
-        _File file = new _File(pathname, fileId, splitter.getChunks().size());
-        manager.addFileToStorage(file);
-
-        this.manager.addUploadingChunks(splitter.getChunks());
-
-        if(logSystem)
-            System.out.println("Starting to send chunks to the data channel!");
-
-        boolean desiredReplicationDegree = false;
-        do{
-            if(numTransmission > BackupRetransmissions) {
-                System.out.println("WARNING: number of retransmission exceeded. Aborting...");
-                return;
-                // Is this enough????????????????????????????????????????????????????????????
-            }
-
-            ArrayList<Chunk> uploadingChunks = this.manager.getUploading();
-            Iterator<Chunk> it = uploadingChunks.iterator();
-            while(it.hasNext()){
-                Chunk c = it.next();
-                MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, protocolVersion, id, fileIdHashedStr, c.getChunkNo(), replicationDegree);
-                MessageBody body = new MessageBody(c.getChunkData());
-                Message message = new Message(header, body);
-                byte[] buffer = message.getMessageBytes();
-                mdb.sendMessage(buffer);
-            }
-
-            TimeUnit.MILLISECONDS.sleep(1000*numTransmission);
-
-            int chunksToUpload = this.manager.chunksToUpload();
-            if(chunksToUpload == 0)
-                desiredReplicationDegree = true;
-            else numTransmission++;
-        } while(!desiredReplicationDegree);
-
-        this.manager.resetUploadingChunks();
-
-        isInitiator = false;
+        protocol = new BackupInitiator(protocolVersion, true, this, fileData, pathname, replicationDegree);
+        protocol.startProtocol();
+        protocol.endProtocol();
+        protocol = null;
     }
 
     public void updateFileStorage(Message msgWrapper) {
         this.manager.updateStorage(msgWrapper);
-        if(this.isInitiator)
-            this.manager.updateUploadingChunks(msgWrapper);
+        if(this.protocol instanceof BackupInitiator)
+            ((BackupInitiator) this.protocol).updateUploadingChunks(msgWrapper);
     }
 
     public void deleteFileStorage(String fileId) throws IOException {
@@ -148,27 +86,10 @@ public class Peer implements IClientPeer {
 
     @Override
     public void RestoreFile(String pathname) throws IOException, InterruptedException {
-        isInitiator = true;
-
-        _File file = manager.getFile(pathname);
-        if(file == null)
-            return;
-
-        String fileId = file.getFileId();
-        int numChunks = file.getNumChunks();
-        
-        for(int i = 0; i < numChunks; i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, protocolVersion, id, fileId, (i+1));
-            Message message = new Message(header);
-            byte[] buf = message.getMessageBytes();
-            mc.sendMessage(buf);
-            TimeUnit.MILLISECONDS.sleep(1000);      // SHOULD IT WAIT??????????????????????????????????????
-        }
-
-        // Send file to client or restore the file in the curr peer????????????????????????????'
-
-        isInitiator = false;
-        canSendRestoreMessages = true;
+        protocol = new RestoreInitiator(protocolVersion, true, this, pathname);
+        protocol.startProtocol();
+        protocol.endProtocol();
+        protocol = null;
     }
 
     /**
@@ -178,30 +99,16 @@ public class Peer implements IClientPeer {
      * @param msgWrapper
      */
     public void receiveChunk(Message msgWrapper) {
-        if(this.isInitiator)
-            manager.addChunkToRestoring(msgWrapper);        // Saves the received chunk.
-        else
-            canSendRestoreMessages = false;     // If a non-initiator peer receives a 'CHUNK' message, this peer doesn't sends his message.
+        if(this.protocol instanceof BackupInitiator)
+            manager.addChunkToRestoring(msgWrapper);
     }
 
     @Override
     public void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException {
-        // CAN A REMOTE PEER ACCESS THE LAST MODIFICATION TIME, OR DO WE NEED TO GET THIS FROM THE fileData??????????????
-        String lastModified = Long.toString(new java.io.File(pathname).lastModified());
-
-        // Hashing the file id.
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        String fileId = pathname + lastModified;
-        md.update(fileId.getBytes("UTF-8"));
-        byte[] fileIdHashed = md.digest();
-
-        MessageHeader header = new MessageHeader(Utils.MessageType.DELETE, protocolVersion, id, fileIdHashed.toString());
-        Message message = new Message(header);
-        byte[] buffer = message.getMessageBytes();
-
-        // We send 'Utils.DeleteRetransmissions' messages to make sure every chunk is properly deleted.
-        for(int i = 0; i < Utils.DeleteRetransmissions; i++)
-            mc.sendMessage(buffer);
+        protocol = new DeleteInitiator(protocolVersion, true, this, pathname);
+        protocol.startProtocol();
+        protocol.endProtocol();
+        protocol = null;
     }
 
     /**
@@ -344,10 +251,8 @@ public class Peer implements IClientPeer {
 
         String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
 
-        System.out.println(Arrays.toString(multicastInfo));
-
         // Overrides the RMI connection to the actual server, instead of the localhost address.
-        System.setProperty("java.rmi.server.hostname",Utils.IPV4_ADDRESS);
+        System.setProperty("java.rmi.server.hostname", Utils.IPV4_ADDRESS);
 
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
@@ -417,14 +322,6 @@ public class Peer implements IClientPeer {
         this.mdr = mdr;
     }
 
-    public boolean isInitiator() {
-        return isInitiator;
-    }
-
-    public void setInitiator(boolean initiator) {
-        isInitiator = initiator;
-    }
-
     public FileManager getManager() {
         return manager;
     }
@@ -433,21 +330,12 @@ public class Peer implements IClientPeer {
         this.manager = manager;
     }
 
-    public boolean isCanSendRestoreMessages() {
-        return canSendRestoreMessages;
-    }
-
     public ProtocolDispatcher getDispatcher() {
         return dispatcher;
     }
 
     public void setDispatcher(ProtocolDispatcher dispatcher) {
         this.dispatcher = dispatcher;
-    }
-
-
-    public void setCanSendRestoreMessages(boolean canSendMessages) {
-        this.canSendRestoreMessages = canSendMessages;
     }
 
     public long getMaxDiskSpace() {
@@ -472,5 +360,37 @@ public class Peer implements IClientPeer {
 
     public void removeChunkBackingUp(Chunk chunk) {
         this.chunkBackingUp.remove(chunk);
+    }
+
+    public void addMessageToDispatcher(String message) {
+        dispatcher.addMessage(message);
+    }
+
+    public ProtocolInitiator getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(ProtocolInitiator protocol) {
+        this.protocol = protocol;
+    }
+
+    public void saveFileToStorage(_File f) {
+        manager.addFileToStorage(f);
+    }
+
+    public void sendMessageMDB(byte[] buffer) {
+        mdb.sendMessage(buffer);
+    }
+
+    public void sendMessageMDR(byte[] buffer) {
+        mdr.sendMessage(buffer);
+    }
+
+    public void sendMessageMC(byte[] buffer) {
+        mc.sendMessage(buffer);
+    }
+
+    public _File getFileFromManager(String pathname) {
+        return manager.getFile(pathname);
     }
 }

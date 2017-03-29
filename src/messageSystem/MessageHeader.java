@@ -59,7 +59,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Creates a string accordingly to the message header
      * @return
      */
     public String getMessageHeaderAsString(){
@@ -78,7 +78,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Creates a byte array accordingly to the message header
      * @return
      */
     public byte[] getMessageHeaderAsBytes(){
@@ -87,7 +87,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Get the type of message
      * @return
      */
     public Utils.MessageType getMessageType() {
@@ -95,7 +95,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Set the type of message
      * @param messageType
      */
     public void setMessageType(Utils.MessageType messageType) {
@@ -103,7 +103,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Get the protocol version currently being used
      * @return
      */
     public String getVersion() {
@@ -111,7 +111,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Set the protocol version currently being used
      * @param version
      */
     public void setVersion(String version) {
@@ -119,7 +119,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Get the peer that sent the message
      * @return
      */
     public int getSenderId() {
@@ -127,7 +127,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Set the peer that sent the message
      * @param senderId
      */
     public void setSenderId(int senderId) {
@@ -135,7 +135,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Get the identifier of the file sent through the message body
      * @return
      */
     public String getFileId() {
@@ -143,7 +143,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Set the file identifier
      * @param fileId
      */
     public void setFileId(String fileId) {
@@ -151,7 +151,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Get the chunk number of the file sent through the message body
      * @return
      */
     public int getChunkNo() {
@@ -159,7 +159,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Set the chunk number of the file sent through the message body
      * @param chunkNo
      */
     public void setChunkNo(int chunkNo) {
@@ -167,7 +167,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Get the file replication degree
      * @return
      */
     public int getReplicationDegree() {
@@ -175,7 +175,7 @@ public class MessageHeader {
     }
 
     /**
-     *
+     * Set the file replication degree
      * @param replicationDegree
      */
     public void setReplicationDegree(int replicationDegree) {

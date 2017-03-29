@@ -35,7 +35,7 @@ public class RestoreChannel extends Channel {
                 String message = new String(dgp.getData());
                 System.out.println("MDR message: " + message);
 
-                this.getParentPeer().getDispatcher().addMessage(message);
+                this.getParentPeer().addMessageToDispatcher(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }

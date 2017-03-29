@@ -9,26 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileManager {
-
-    private Map<String, _File> storage; //String continua a ser o fileIdhashed. Storage tem a informação de todos os ficheiros, quer eles estejam no pc ou não. Se estiverem a lista de chunks não é vazia
-    //Fiz isto para reduzir o numero de estruturas que guardam a informação. A procura torna-se mais rápido uma vez que é a partir de um hashmap
-    private ArrayList<Chunk> uploading;
-    private ArrayList<Chunk> restoring;
+    private ConcurrentHashMap<String, _File> storage = new ConcurrentHashMap<>();
+    private ArrayList<Chunk> restoring = new ArrayList<>();
     private String backupLocation = "/tmp";
 
     /**
-     *
+     * File manager Constructor
      */
-    public FileManager(){
-        storage = new HashMap<>();
-        uploading = new ArrayList<>();
-        restoring = new ArrayList<>();
-    }
+    public FileManager(){}
 
     /**
      *
@@ -42,7 +35,7 @@ public class FileManager {
      *
      * @param storage
      */
-    public void setStorage(Map<String, _File> storage) {
+    public void setStorage(ConcurrentHashMap<String, _File> storage) {
         this.storage = storage;
     }
 
@@ -51,13 +44,6 @@ public class FileManager {
      */
     public void resetStorage(){
         this.storage.clear();
-    }
-
-    /**
-     *
-     */
-    public void resetUploadingChunks(){
-        this.uploading.clear();
     }
 
     /**
@@ -85,30 +71,6 @@ public class FileManager {
 
     /**
      *
-     * @param chunks
-     */
-    public void addUploadingChunks(ArrayList<Chunk> chunks) {
-        uploading = chunks;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public ArrayList<Chunk> getUploading() {
-        return uploading;
-    }
-
-    /**
-     *
-     * @param uploading
-     */
-    public void setUploading(ArrayList<Chunk> uploading) {
-        this.uploading = uploading;
-    }
-
-    /**
-     *
      */
     public boolean addFileToStorage(_File f){
         if(storage.put(f.getFileId(), f) == null)
@@ -118,26 +80,9 @@ public class FileManager {
 
     /**
      *
-     * @return
-     */
-    public int chunksToUpload() {
-        int nrChunksWithoutReplication = 0;
-
-        Iterator<Chunk> it = uploading.iterator();
-        while(it.hasNext()){
-            if(it.next().desiredReplication()){
-                it.remove();
-            }else nrChunksWithoutReplication++;
-        }
-
-        return nrChunksWithoutReplication;
-    }
-
-    /**
-     *
      * @param msgWrapper
      */
-    public void updateStorage(Message msgWrapper) {
+    public synchronized void updateStorage(Message msgWrapper) {
         MessageHeader header = msgWrapper.getHeader();
 
         int senderId = header.getSenderId();
@@ -151,31 +96,12 @@ public class FileManager {
     }
 
     /**
-     *
-     * @param msgWrapper
-     */
-    public void updateUploadingChunks(Message msgWrapper) {
-        MessageHeader header = msgWrapper.getHeader();
-
-        int senderId = header.getSenderId();
-        int chunkNo = header.getChunkNo();
-
-        Chunk c = new Chunk(chunkNo);
-        for(int i = 0; i < uploading.size(); i++){
-            if(c.equals(uploading.get(i))){
-                uploading.get(i).updateReplication(senderId);
-                break;
-            }
-        }
-    }
-
-    /**
      * Delete protocol callable.
      * Deletes all chunk's files from the computer and the map.
      * @param fileId name of the file to delete.
      * @throws IOException
      */
-    public void deleteStoredChunks(String fileId) throws IOException {
+    public synchronized void deleteStoredChunks(String fileId) throws IOException {
         _File file = storage.get(fileId);
         if(file == null)
             return;
@@ -198,7 +124,7 @@ public class FileManager {
      * @param chunkNo
      * @throws IOException
      */
-    public void deleteStoredChunk(String fileId, int chunkNo) throws IOException {
+    public synchronized void deleteStoredChunk(String fileId, int chunkNo) throws IOException {
         _File file = storage.get(fileId);
 
         for(Chunk chunk : file.getChunks()) {
@@ -216,7 +142,7 @@ public class FileManager {
      * first and then it adds the chunk to the file array.
      * @param c
      */
-    public void addChunkToStorage(String fileId, Chunk c) {
+    public synchronized void addChunkToStorage(String fileId, Chunk c) {
         if(!storage.containsKey(fileId)) {
             _File _file = new _File(null, fileId, 0);
             storage.put(fileId, _file);
@@ -250,7 +176,7 @@ public class FileManager {
         this.backupLocation = backupLocation;
     }
 
-    public long getCurrOccupiedSize() {
+    public synchronized long getCurrOccupiedSize() {
         Iterator it = storage.entrySet().iterator();
         long numBytes = 0;
 
@@ -270,7 +196,7 @@ public class FileManager {
      * @param chunkNo
      * @return
      */
-    public Chunk getChunk(String fileId, int chunkNo) {
+    public synchronized Chunk getChunk(String fileId, int chunkNo) {
         _File file = storage.get(fileId);
         if(file == null) {
             return null;

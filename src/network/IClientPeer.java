@@ -1,7 +1,6 @@
 package network;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +28,16 @@ public interface IClientPeer extends Remote {
      */
     void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException;
 
+    /**
+     *
+     * @param maxDiskSpace
+     * @throws IOException
+     */
     void ManageDiskSpace(long maxDiskSpace) throws IOException;
 
+    /**
+     *
+     * @throws IOException
+     */
     void RetrieveInformation() throws IOException;
 }

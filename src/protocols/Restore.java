@@ -6,6 +6,7 @@ import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 import network.Peer;
+import protocols.initiator.RestoreInitiator;
 import utils.Utils;
 
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class Restore implements Runnable {
     }
 
     private void SendMessage(byte[] buffer) {
-        if(parentPeer.isCanSendRestoreMessages())
-            parentPeer.getMdr().sendMessage(buffer);
+        if(parentPeer.getProtocol() instanceof RestoreInitiator)
+            parentPeer.sendMessageMDR(buffer);
     }
 }

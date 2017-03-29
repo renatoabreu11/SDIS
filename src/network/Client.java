@@ -21,7 +21,6 @@ public class Client {
             System.out.println("Usage: java -jar Client <host_name> <remote_object_name>");
             return;
         }
-        System.out.println(System.getProperty("os.name"));
         String hostname = args[0];
         String remoteObjectName = args[1];
 
