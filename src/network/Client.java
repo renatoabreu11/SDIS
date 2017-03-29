@@ -72,6 +72,8 @@ public class Client {
                 long maxDiskSpace = scanner.nextLong();
                 stub.ManageDiskSpace(maxDiskSpace);
                 break;
+            case 5:
+
             default: break;
         }
 

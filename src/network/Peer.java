@@ -230,7 +230,7 @@ public class Peer implements IClientPeer {
         }
 
         if(client_maxDiskSpace < manager.getCurrOccupiedSize())
-            manageChunks(client_maxDiskSpace);
+            ManageChunks(client_maxDiskSpace);
 
         maxDiskSpace = client_maxDiskSpace;
     }
@@ -243,8 +243,8 @@ public class Peer implements IClientPeer {
      * @param client_maxDiskSpace
      * @throws IOException
      */
-    private void manageChunks(long client_maxDiskSpace) throws IOException {
-        ArrayList<Chunk> orderedChunks = getFilesHigherRD();
+    private void ManageChunks(long client_maxDiskSpace) throws IOException {
+        ArrayList<Chunk> orderedChunks = GetFilesHigherRD();
         int i = 0;
         Chunk currChunkToDelete = orderedChunks.get(i);
         boolean found = false;
@@ -287,7 +287,7 @@ public class Peer implements IClientPeer {
      * Returns all the chunks stored in the peer sorted by their duplication degree.
      * @return
      */
-    private ArrayList<Chunk> getFilesHigherRD() {
+    private ArrayList<Chunk> GetFilesHigherRD() {
         Map<String, _File> storedFiles = manager.getStorage();
         Iterator it = storedFiles.entrySet().iterator();
 
@@ -302,6 +302,26 @@ public class Peer implements IClientPeer {
 
         Collections.sort(chunkList);
         return chunkList;
+    }
+
+    @Override
+    public void RetrieveInformation() throws IOException {
+        String out = "";
+        Iterator it = manager.getStorage().entrySet().iterator();
+
+        while(it.hasNext()) {
+            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            String fileId = entry.getKey();
+            _File file = entry.getValue();
+
+            out += "File pathname: " + file.getPathname() + ", id: " + fileId + ", desired replication degree: " + file.getChunks().get(0).getReplicationDegree();
+            for(Chunk chunk : file.getChunks())
+                out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + chunk.getChunkData().length + ", current replication degree: " + chunk.getCurrReplicationDegree();
+
+            out += "\n\n";
+        }
+
+        out += "Peer's storage capacity: " + maxDiskSpace + ", current occupied storage: " + manager.getCurrOccupiedSize() + "\n";
     }
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
