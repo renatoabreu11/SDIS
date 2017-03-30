@@ -80,7 +80,7 @@ public class Message {
             chunkNo = Integer.parseInt(headerSplit[4]);
             replicationDegree = Integer.parseInt(headerSplit[5]);
             header = new MessageHeader(type, version, senderId, fileId, chunkNo, replicationDegree);
-        }else if(type == Utils.MessageType.GETCHUNK || type == Utils.MessageType.CHUNK || type == Utils.MessageType.REMOVED){
+        }else if(type == Utils.MessageType.GETCHUNK || type == Utils.MessageType.CHUNK || type == Utils.MessageType.REMOVED || type == Utils.MessageType.STORED){
             chunkNo = Integer.parseInt(headerSplit[4]);
             header = new MessageHeader(type, version, senderId, fileId, chunkNo);
         }else
