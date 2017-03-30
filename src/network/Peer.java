@@ -7,7 +7,6 @@ import protocols.ProtocolDispatcher;
 import protocols.initiator.*;
 import utils.Utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
@@ -78,11 +77,13 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void RestoreFile(String pathname) throws IOException, InterruptedException {
+    public byte[] RestoreFile(String pathname) throws IOException, InterruptedException {
         protocol = new RestoreInitiator(protocolVersion, true, this, pathname);
         protocol.startProtocol();
+        byte[] fileData = ((RestoreInitiator) this.protocol).sendFile();
         protocol.endProtocol();
         protocol = null;
+        return fileData;
     }
 
     /**

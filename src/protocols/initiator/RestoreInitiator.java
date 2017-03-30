@@ -8,13 +8,21 @@ import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
 public class RestoreInitiator extends ProtocolInitiator{
     private String pathname;
     private ArrayList<Chunk> restoring = new ArrayList<>();
+
     private enum protocolState{
 
     }
@@ -48,12 +56,33 @@ public class RestoreInitiator extends ProtocolInitiator{
                 e.printStackTrace();
             }
         }
-
-        sendFile();
     }
 
-    private void sendFile() {
-        // Send file to client or restore the file in the curr peer????????????????????????????
+    public byte[] sendFile() {
+        try {
+            TimeUnit.MILLISECONDS.sleep(2500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        _File f = getParentPeer().getFileFromManager(pathname);
+
+        System.out.println(Arrays.asList(restoring));
+
+        //Collections.sort(restoring, (fruit2, fruit1) -> fruit1.getChunkNo().compareTo(fruit2.getChunkNo()));
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        for(int i = 0; i < restoring.size() - 1; i++){
+            Path path = Paths.get("data/"+f.getFileId() + restoring.get(i).getChunkNo());
+            try {
+                outputStream.write(Files.readAllBytes(path));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        byte[] fileData = outputStream.toByteArray();
+        return fileData;
     }
 
     /**
