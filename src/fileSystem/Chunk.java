@@ -186,7 +186,7 @@ public class Chunk implements Comparable<Chunk>{
 
     @Override
     public int compareTo(Chunk chunk) {
-        if(this.replicationDegree > chunk.getReplicationDegree())
+        if(this.chunkNo > chunk.getChunkNo())
             return 1;
         else
             return 0;
