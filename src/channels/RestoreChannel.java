@@ -32,7 +32,7 @@ public class RestoreChannel extends Channel {
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
             try {
                 this.getSocket().receive(dgp);
-                String message = new String(dgp.getData());
+                String message = new String(dgp.getData(), 0, dgp.getLength());
                 System.out.println("MDR message: " + message);
 
                 this.getParentPeer().addMessageToDispatcher(message);

@@ -41,7 +41,7 @@ public class Backup implements Runnable {
 
         // Only keeps the chunk if there's available space.
         long futureOccupiedSpace = chunkData.length + parentPeer.getManager().getCurrOccupiedSize();
-        if(futureOccupiedSpace > parentPeer.getMaxDiskSpace()) {
+        if(futureOccupiedSpace > parentPeer.getMaxDiskSpace() * 1000) {
             System.out.println("WARNING: Peer discarded a chunk because it had no available space to host it.");
             return;
         }
@@ -54,7 +54,7 @@ public class Backup implements Runnable {
         // Writes to file.
         FileOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = new FileOutputStream(fileId + chunkNo);
+            fileOutputStream = new FileOutputStream("data/" + fileId + chunkNo);
             fileOutputStream.write(chunkData);
 
             // Saves the chunk's info in the file manager.

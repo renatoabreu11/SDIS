@@ -55,6 +55,7 @@ public class BackupInitiator extends ProtocolInitiator{
 
         this.getParentPeer().saveFileToStorage(file);
         uploading = splitter.getChunks();
+
         logMessage("Sending backup messages...");
         uploadChunks(fileId);
     }
@@ -73,6 +74,7 @@ public class BackupInitiator extends ProtocolInitiator{
                 MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, getVersion(), getParentPeer().getId(), fileId, c.getChunkNo(), replicationDegree);
                 MessageBody body = new MessageBody(c.getChunkData());
                 Message message = new Message(header, body);
+
                 byte[] buffer = new byte[0];
                 try {
                     buffer = message.getMessageBytes();

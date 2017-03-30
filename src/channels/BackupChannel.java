@@ -30,11 +30,11 @@ public class BackupChannel extends Channel {
     @Override
     public void run() {
         while (true) {
-            byte[] buffer = new byte[HEADER_SIZE + BODY_SIZE];
+            byte[] buffer = new byte[310];
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
             try {
                 this.getSocket().receive(dgp);
-                String message = new String(dgp.getData());
+                String message = new String(dgp.getData(), 0, dgp.getLength());
                 System.out.println("MDB message: " + message);
 
                 this.getParentPeer().addMessageToDispatcher(message);
