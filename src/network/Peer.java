@@ -34,7 +34,7 @@ public class Peer implements IClientPeer {
 
     // Manage disk space auxiliar variables.
     private long maxDiskSpace = 74;
-    private ArrayList<Chunk> chunkBackingUp = new ArrayList<>();
+    private ArrayList<String> chunkBackingUp = new ArrayList<>();
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
@@ -245,16 +245,16 @@ public class Peer implements IClientPeer {
         this.maxDiskSpace = maxDiskSpace;
     }
 
-    public ArrayList<Chunk> getChunkBackingUp() {
+    public ArrayList<String> getChunkBackingUp() {
         return chunkBackingUp;
     }
 
-    public void setChunkBackingUp(ArrayList<Chunk> chunkBackingUp) {
+    public void setChunkBackingUp(ArrayList<String> chunkBackingUp) {
         this.chunkBackingUp = chunkBackingUp;
     }
 
     public void addChunkBackingUp(Chunk chunk) {
-        this.chunkBackingUp.add(chunk);
+        this.chunkBackingUp.add(chunk.getFileId() + chunk.getChunkNo());
     }
 
     public void removeChunkBackingUp(Chunk chunk) {
