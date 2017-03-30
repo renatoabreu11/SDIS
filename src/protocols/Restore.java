@@ -10,6 +10,9 @@ import protocols.initiator.RestoreInitiator;
 import utils.Utils;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +44,14 @@ public class Restore implements Runnable {
         for(int i = 0; i < chunks.size(); i++) {
             if(chunks.get(i).getChunkNo() == chunkNo) {
                 MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, senderId, fileId, chunkNo);
-                //ir ao ficheiro de backup e ler
-                //alterar isto
-                MessageBody body = new MessageBody(null);
+                Path path = Paths.get("data/" + fileId + chunkNo);
+                byte[] data = new byte[0];
+                try {
+                    data = Files.readAllBytes(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                MessageBody body = new MessageBody(data);
                 Message message = new Message(header, body);
                 try {
                     byte[] buffer = message.getMessageBytes();
