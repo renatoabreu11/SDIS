@@ -38,7 +38,7 @@ public class Backup implements Runnable {
         int replicationDegree = header.getReplicationDegree();
 
         byte[] chunkData = body.getBody();
-        Chunk chunk = new Chunk(replicationDegree, chunkNo, chunkData);
+        Chunk chunk = new Chunk(replicationDegree, chunkNo, chunkData, fileId);
 
         // Only keeps the chunk if there's available space.
         long futureOccupiedSpace = chunkData.length + parentPeer.getManager().getCurrOccupiedSize();

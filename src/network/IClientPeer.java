@@ -26,18 +26,18 @@ public interface IClientPeer extends Remote {
      * @param pathname the system path for the file to backup.
      * @throws RemoteException
      */
-    void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException;
+    void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException, InterruptedException;
 
     /**
      *
      * @param maxDiskSpace
      * @throws IOException
      */
-    String ManageDiskSpace(long maxDiskSpace) throws IOException;
+    String ManageDiskSpace(long maxDiskSpace) throws IOException, InterruptedException;
 
     /**
      *
      * @throws IOException
      */
-    String RetrieveInformation() throws IOException;
+    String RetrieveInformation() throws IOException, InterruptedException;
 }
