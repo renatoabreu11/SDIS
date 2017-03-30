@@ -87,9 +87,8 @@ public class FileManager {
         int chunkNo = header.getChunkNo();
 
         _File file = this.getFileStorage(fileId);
-        if(file != null){
+        if(file != null)
             file.updateChunk(chunkNo, senderId);
-        }
     }
 
     /**

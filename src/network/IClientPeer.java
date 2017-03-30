@@ -33,11 +33,11 @@ public interface IClientPeer extends Remote {
      * @param maxDiskSpace
      * @throws IOException
      */
-    void ManageDiskSpace(long maxDiskSpace) throws IOException;
+    String ManageDiskSpace(long maxDiskSpace) throws IOException;
 
     /**
      *
      * @throws IOException
      */
-    void RetrieveInformation() throws IOException;
+    String RetrieveInformation() throws IOException;
 }

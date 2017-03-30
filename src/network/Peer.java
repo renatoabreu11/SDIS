@@ -9,17 +9,12 @@ import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static utils.Utils.BackupRetransmissions;
 
 public class Peer implements IClientPeer {
 
@@ -115,121 +110,23 @@ public class Peer implements IClientPeer {
      * @throws IOException
      */
     @Override
-    public void ManageDiskSpace(long client_maxDiskSpace) throws IOException {
+    public String ManageDiskSpace(long client_maxDiskSpace) throws IOException {
         protocol = new ManageDiskInitiator(protocolVersion, true, this, client_maxDiskSpace);
         protocol.startProtocol();
         protocol.endProtocol();
+        String msgReply = ((ManageDiskInitiator)this.protocol).getSuccessMessage();
         protocol = null;
-        long freeCurrSpace;
-
-        switch(System.getProperty("os.name")) {
-            case "Linux":
-                freeCurrSpace = new File("/").getFreeSpace() / 1000;
-                break;
-            case "Windows":
-                freeCurrSpace = new File("C:").getFreeSpace() / 1000;
-                break;
-            default: freeCurrSpace = 0; break;
-        }
-
-        if(client_maxDiskSpace > freeCurrSpace) {
-            System.out.println("The machine hosting the peer doesn't have that much free space.");
-            return;
-        }
-
-        if(client_maxDiskSpace < manager.getCurrOccupiedSize())
-            ManageChunks(client_maxDiskSpace);
-
-        maxDiskSpace = client_maxDiskSpace;
-    }
-
-    /**
-     * Removes the chunks which have a higher replication degree until the available space is
-     * lower or equal than the amount the user specified.
-     * Sends a message to the MC every time a chunk is deleted, ir order to try to maintain the
-     * replication degree.s
-     * @param client_maxDiskSpace
-     * @throws IOException
-     */
-    private void ManageChunks(long client_maxDiskSpace) throws IOException {
-        ArrayList<Chunk> orderedChunks = GetFilesHigherRD();
-        int i = 0;
-        Chunk currChunkToDelete = orderedChunks.get(i);
-        boolean found = false;
-
-        do {
-            Iterator it = manager.getStorage().entrySet().iterator();
-
-            // Searches for the file which contains the chunk to be removed,
-            // because we need to assign to the message a fileId.
-            while(it.hasNext()) {
-                Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
-                _File file = entry.getValue();
-
-                if(file.getChunks().contains(currChunkToDelete)) {
-                    found = true;
-                    String fileId = entry.getKey();
-
-                    MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, protocolVersion, id, fileId, currChunkToDelete.getChunkNo());
-                    Message message = new Message(header);
-                    byte[] buffer = message.getMessageBytes();
-                    mc.sendMessage(buffer);
-                    manager.deleteStoredChunk(fileId, currChunkToDelete.getChunkNo());
-                    break;
-                }
-            }
-
-            // Safety measure.
-            if(!found) {
-                System.out.println("ERROR: couldn't find the file to remove. Aborting...");
-                return;
-            }
-
-            i++;
-            currChunkToDelete = orderedChunks.get(i);
-            found = false;
-        } while(client_maxDiskSpace < manager.getCurrOccupiedSize());
-    }
-
-    /**
-     * Returns all the chunks stored in the peer sorted by their duplication degree.
-     * @return
-     */
-    private ArrayList<Chunk> GetFilesHigherRD() {
-        Map<String, _File> storedFiles = manager.getStorage();
-        Iterator it = storedFiles.entrySet().iterator();
-
-        ArrayList<Chunk> chunkList = new ArrayList<>();
-        while(it.hasNext()) {
-            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
-            _File file = entry.getValue();
-
-            for(int i = 0; i < file.getNumChunks(); i++)
-                chunkList.add(file.getChunks().get(i));
-        }
-
-        Collections.sort(chunkList);
-        return chunkList;
+        return msgReply;
     }
 
     @Override
-    public void RetrieveInformation() throws IOException {
-        String out = "";
-        Iterator it = manager.getStorage().entrySet().iterator();
-
-        while(it.hasNext()) {
-            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
-            String fileId = entry.getKey();
-            _File file = entry.getValue();
-
-            out += "File pathname: " + file.getPathname() + ", id: " + fileId + ", desired replication degree: " + file.getChunks().get(0).getReplicationDegree();
-            for(Chunk chunk : file.getChunks())
-                out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + chunk.getChunkData().length + ", current replication degree: " + chunk.getCurrReplicationDegree();
-
-            out += "\n\n";
-        }
-
-        out += "Peer's storage capacity: " + maxDiskSpace + ", current occupied storage: " + manager.getCurrOccupiedSize() + "\n";
+    public String RetrieveInformation() throws IOException {
+        protocol = new RetrieveInfoInitiator(protocolVersion, true, this);
+        protocol.startProtocol();
+        protocol.endProtocol();
+        String msgReply = ((RetrieveInfoInitiator)this.protocol).getOut();
+        protocol = null;
+        return msgReply;
     }
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {

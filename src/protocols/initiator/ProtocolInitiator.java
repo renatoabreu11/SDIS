@@ -62,7 +62,7 @@ public abstract class ProtocolInitiator {
         this.parentPeer = parentPeer;
     }
 
-    public abstract void startProtocol();
+    public abstract void startProtocol() throws IOException;
 
     public void logMessage(String s){
         if(logSystem)

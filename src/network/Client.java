@@ -21,6 +21,7 @@ public class Client {
             System.out.println("Usage: java -jar Client <host_name> <remote_object_name>");
             return;
         }
+
         String hostname = args[0];
         String remoteObjectName = args[1];
 
@@ -47,7 +48,7 @@ public class Client {
 
         switch (decider) {
             case 1:
-                System.out.print("_File pathname: ");
+                System.out.print("File pathname: ");
                 String pathname = scanner.nextLine();
                 System.out.print("Replication degree: ");
                 int replicationDegree = scanner.nextInt();
@@ -57,7 +58,7 @@ public class Client {
                 stub.BackupFile(fileData, pathname, replicationDegree);
                 break;
             case 2:
-                System.out.println("_File pathname: ");
+                System.out.println("File pathname: ");
                 pathname = scanner.nextLine();
                 stub.RestoreFile(pathname);
                 break;
@@ -67,12 +68,14 @@ public class Client {
                 stub.DeleteFile(pathname);
                 break;
             case 4:
-                System.out.println("Max disk space available (in KBytes): ");
+                System.out.println("Maximum disk space available (in KBytes): ");
                 long maxDiskSpace = scanner.nextLong();
-                stub.ManageDiskSpace(maxDiskSpace);
+                String msgManage = stub.ManageDiskSpace(maxDiskSpace);
+                System.out.println(msgManage);
                 break;
             case 5:
-                stub.RetrieveInformation();
+                String peerInfo = stub.RetrieveInformation();
+                System.out.println(peerInfo);
                 break;
             default: break;
         }
