@@ -42,7 +42,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
         if(clientMaxDiskSpace > freeCurrSpace)
             successMessage = "The machine hosting the peer doesn't have that much free space.";
 
-        if(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize())
+        if(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize() / 1000)
             ManageChunks();
 
         getParentPeer().setMaxDiskSpace(clientMaxDiskSpace);
@@ -64,39 +64,23 @@ public class ManageDiskInitiator extends ProtocolInitiator{
         ArrayList<Chunk> orderedChunks = GetFilesHigherRD();
         int i = 0;
         Chunk currChunkToDelete = orderedChunks.get(i);
-        boolean found = false;
 
         do {
-            Iterator it = getParentPeer().getManager().getStorage().entrySet().iterator();
+            _File file = getParentPeer().getManager().getFileStorage(orderedChunks.get(i).getFileId());
+            String fileId = file.getFileId();
 
-            // Searches for the file which contains the chunk to be removed,
-            // because we need to assign to the message a fileId.
-            while(it.hasNext()) {
-                Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
-                _File file = entry.getValue();
-
-                if(file.getChunks().contains(currChunkToDelete)) {
-                    found = true;
-                    String fileId = entry.getKey();
-
-                    MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, getParentPeer().getProtocolVersion(), getParentPeer().getId(), fileId, currChunkToDelete.getChunkNo());
-                    Message message = new Message(header);
-                    byte[] buffer = message.getMessageBytes();
-                    getParentPeer().getMc().sendMessage(buffer);
-                    getParentPeer().getManager().deleteStoredChunk(fileId, currChunkToDelete.getChunkNo());
-                    break;
-                }
-            }
-
-            // Safety measure.
-            if(!found) {
-                System.out.println("ERROR: couldn't find the file to remove. Aborting...");
-                return;
-            }
+            MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, getParentPeer().getProtocolVersion(), getParentPeer().getId(), fileId, currChunkToDelete.getChunkNo());
+            Message message = new Message(header);
+            byte[] buffer = message.getMessageBytes();
+            getParentPeer().getMc().sendMessage(buffer);
+            getParentPeer().getManager().deleteStoredChunk(fileId, currChunkToDelete.getChunkNo());
 
             i++;
+            if(i == orderedChunks.size()) {
+                successMessage = "Removed everything on the peer, returning...";
+                return;
+            }
             currChunkToDelete = orderedChunks.get(i);
-            found = false;
         } while(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize() / 1000);
 
         successMessage = "The maximum disk space available was updated.";

@@ -52,9 +52,6 @@ public class Manage implements Runnable {
             try {
                 TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
 
-                if(parentPeer.getChunkBackingUp().contains(chunk.getFileId() + chunk.getChunkNo()))
-                    return;
-
                 // If this peer has already received the message to backup this exact chunk,
                 // we don't send the message.
                 if(parentPeer.getChunkBackingUp().contains(chunk.getFileId() + chunk.getChunkNo()))

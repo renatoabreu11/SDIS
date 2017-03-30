@@ -27,6 +27,7 @@ public class RestoreInitiator extends ProtocolInitiator{
     private enum protocolState{
 
     }
+
     public RestoreInitiator(String protocolVersion, boolean b, Peer peer, String pathname) {
         super(protocolVersion, b, peer);
         this.pathname = pathname;
