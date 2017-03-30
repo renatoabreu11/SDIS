@@ -10,6 +10,7 @@ public class Chunk implements Comparable<Chunk>{
     private int currReplicationDegree;
     private ArrayList<Integer> peers = new ArrayList<>();
     private byte[] chunkData;
+    private String fileId;
 
     /**
      *
@@ -17,11 +18,12 @@ public class Chunk implements Comparable<Chunk>{
      * @param chunkNo
      * @param chunkData
      */
-    public Chunk( int replicationDegree, int chunkNo, byte[] chunkData){
+    public Chunk( int replicationDegree, int chunkNo, byte[] chunkData, String fileId){
         this.chunkNo = chunkNo;
         this.replicationDegree = replicationDegree;
         this.currReplicationDegree = 0;
         this.chunkData = chunkData;
+        this.fileId = fileId;
     }
 
     /**
@@ -188,5 +190,9 @@ public class Chunk implements Comparable<Chunk>{
             return 1;
         else
             return 0;
+    }
+
+    public String getFileId() {
+        return fileId;
     }
 }

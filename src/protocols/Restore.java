@@ -49,6 +49,10 @@ public class Restore implements Runnable {
                     byte[] buffer = message.getMessageBytes();
 
                     TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
+
+                    if(parentPeer.getChunkRestoring().contains(fileId + chunkNo))
+                        return;
+
                     SendMessage(buffer);
                 } catch (IOException e) {
                     e.printStackTrace();

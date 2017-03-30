@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class RestoreInitiator extends ProtocolInitiator{
+
     private String pathname;
     private ArrayList<Chunk> restoring = new ArrayList<>();
     private enum protocolState{
@@ -24,7 +25,7 @@ public class RestoreInitiator extends ProtocolInitiator{
     }
 
     @Override
-    public void startProtocol() {
+    public void startProtocol() throws IOException, InterruptedException {
         _File file = getParentPeer().getFileFromManager(pathname);
         if(file == null)
             return;
@@ -35,18 +36,10 @@ public class RestoreInitiator extends ProtocolInitiator{
         for(int i = 0; i < numChunks; i++) {
             MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, (i+1));
             Message message = new Message(header);
-            byte[] buf = new byte[0];
-            try {
-                buf = message.getMessageBytes();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            byte[] buf = message.getMessageBytes();
+
             getParentPeer().sendMessageMC(buf);
-            try {
-                TimeUnit.MILLISECONDS.sleep(1000); //it is supposed to wait?
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            TimeUnit.MILLISECONDS.sleep(1000); //it is supposed to wait?
         }
 
         sendFile();

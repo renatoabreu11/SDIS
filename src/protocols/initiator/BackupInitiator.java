@@ -46,7 +46,7 @@ public class BackupInitiator extends ProtocolInitiator{
         logMessage("Splitting file in multiple chunks...");
         Splitter splitter = new Splitter(fileData);
         try {
-            splitter.splitFile(replicationDegree);
+            splitter.splitFile(replicationDegree, fileId);
         } catch (IOException e) {
             e.printStackTrace();
         }

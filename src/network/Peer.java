@@ -7,7 +7,6 @@ import protocols.ProtocolDispatcher;
 import protocols.initiator.*;
 import utils.Utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
@@ -30,11 +29,12 @@ public class Peer implements IClientPeer {
     private String serverAccessPoint;
     private IClientPeer stub;
 
-    // Backup protocol auxiliar variables.
-    private ArrayList<Chunk> chunkBackingUp = new ArrayList<>();
+    //Restore protocol auxiliar variables.
+    private ArrayList<String> chunkRestoring = new ArrayList<>();        // Hosts the chunks who have already sent by other peers.
 
     // Manage disk space auxiliar variables.
     private long maxDiskSpace = 74;
+    private ArrayList<Chunk> chunkBackingUp = new ArrayList<>();
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
@@ -97,7 +97,7 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException {
+    public void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException, InterruptedException {
         protocol = new DeleteInitiator(protocolVersion, true, this, pathname);
         protocol.startProtocol();
         protocol.endProtocol();
@@ -111,7 +111,7 @@ public class Peer implements IClientPeer {
      * @throws IOException
      */
     @Override
-    public String ManageDiskSpace(long client_maxDiskSpace) throws IOException {
+    public String ManageDiskSpace(long client_maxDiskSpace) throws IOException, InterruptedException {
         protocol = new ManageDiskInitiator(protocolVersion, true, this, client_maxDiskSpace);
         protocol.startProtocol();
         protocol.endProtocol();
@@ -121,7 +121,7 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public String RetrieveInformation() throws IOException {
+    public String RetrieveInformation() throws IOException, InterruptedException {
         protocol = new RetrieveInfoInitiator(protocolVersion, true, this);
         protocol.startProtocol();
         protocol.endProtocol();
@@ -291,5 +291,9 @@ public class Peer implements IClientPeer {
 
     public _File getFileFromManager(String pathname) {
         return manager.getFile(pathname);
+    }
+
+    public ArrayList<String> getChunkRestoring() {
+        return chunkRestoring;
     }
 }
