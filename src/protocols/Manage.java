@@ -1,13 +1,20 @@
 package protocols;
 
 import fileSystem.Chunk;
+import fileSystem._File;
 import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 import network.Peer;
+import protocols.initiator.BackupInitiator;
 import utils.Utils;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -45,20 +52,27 @@ public class Manage implements Runnable {
             try {
                 TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
 
+                if(parentPeer.getChunkBackingUp().contains(chunk))
+                    return;
+
                 // If this peer has already received the message to backup this exact chunk,
                 // we don't send the message.
                 if(parentPeer.getChunkBackingUp().contains(chunk))
                     return;
 
-                header = new MessageHeader(Utils.MessageType.PUTCHUNK, version, senderId, fileId, chunkNo, chunk.getReplicationDegree());
-                MessageBody body = new MessageBody(chunk.getChunkData());
-                Message message = new Message(header, body);
+                // Start backup protocol.
+                _File storedFile = parentPeer.getManager().getStorage().get(fileId);
+                String chunkPathname = storedFile.getPathname() + chunkNo;
+                Path path = Paths.get(chunkPathname);
+                byte[] fileData = Files.readAllBytes(path);
 
-                byte[] buffer = message.getMessageBytes();
-                parentPeer.sendMessageMDB(buffer);
+                parentPeer.BackupFile(fileData, chunkPathname, 1);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }

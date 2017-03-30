@@ -97,7 +97,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             i++;
             currChunkToDelete = orderedChunks.get(i);
             found = false;
-        } while(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize());
+        } while(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize() / 1000);
 
         successMessage = "The maximum disk space available was updated.";
     }

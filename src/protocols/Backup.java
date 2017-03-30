@@ -61,7 +61,7 @@ public class Backup implements Runnable {
             parentPeer.getManager().addChunkToStorage(fileId, chunk);
 
             // Creates the message to send back to the initiator peer.
-            MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, senderId, fileId, chunkNo);
+            MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, parentPeer.getId(), fileId, chunkNo);
             byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
 
             // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
