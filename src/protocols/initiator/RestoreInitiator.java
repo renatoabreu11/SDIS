@@ -42,7 +42,7 @@ public class RestoreInitiator extends ProtocolInitiator{
         int numChunks = file.getNumChunks();
 
         for(int i = 0; i < numChunks; i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, (i+1));
+            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
 
@@ -59,13 +59,16 @@ public class RestoreInitiator extends ProtocolInitiator{
         }
 
         _File f = getParentPeer().getFileFromManager(pathname);
+/*
 
+        Collections.sort(restoring);
         System.out.println(Arrays.asList(restoring));
+*/
 
-        //Collections.sort(restoring, (fruit2, fruit1) -> fruit1.getChunkNo().compareTo(fruit2.getChunkNo()));
+        System.out.println(restoring.size());
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        for(int i = 0; i < restoring.size() - 1; i++){
+        for(int i = 0; i < restoring.size(); i++){
             Path path = Paths.get("data/"+f.getFileId() + restoring.get(i).getChunkNo());
             try {
                 outputStream.write(Files.readAllBytes(path));
@@ -75,6 +78,7 @@ public class RestoreInitiator extends ProtocolInitiator{
         }
 
         byte[] fileData = outputStream.toByteArray();
+        System.out.println(fileData.toString());
         return fileData;
     }
 
