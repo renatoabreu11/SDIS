@@ -40,44 +40,51 @@ public class Client {
                 "2 - Restore a file\n" +
                 "3 - Delete a file\n" +
                 "4 - Manage local service storage\n" +
-                "5 - Retrieve local service state information\n\n" +
+                "5 - Retrieve local service state information\n" +
+                "6 - Exit\n\n" +
                 "Select an option: ");
         Scanner scanner = new Scanner(System.in);
         int decider = scanner.nextInt();
         scanner.nextLine();     // Needed to pick up the '\n'
 
-        switch (decider) {
-            case 1:
-                System.out.print("File pathname: ");
-                String pathname = scanner.nextLine();
-                System.out.print("Replication degree: ");
-                int replicationDegree = scanner.nextInt();
+        boolean exit = false;
+        while(!exit) {
+            switch (decider) {
+                case 1:
+                    System.out.print("File pathname: ");
+                    String pathname = scanner.nextLine();
+                    System.out.print("Replication degree: ");
+                    int replicationDegree = scanner.nextInt();
 
-                Path path = Paths.get(pathname);
-                byte[] fileData = Files.readAllBytes(path);
-                stub.BackupFile(fileData, pathname, replicationDegree);
-                break;
-            case 2:
-                System.out.println("File pathname: ");
-                pathname = scanner.nextLine();
-                stub.RestoreFile(pathname);
-                break;
-            case 3:
-                System.out.println("_File pathname: ");
-                pathname = scanner.nextLine();
-                stub.DeleteFile(pathname);
-                break;
-            case 4:
-                System.out.println("Maximum disk space available (in KBytes): ");
-                long maxDiskSpace = scanner.nextLong();
-                String msgManage = stub.ManageDiskSpace(maxDiskSpace);
-                System.out.println(msgManage);
-                break;
-            case 5:
-                String peerInfo = stub.RetrieveInformation();
-                System.out.println(peerInfo);
-                break;
-            default: break;
+                    Path path = Paths.get(pathname);
+                    byte[] fileData = Files.readAllBytes(path);
+                    stub.BackupFile(fileData, pathname, replicationDegree);
+                    break;
+                case 2:
+                    System.out.println("File pathname: ");
+                    pathname = scanner.nextLine();
+                    stub.RestoreFile(pathname);
+                    break;
+                case 3:
+                    System.out.println("_File pathname: ");
+                    pathname = scanner.nextLine();
+                    stub.DeleteFile(pathname);
+                    break;
+                case 4:
+                    System.out.println("Maximum disk space available (in KBytes): ");
+                    long maxDiskSpace = scanner.nextLong();
+                    String msgManage = stub.ManageDiskSpace(maxDiskSpace);
+                    System.out.println(msgManage);
+                    break;
+                case 5:
+                    String peerInfo = stub.RetrieveInformation();
+                    System.out.println(peerInfo);
+                    break;
+                case 6:
+                    exit = true;
+                    break;
+                default: break;
+            }
         }
 
         System.out.println("Client has ended.");
