@@ -10,6 +10,7 @@ import utils.Utils;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,13 @@ public class Backup implements Runnable {
         // Manage disk space related.
         parentPeer.addChunkBackingUp(chunk);
 
+        // Saves the chunk's info in the file manager.
+        if(!parentPeer.getManager().addChunkToStorage(fileId, chunk)) {
+            // Manage disk space related.
+            parentPeer.removeChunkBackingUp(chunk);
+            return;
+        }
+
         chunk.updateReplication(senderId);
 
         // Writes to file.
@@ -56,9 +64,6 @@ public class Backup implements Runnable {
         try {
             fileOutputStream = new FileOutputStream("data/" + fileId + chunkNo);
             fileOutputStream.write(chunkData);
-
-            // Saves the chunk's info in the file manager.
-            parentPeer.getManager().addChunkToStorage(fileId, chunk);
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, parentPeer.getId(), fileId, chunkNo);
