@@ -217,7 +217,7 @@ public class FileManager {
             String fileId = storedFile.getKey();
             _File file = storedFile.getValue();
 
-            str += fileId + ".. " + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + "\n";
+            str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + "\n";
             for(Chunk chunk : file.getChunks()) {
                 str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
                 for(int i = 0; i < chunk.getPeers().size(); i++) {

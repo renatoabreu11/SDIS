@@ -23,6 +23,9 @@ public class Delete implements Runnable {
 
         try {
             parentPeer.deleteFileStorage(fileId);
+
+            // Updates peer's metadata.
+            parentPeer.getManager().WriteMetadata();
         } catch (IOException e) {
             e.printStackTrace();
         }

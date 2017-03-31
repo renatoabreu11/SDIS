@@ -1,11 +1,9 @@
 package protocols.initiator;
 
-import messageSystem.Message;
 import network.Peer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.concurrent.TimeUnit;
 
 public abstract class ProtocolInitiator {
     private String version;

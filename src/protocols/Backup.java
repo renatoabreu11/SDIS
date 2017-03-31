@@ -76,6 +76,8 @@ public class Backup implements Runnable {
             // Sends the message to the initiator peer.
             parentPeer.getMc().sendMessage(responseBytes);
 
+            // Updates peer's metadata.
+            parentPeer.getManager().WriteMetadata();
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
         } catch (FileNotFoundException e) {

@@ -64,6 +64,7 @@ public class Peer implements IClientPeer {
         protocol.startProtocol();
         protocol.endProtocol();
         protocol = null;
+        manager.WriteMetadata();
     }
 
     public void updateFileStorage(Message msgWrapper) {

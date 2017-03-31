@@ -64,7 +64,6 @@ public class Manage implements Runnable {
                 byte[] fileData = Files.readAllBytes(path);
 
                 parentPeer.BackupFile(fileData, chunkPathname, 1);
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (IOException e) {
