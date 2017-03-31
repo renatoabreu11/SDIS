@@ -8,7 +8,6 @@ public class _File {
     private String pathname;
     private ArrayList<Chunk> chunks = new ArrayList<>();
     private int numChunks;
-    private String fileExtension;
     public _File(String pathname, String fileId, int totalChunks) {
         this.pathname = pathname;
         this.fileId = fileId;
@@ -61,22 +60,6 @@ public class _File {
      */
     public void setChunks(ArrayList<Chunk> chunks) {
         this.chunks = chunks;
-    }
-
-    /**
-     * Get the file extension
-     * @return
-     */
-    public String getFileExtension() {
-        return fileExtension;
-    }
-
-    /**
-     * Set the file extension
-     * @param fileExtension
-     */
-    public void setFileExtension(String fileExtension) {
-        this.fileExtension = fileExtension;
     }
 
     /**

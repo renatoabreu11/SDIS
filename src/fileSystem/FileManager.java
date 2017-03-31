@@ -3,7 +3,7 @@ package fileSystem;
 import messageSystem.Message;
 import messageSystem.MessageHeader;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -188,5 +188,49 @@ public class FileManager {
         }
 
         return null;
+    }
+
+    /**
+     * Writes all the storage info on a file.
+     * Needed in case the peer crashes or is terminated. Allows for recovering of data.
+     * @throws IOException
+     */
+    public synchronized void WriteMetadata() throws IOException {
+        /*
+        * File format:
+        * "file_id..pathname..replication_degree
+        * chunk_1..current_replication_degree..peer1..peer2..peer_n
+        * chunk_2..current_replication_degree..peer1..peer2..peer_n
+        * chunk_number..current_replication_degree..peer1..peer2..peer_n
+        *
+        * file_id..pathname..replication_degree
+        * chunk_1..current_replication_degree..peer1..peer2..peer_n
+        * chunk_2..current_replication_degree..peer1..peer2..peer_n
+        * chunk_number..current_replication_degree..peer1..peer2..peer_n"
+        * */
+        FileOutputStream fos = new FileOutputStream("data/metadata.txt");
+        String str = "";
+
+        Iterator it = storage.entrySet().iterator();
+        while(it.hasNext()) {
+            Map.Entry<String, _File> storedFile = (Map.Entry<String, _File>) it.next();
+            String fileId = storedFile.getKey();
+            _File file = storedFile.getValue();
+
+            str += fileId + ".. " + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + "\n";
+            for(Chunk chunk : file.getChunks()) {
+                str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
+                for(int i = 0; i < chunk.getPeers().size(); i++) {
+                    str += chunk.getPeers().get(i);
+                    if(i < chunk.getPeers().size())
+                        str += "..";
+                }
+            }
+
+            str += "\n\n";
+        }
+
+        fos.write(str.getBytes());
+        fos.close();
     }
 }

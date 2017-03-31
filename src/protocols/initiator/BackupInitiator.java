@@ -9,6 +9,7 @@ import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
