@@ -3,6 +3,8 @@ package utils;
 import java.util.regex.Pattern;
 
 public class Utils {
+    public static long RecoverMaxTime = 2500;
+
     public enum MessageType {
         PUTCHUNK,
         STORED,
@@ -29,5 +31,5 @@ public class Utils {
     public final static int DeleteRetransmissions = 3;
 
     public final static int RMI_PORT = 1099;
-    public final static String IPV4_ADDRESS = "192.168.108.42";
+    public final static String IPV4_ADDRESS = "192.168.33.217";
 }
