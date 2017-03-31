@@ -35,26 +35,27 @@ public class Client {
      * Shows the menu
      */
     public static void Menu() throws InterruptedException, IOException, NoSuchAlgorithmException {
-        System.out.print(
-                "1 - Backup a file\n" +
-                "2 - Restore a file\n" +
-                "3 - Delete a file\n" +
-                "4 - Manage local service storage\n" +
-                "5 - Retrieve local service state information\n" +
-                "6 - Exit\n\n" +
-                "Select an option: ");
-        Scanner scanner = new Scanner(System.in);
-        int decider = scanner.nextInt();
-        scanner.nextLine();     // Needed to pick up the '\n'
-
         boolean exit = false;
         while(!exit) {
+            System.out.print(
+                    "1 - Backup a file\n" +
+                            "2 - Restore a file\n" +
+                            "3 - Delete a file\n" +
+                            "4 - Manage local service storage\n" +
+                            "5 - Retrieve local service state information\n" +
+                            "6 - Exit\n\n" +
+                            "Select an option: ");
+            Scanner scanner = new Scanner(System.in);
+            int decider = scanner.nextInt();
+            scanner.nextLine();     // Needed to pick up the '\n'
+
             switch (decider) {
                 case 1:
                     System.out.print("File pathname: ");
                     String pathname = scanner.nextLine();
                     System.out.print("Replication degree: ");
                     int replicationDegree = scanner.nextInt();
+                    scanner.nextLine();
 
                     Path path = Paths.get(pathname);
                     byte[] fileData = Files.readAllBytes(path);
@@ -85,6 +86,8 @@ public class Client {
                     break;
                 default: break;
             }
+
+            System.out.println();
         }
 
         System.out.println("Client has ended.");
