@@ -59,9 +59,9 @@ public class Message {
             case "CHUNK":
                 type = Utils.MessageType.CHUNK; numberOfArgs = 5; break;
             case "DELETE":
-                type = Utils.MessageType.DELETE; numberOfArgs = 5; break;
+                type = Utils.MessageType.DELETE; numberOfArgs = 4; break;
             case "REMOVED":
-                type = Utils.MessageType.REMOVED; numberOfArgs = 4; break;
+                type = Utils.MessageType.REMOVED; numberOfArgs = 5; break;
             default:
                 return;
         }
@@ -86,6 +86,7 @@ public class Message {
         }else
             header = new MessageHeader(type, version, senderId, fileId);
 
+        System.out.println(header.getMessageHeaderAsString());
         if(msgBody != null){
             body = new MessageBody(msgBody.getBytes());
         }

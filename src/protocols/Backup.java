@@ -64,6 +64,7 @@ public class Backup implements Runnable {
         try {
             fileOutputStream = new FileOutputStream("data/" + fileId + chunkNo);
             fileOutputStream.write(chunkData);
+            fileOutputStream.close();
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, parentPeer.getId(), fileId, chunkNo);

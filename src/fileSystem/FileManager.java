@@ -106,7 +106,7 @@ public class FileManager {
         // Removes all the chunk's files from the computer.
         for(int i = 0; i < file.getChunks().size(); i++) {
             Chunk chunk = file.getChunks().get(i);
-            Path path = Paths.get(fileId + chunk.getChunkNo());
+            Path path = Paths.get("data/" + fileId + chunk.getChunkNo());
             Files.delete(path);
         }
 

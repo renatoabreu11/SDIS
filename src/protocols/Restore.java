@@ -43,7 +43,7 @@ public class Restore implements Runnable {
         ArrayList<Chunk> chunks = file.getChunks();
         for(int i = 0; i < chunks.size(); i++) {
             if(chunks.get(i).getChunkNo() == chunkNo) {
-                MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, senderId, fileId, chunkNo);
+                MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, parentPeer.getId(), fileId, chunkNo);
                 Path path = Paths.get("data/" + fileId + chunkNo);
                 byte[] data = new byte[0];
                 try {
@@ -61,7 +61,7 @@ public class Restore implements Runnable {
                     if(parentPeer.getChunkRestoring().contains(fileId + chunkNo))
                         return;
 
-                    SendMessage(buffer);
+                    parentPeer.sendMessageMDR(buffer);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -69,10 +69,5 @@ public class Restore implements Runnable {
                 }
             }
         }
-    }
-
-    private void SendMessage(byte[] buffer) {
-        if(parentPeer.getProtocol() == null) //confirmar isto
-            parentPeer.sendMessageMDR(buffer);
     }
 }
