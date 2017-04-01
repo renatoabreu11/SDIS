@@ -4,9 +4,15 @@ import fileSystem.Chunk;
 import fileSystem._File;
 import network.Peer;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+
+import static java.nio.file.Files.readAllBytes;
 
 public class RetrieveInfoInitiator extends ProtocolInitiator{
 
@@ -18,7 +24,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
     }
 
     @Override
-    public void startProtocol() {
+    public void startProtocol() throws IOException {
         Iterator it = getParentPeer().getManager().getStorage().entrySet().iterator();
         ArrayList<Chunk> storedChunks = new ArrayList<>();
 
@@ -29,7 +35,9 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
             out += "File pathname: " + file.getPathname() + ", id: " + fileId + ", desired replication degree: " + file.getChunks().get(0).getReplicationDegree();
             for(Chunk chunk : file.getChunks()) {
-                out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + chunk.getChunkData().length + ", current replication degree: " + chunk.getCurrReplicationDegree();
+                Path path = Paths.get("data/" + fileId + chunk.getChunkNo());
+                long bytesSize = Files.readAllBytes(path).length;
+                out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, current replication degree: " + chunk.getCurrReplicationDegree();
                 if(chunk.getPeers().contains(getParentPeer().getId()))
                     storedChunks.add(chunk);
             }
@@ -39,11 +47,13 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
         out += "Stored Chunks";
         for(Chunk chunk : storedChunks) {
-            out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + chunk.getChunkData().length + " bytes, perceived replication degree: " + chunk.getReplicationDegree();
+            Path path = Paths.get("data/" + chunk.getFileId() + chunk.getChunkNo());
+            long bytesSize = Files.readAllBytes(path).length;
+            out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, perceived replication degree: " + chunk.getReplicationDegree();
         }
 
-        out += "\n\nPeer's storage capacity: " + getParentPeer().getMaxDiskSpace() + " KBytes, current occupied storage: " + getParentPeer().getManager().getCurrOccupiedSize() / 1000 + " KBytes\n";
-        out = "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
+        out += "\n\nPeer's storage capacity: " + getParentPeer().getMaxDiskSpace() + " KBytes, current occupied storage: " + getParentPeer().getManager().getCurrOccupiedSize() + " Bytes\n";
+        out += "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
     }
 
     public String getOut() {

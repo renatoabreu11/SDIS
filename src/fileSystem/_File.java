@@ -1,5 +1,9 @@
 package fileSystem;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class _File {
@@ -130,11 +134,14 @@ public class _File {
      * Returns the number of bytes all the chunks of this file occupies.
      * @return
      */
-    public long getFileBytesSize() {
+    public long getFileBytesSize() throws IOException {
         long numBytes = 0;
 
-        for(Chunk chunk : chunks)
-            numBytes += chunk.getChunkData().length;
+        for(Chunk chunk : chunks) {
+            Path path = Paths.get("data/" + fileId + chunk.getChunkNo());
+            long bytesSize = Files.readAllBytes(path).length;
+            numBytes += bytesSize;
+        }
 
         return numBytes;
     }

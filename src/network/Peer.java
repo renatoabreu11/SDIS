@@ -57,6 +57,12 @@ public class Peer implements IClientPeer {
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
         System.out.println("All channels online.");
+
+        try {
+            System.out.println(RetrieveInformation());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

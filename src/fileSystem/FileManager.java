@@ -159,7 +159,7 @@ public class FileManager {
         this.backupLocation = backupLocation;
     }
 
-    public synchronized long getCurrOccupiedSize() {
+    public synchronized long getCurrOccupiedSize() throws IOException {
         Iterator it = storage.entrySet().iterator();
         long numBytes = 0;
 
