@@ -14,10 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 
 public class RestoreInitiator extends ProtocolInitiator{
 
@@ -69,7 +66,7 @@ public class RestoreInitiator extends ProtocolInitiator{
         _File f = getParentPeer().getFileFromManager(pathname);
         int chunksNo = f.getNumChunks();
         boolean foundAllChunks = false;
-        long t= System.currentTimeMillis();
+        long t = System.currentTimeMillis();
         long end = t+Utils.RecoverMaxTime;
 
         while(System.currentTimeMillis() < end || !foundAllChunks){
@@ -95,7 +92,7 @@ public class RestoreInitiator extends ProtocolInitiator{
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for(int i = 0; i < restoring.size(); i++){
-            Path path = Paths.get("data/"+f.getFileId() + restoring.get(i).getChunkNo());
+            Path path = Paths.get("data/" + f.getFileId() + restoring.get(i).getChunkNo());
             try {
                 outputStream.write(Files.readAllBytes(path));
             } catch (IOException e) {
@@ -107,7 +104,7 @@ public class RestoreInitiator extends ProtocolInitiator{
         currState = protocolState.SENDFILE;
     }
 
-    public byte[] sendFile() {
+    public byte[] getFile() {
         if(currState != protocolState.SENDFILE)
             return null;
         return fileData;
@@ -121,7 +118,6 @@ public class RestoreInitiator extends ProtocolInitiator{
         MessageHeader header = message.getHeader();
         MessageBody body = message.getBody();
 
-        String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
         byte[] data = body.getBody();
 
@@ -138,7 +134,6 @@ public class RestoreInitiator extends ProtocolInitiator{
     public void setPathname(String pathname) {
         this.pathname = pathname;
     }
-
 
     public ArrayList<Chunk> getRestoring() {
         return restoring;

@@ -69,18 +69,12 @@ public class _File {
      * @return
      */
     public boolean addChunk(Chunk c){
-        boolean found = false;
         for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).equals(c)){
-                found = true;
-                break;
-            }
+            if(chunks.get(i).equals(c))
+                return false;
         }
 
-        if(found)
-            return false;
-        else chunks.add(c);
-
+        chunks.add(c);
         return true;
     }
 

@@ -1,5 +1,7 @@
 package network;
 
+import utils.Utils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,13 +19,13 @@ public class Client {
     private static IClientPeer stub;
 
     public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
-        if(args.length != 2) {
-            System.out.println("Usage: java -jar Client <host_name> <remote_object_name>");
+        if(args.length != 0) {
+            System.out.println("Usage: java -jar Client");
             return;
         }
 
-        String hostname = args[0];
-        String remoteObjectName = args[1];
+        String hostname = Utils.IPV4_ADDRESS;
+        String remoteObjectName = "IClientPeer";
 
         registry = LocateRegistry.getRegistry(hostname);
         stub = (IClientPeer) registry.lookup(remoteObjectName);

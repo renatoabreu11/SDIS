@@ -68,8 +68,9 @@ public class Peer implements IClientPeer {
         manager.WriteMetadata();
     }
 
-    public void updateFileStorage(Message msgWrapper) {
+    public void updateFileStorage(Message msgWrapper) throws IOException {
         this.manager.updateStorage(msgWrapper);
+        this.manager.WriteMetadata();
         if(this.protocol instanceof BackupInitiator)
             ((BackupInitiator) this.protocol).updateUploadingChunks(msgWrapper);
 
@@ -83,7 +84,7 @@ public class Peer implements IClientPeer {
     public byte[] RestoreFile(String pathname) throws IOException, InterruptedException {
         protocol = new RestoreInitiator(protocolVersion, true, this, pathname);
         protocol.startProtocol();
-        byte[] fileData = ((RestoreInitiator) this.protocol).sendFile();
+        byte[] fileData = ((RestoreInitiator) this.protocol).getFile();
         protocol.endProtocol();
         protocol = null;
         return fileData;

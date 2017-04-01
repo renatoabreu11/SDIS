@@ -14,7 +14,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
     public RetrieveInfoInitiator(String version, boolean logSystem, Peer parentPeer) {
         super(version, logSystem, parentPeer);
-        out = "\n\n";
+        out = "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
     }
 
     @Override
@@ -39,10 +39,11 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
         out += "Stored Chunks";
         for(Chunk chunk : storedChunks) {
-            out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + chunk.getChunkData().length + ", perceived replication degree: " + chunk.getReplicationDegree();
+            out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + chunk.getChunkData().length + " bytes, perceived replication degree: " + chunk.getReplicationDegree();
         }
 
         out += "\n\nPeer's storage capacity: " + getParentPeer().getMaxDiskSpace() + " KBytes, current occupied storage: " + getParentPeer().getManager().getCurrOccupiedSize() / 1000 + " KBytes\n";
+        out = "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
     }
 
     public String getOut() {

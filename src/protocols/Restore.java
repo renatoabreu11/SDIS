@@ -32,7 +32,6 @@ public class Restore implements Runnable {
     @Override
     public void run() {
         String version = request.getHeader().getVersion();
-        int senderId = request.getHeader().getSenderId();
         String fileId = request.getHeader().getFileId();
         int chunkNo = request.getHeader().getChunkNo();
 

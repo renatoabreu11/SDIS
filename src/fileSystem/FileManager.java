@@ -219,7 +219,7 @@ public class FileManager {
             String fileId = storedFile.getKey();
             _File file = storedFile.getValue();
 
-            str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + ".." + file.getNumChunks() + "\n";
+            str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + ".." + file.getChunks().size() + "\n";
             for(Chunk chunk : file.getChunks()) {
                 str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
                 for(int i = 0; i < chunk.getPeers().size(); i++) {
@@ -251,31 +251,41 @@ public class FileManager {
                 break;
             String[] lineSplit = line.split("\\.\\.");
 
-            // length == 4 --> File Identification
-            if(lineSplit.length == 4) {
-                String fileId = lineSplit[0];
-                String pathname = lineSplit[1];
-                int replicationDegree = Integer.parseInt(lineSplit[2]);
-                int numChunks = Integer.parseInt(lineSplit[3]);
-                _File file = new _File(pathname, fileId, numChunks);
+            String fileId = lineSplit[0];
+            String pathname = lineSplit[1].equals("null") ? null : lineSplit[1];
+            int replicationDegree = Integer.parseInt(lineSplit[2]);
+            int numChunks = Integer.parseInt(lineSplit[3]);
+            _File file = new _File(pathname, fileId, numChunks);
 
-                for(int i = 0; i < numChunks; i++) {
-                    line = br.readLine();
-                    lineSplit = line.split("\\.\\.");
+            for(int i = 0; i < numChunks; i++) {
+                line = br.readLine();
+                lineSplit = line.split("\\.\\.");
 
-                    int chunkNo = Integer.parseInt(lineSplit[0]);
-                    int currReplicationDegree = Integer.parseInt(lineSplit[1]);
-                    ArrayList<Integer> peers = new ArrayList<>();
+                int chunkNo = Integer.parseInt(lineSplit[0]);
+                int currReplicationDegree = Integer.parseInt(lineSplit[1]);
+                ArrayList<Integer> peers = new ArrayList<>();
 
-                    for(int j = 2; j < lineSplit.length; j++)
-                        peers.add(Integer.parseInt(lineSplit[j]));
+                for(int j = 2; j < lineSplit.length; j++)
+                    peers.add(Integer.parseInt(lineSplit[j]));
 
-                    Chunk chunk = new Chunk(replicationDegree, fileId, chunkNo, currReplicationDegree, peers);
-                    file.addChunk(chunk);
-                }
-
-                storage.put(fileId, file);
+                Chunk chunk = new Chunk(replicationDegree, fileId, chunkNo, currReplicationDegree, peers);
+                file.addChunk(chunk);
             }
+
+            storage.put(fileId, file);
         }
+
+        int numChunks = 0;
+        Iterator it = storage.entrySet().iterator();
+        while(it.hasNext()) {
+            Map.Entry<String, _File> storedFile = (Map.Entry<String, _File>) it.next();
+            _File file = storedFile.getValue();
+
+            for(Chunk chunk : file.getChunks())
+                numChunks++;
+        }
+
+        System.out.println("Loaded " + storage.size() + " files, and " + numChunks + " chunks.");
+
     }
 }
