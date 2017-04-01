@@ -42,6 +42,7 @@ public class Peer implements IClientPeer {
         this.serverAccessPoint = serverAccessPoint;
         manager = new FileManager();
 
+        manager.LoadMetadata();
         mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this);
         mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
         mdr = new RestoreChannel(multicastInfo[4], multicastInfo[5], this);

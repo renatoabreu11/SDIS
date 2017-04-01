@@ -2,12 +2,15 @@ package fileSystem;
 
 import messageSystem.Message;
 import messageSystem.MessageHeader;
+import utils.Utils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -198,11 +201,10 @@ public class FileManager {
     public synchronized void WriteMetadata() throws IOException {
         /*
         * File format:
-        * "file_id..pathname..replication_degree
+        * "file_id..pathname..replication_degree..number_chunks
         * chunk_1..current_replication_degree..peer1..peer2..peer_n
         * chunk_2..current_replication_degree..peer1..peer2..peer_n
         * chunk_number..current_replication_degree..peer1..peer2..peer_n
-        *
         * file_id..pathname..replication_degree
         * chunk_1..current_replication_degree..peer1..peer2..peer_n
         * chunk_2..current_replication_degree..peer1..peer2..peer_n
@@ -217,7 +219,7 @@ public class FileManager {
             String fileId = storedFile.getKey();
             _File file = storedFile.getValue();
 
-            str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + "\n";
+            str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + ".." + file.getNumChunks() + "\n";
             for(Chunk chunk : file.getChunks()) {
                 str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
                 for(int i = 0; i < chunk.getPeers().size(); i++) {
@@ -226,11 +228,54 @@ public class FileManager {
                         str += "..";
                 }
             }
-
-            str += "\n\n";
         }
 
         fos.write(str.getBytes());
         fos.close();
+    }
+
+    /**
+     * Loads previously existed metadata.
+     * @throws IOException
+     */
+    public void LoadMetadata() throws IOException {
+        if(!new File(Utils.METADATA_PATHNAME).exists())
+            return;
+
+        FileReader fr = new FileReader(Utils.METADATA_PATHNAME);
+        BufferedReader br = new BufferedReader(fr);
+        String line;
+
+        while(true) {
+            if((line = br.readLine()) == null)
+                break;
+            String[] lineSplit = line.split("\\.\\.");
+
+            // length == 4 --> File Identification
+            if(lineSplit.length == 4) {
+                String fileId = lineSplit[0];
+                String pathname = lineSplit[1];
+                int replicationDegree = Integer.parseInt(lineSplit[2]);
+                int numChunks = Integer.parseInt(lineSplit[3]);
+                _File file = new _File(pathname, fileId, numChunks);
+
+                for(int i = 0; i < numChunks; i++) {
+                    line = br.readLine();
+                    lineSplit = line.split("\\.\\.");
+
+                    int chunkNo = Integer.parseInt(lineSplit[0]);
+                    int currReplicationDegree = Integer.parseInt(lineSplit[1]);
+                    ArrayList<Integer> peers = new ArrayList<>();
+
+                    for(int j = 2; j < lineSplit.length; j++)
+                        peers.add(Integer.parseInt(lineSplit[j]));
+
+                    Chunk chunk = new Chunk(replicationDegree, fileId, chunkNo, currReplicationDegree, peers);
+                    file.addChunk(chunk);
+                }
+
+                storage.put(fileId, file);
+            }
+        }
     }
 }

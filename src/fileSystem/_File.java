@@ -8,6 +8,7 @@ public class _File {
     private String pathname;
     private ArrayList<Chunk> chunks = new ArrayList<>();
     private int numChunks;
+
     public _File(String pathname, String fileId, int totalChunks) {
         this.pathname = pathname;
         this.fileId = fileId;

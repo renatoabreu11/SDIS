@@ -45,6 +45,24 @@ public class Chunk implements Comparable<Chunk>{
     }
 
     /**
+     * LoadMetadata() callable.
+     * @param replicationDegree
+     * @param fileId
+     * @param chunkNo
+     * @param currReplicationDegree
+     * @param peers
+     */
+    public Chunk(int replicationDegree, String fileId, int chunkNo, int currReplicationDegree, ArrayList<Integer> peers) {
+        this.replicationDegree = replicationDegree;
+        this.fileId = fileId;
+        this.chunkNo = chunkNo;
+        this.currReplicationDegree = currReplicationDegree;
+
+        for(int i = 0; i < peers.size(); i++)
+            this.peers.add(peers.get(i));
+    }
+
+    /**
      *
      * @param obj
      * @return
