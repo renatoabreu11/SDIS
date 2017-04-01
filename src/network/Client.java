@@ -2,6 +2,7 @@ package network;
 
 import utils.Utils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,10 +67,14 @@ public class Client {
                 case 2:
                     System.out.println("File pathname: ");
                     pathname = scanner.nextLine();
-                    stub.RestoreFile(pathname);
+                    fileData = stub.RestoreFile(pathname);
+                    
+                    FileOutputStream fos = new FileOutputStream(pathname);
+                    fos.write(fileData);
+                    fos.close();
                     break;
                 case 3:
-                    System.out.println("_File pathname: ");
+                    System.out.println("File pathname: ");
                     pathname = scanner.nextLine();
                     stub.DeleteFile(pathname);
                     break;

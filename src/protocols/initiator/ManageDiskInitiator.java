@@ -39,8 +39,10 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             default: freeCurrSpace = 0; break;
         }
 
-        if(clientMaxDiskSpace > freeCurrSpace)
+        if(clientMaxDiskSpace > freeCurrSpace) {
             successMessage = "The machine hosting the peer doesn't have that much free space.";
+            return;
+        }
 
         if(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize() / 1000)
             ManageChunks();

@@ -275,7 +275,7 @@ public class FileManager {
             storage.put(fileId, file);
         }
 
-        int numChunks = 0;
+        /*int numChunks = 0;
         Iterator it = storage.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry<String, _File> storedFile = (Map.Entry<String, _File>) it.next();
@@ -285,7 +285,6 @@ public class FileManager {
                 numChunks++;
         }
 
-        System.out.println("Loaded " + storage.size() + " files, and " + numChunks + " chunks.");
-
+        System.out.println("Loaded " + storage.size() + " files, and " + numChunks + " chunks.");*/
     }
 }
