@@ -27,17 +27,21 @@ public class BackupInitiator extends ProtocolInitiator{
     private int numTransmission;
     private ArrayList<Chunk> uploading = new ArrayList<>();
     private enum protocolState{
-        INITIALIZE,
-        UPLOAD,
+        INIT,
+        BACKUPMESSAGE,
+        EXCEEDETRANSMISSIONS,
+        SUCCESS
     }
+    private protocolState currState;
 
     public BackupInitiator(String version, boolean logSystem, Peer parentPeer, byte[] fileData, String pathname, int replicationDegree) {
         super(version, logSystem, parentPeer);
-        logMessage("Starting backup protocol...");
+        logMessage("Init Backup protocol...");
         this.fileData = fileData;
         this.pathname = pathname;
         this.replicationDegree = replicationDegree;
         this.numTransmission = 1;
+        currState = protocolState.INIT;
     }
 
     public void startProtocol(){
@@ -58,6 +62,7 @@ public class BackupInitiator extends ProtocolInitiator{
         uploading = splitter.getChunks();
 
         logMessage("Sending backup messages...");
+        this.currState = protocolState.BACKUPMESSAGE;
         uploadChunks(fileId);
     }
 
@@ -66,6 +71,7 @@ public class BackupInitiator extends ProtocolInitiator{
         do{
             if(numTransmission > BackupRetransmissions) {
                 logMessage("WARNING: number of retransmission exceeded. Aborting...");
+                this.currState = protocolState.EXCEEDETRANSMISSIONS;
                 return;
             }
 
@@ -98,6 +104,7 @@ public class BackupInitiator extends ProtocolInitiator{
         } while(!desiredReplicationDegree);
 
         uploading.clear();
+        this.currState = protocolState.SUCCESS;
     }
 
     public void updateUploadingChunks(Message msgWrapper) {
@@ -117,7 +124,6 @@ public class BackupInitiator extends ProtocolInitiator{
     }
 
     public String createFileId(){
-        //We have to change this
         String lastModified = Long.toString(new java.io.File(pathname).lastModified());
 
         MessageDigest md = null;
@@ -148,6 +154,14 @@ public class BackupInitiator extends ProtocolInitiator{
         }
 
         return nrChunksWithoutReplication;
+    }
+
+    public String endProtocol() {
+        if(this.currState == protocolState.EXCEEDETRANSMISSIONS)
+            return "Backup Protocol Failure";
+        else if(this.currState == protocolState.SUCCESS)
+            return "Backup Protocol Success";
+        else return "Beep Boop Error Beep Boop";
     }
 
     public byte[] getFileData() {

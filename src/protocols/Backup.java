@@ -37,8 +37,13 @@ public class Backup implements Runnable {
         int chunkNo = header.getChunkNo();
         int replicationDegree = header.getReplicationDegree();
 
+/*      Uncomment this later
+        if(senderId == parentPeer.getId()) // a peer never stores the chunks of it own files
+            return;
+*/
+
         byte[] chunkData = body.getBody();
-        Chunk chunk = new Chunk(replicationDegree, chunkNo, chunkData, fileId);
+        Chunk chunk = new Chunk(replicationDegree, chunkNo, fileId);
 
         // Only keeps the chunk if there's available space.
         long futureOccupiedSpace = 0;
@@ -59,7 +64,7 @@ public class Backup implements Runnable {
         if(!parentPeer.getManager().addChunkToStorage(fileId, chunk)) {
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
-            System.out.println("Now enough disk space. Aborting.");
+            System.out.println("Chunk already stored. Aborting.");
             return;
         }
 
@@ -68,7 +73,7 @@ public class Backup implements Runnable {
         // Writes to file.
         FileOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = new FileOutputStream("data/" + fileId + chunkNo);
+            fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunkNo);
             fileOutputStream.write(chunkData);
             fileOutputStream.close();
 
@@ -86,11 +91,7 @@ public class Backup implements Runnable {
             parentPeer.getManager().WriteMetadata();
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }

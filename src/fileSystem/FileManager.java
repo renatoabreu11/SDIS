@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FileManager {
 
     private ConcurrentHashMap<String, _File> storage = new ConcurrentHashMap<>();
-    private String backupLocation = "/tmp";
+    private String backupLocation = "data/chunks/";
 
     /**
      * File manager Constructor
@@ -109,7 +109,7 @@ public class FileManager {
         // Removes all the chunk's files from the computer.
         for(int i = 0; i < file.getChunks().size(); i++) {
             Chunk chunk = file.getChunks().get(i);
-            Path path = Paths.get("data/" + fileId + chunk.getChunkNo());
+            Path path = Paths.get(backupLocation + fileId + chunk.getChunkNo());
             Files.delete(path);
         }
 
@@ -129,7 +129,7 @@ public class FileManager {
 
         for(Chunk chunk : file.getChunks()) {
             if(chunk.getChunkNo() == chunkNo) {
-                Path path = Paths.get(fileId + chunkNo);
+                Path path = Paths.get(backupLocation + fileId + chunkNo);
                 Files.delete(path);
                 file.removeChunk(chunk);
                 break;

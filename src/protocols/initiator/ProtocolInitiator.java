@@ -64,13 +64,16 @@ public abstract class ProtocolInitiator {
     public abstract void startProtocol() throws IOException, InterruptedException;
 
     public void logMessage(String s){
-        if(logSystem)
+        if(logSystem){
             logFile.println(s);
+            logFile.flush();
+        }
     }
 
-    public void endProtocol() {
+    public String endProtocol() {
         if(logSystem)
             logFile.close();
+        return null;
     }
 
     public void sleep(int time){

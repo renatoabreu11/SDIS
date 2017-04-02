@@ -86,7 +86,6 @@ public class Message {
         }else
             header = new MessageHeader(type, version, senderId, fileId);
 
-        System.out.println(header.getMessageHeaderAsString());
         if(msgBody != null){
             body = new MessageBody(msgBody.getBytes());
         }

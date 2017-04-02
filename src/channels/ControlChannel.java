@@ -32,8 +32,8 @@ public class ControlChannel extends Channel {
             try {
                 this.getSocket().receive(dgp);
                 String message = new String(dgp.getData(), 0, dgp.getLength());
-                System.out.println("MC message: " + message);
-
+                logMessage("MC Message\n");
+                logMessage(message);
                 this.getParentPeer().addMessageToDispatcher(message);
             } catch (IOException e) {
                 e.printStackTrace();

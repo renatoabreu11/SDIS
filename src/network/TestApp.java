@@ -93,7 +93,8 @@ public class TestApp {
                 int replicationDegree = Integer.parseInt(args[3]);
                 Path path = Paths.get(pathname);
                 byte[] fileData = Files.readAllBytes(path);
-                stub.BackupFile(fileData, pathname, replicationDegree);
+                String message = stub.BackupFile(fileData, pathname, replicationDegree);
+                System.out.println(message);
                 break;
             case RESTORE:
                 pathname = args[2];

@@ -95,7 +95,6 @@ public class Splitter {
             }
         }  else{
             for(int i = 64000; i < fileData.length; i += 64000){
-                currentChunkNo++;
                 int minDelimiter = i - 64000;
                 int maxDelimiter = i;
                 byte[] chunkData = copyOfRange(fileData, minDelimiter, maxDelimiter);
@@ -103,6 +102,7 @@ public class Splitter {
                 System.out.println(chunkData.length);
                 System.out.println(Arrays.toString(chunkData));
                 chunks.add(c);
+                currentChunkNo++;
             }
 
             int nrChunks = currentChunkNo;

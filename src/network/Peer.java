@@ -8,9 +8,6 @@ import protocols.initiator.*;
 import utils.Utils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -63,12 +60,13 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
+    public String BackupFile(byte[] fileData, String pathname, int replicationDegree) throws NoSuchAlgorithmException, IOException, InterruptedException {
         protocol = new BackupInitiator(protocolVersion, true, this, fileData, pathname, replicationDegree);
         protocol.startProtocol();
-        protocol.endProtocol();
+        String message = protocol.endProtocol();
         protocol = null;
         manager.WriteMetadata();
+        return message;
     }
 
     public void updateFileStorage(Message msgWrapper) throws IOException {

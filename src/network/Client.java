@@ -62,7 +62,8 @@ public class Client {
 
                     Path path = Paths.get(pathname);
                     byte[] fileData = Files.readAllBytes(path);
-                    stub.BackupFile(fileData, pathname, replicationDegree);
+                    String message = stub.BackupFile(fileData, pathname, replicationDegree);
+                    System.out.println(message);
                     break;
                 case 2:
                     System.out.print("File pathname: ");

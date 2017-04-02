@@ -164,7 +164,9 @@ public abstract class Channel implements Runnable {
     }
 
     public void logMessage(String s){
-        if(logSystem)
+        if(logSystem){
             logFile.println(s);
+            logFile.flush();
+        }
     }
 }

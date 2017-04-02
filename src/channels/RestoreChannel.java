@@ -33,8 +33,8 @@ public class RestoreChannel extends Channel {
             try {
                 this.getSocket().receive(dgp);
                 String message = new String(dgp.getData(), 0, dgp.getLength());
-                System.out.println("MDR message: " + message);
-
+                logMessage("MDR Message\n");
+                logMessage(message);
                 this.getParentPeer().addMessageToDispatcher(message);
             } catch (IOException e) {
                 e.printStackTrace();

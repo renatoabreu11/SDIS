@@ -45,15 +45,13 @@ public class ProtocolDispatcher implements Runnable{
                 // Sleep in case there wasn't any runnable in the queue. This helps to avoid hogging the CPU.
                 Thread.sleep(1);
             }
-        } catch (RuntimeException | InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (RuntimeException | InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
 
     public void dispatchRequest(Message message) throws IOException {
-        System.out.println(message.getMessageString());
+        logMessage(message.getMessageString());
         switch(message.getHeader().getMessageType()){
             case PUTCHUNK:
                 Backup backup = new Backup(parentPeer, message);
@@ -99,7 +97,9 @@ public class ProtocolDispatcher implements Runnable{
     }
 
     public void logMessage(String s){
-        if(logSystem)
+        if(logSystem){
             logFile.println(s);
+            logFile.flush();
+        }
     }
 }

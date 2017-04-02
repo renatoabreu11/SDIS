@@ -51,8 +51,9 @@ public class ManageDiskInitiator extends ProtocolInitiator{
     }
 
     @Override
-    public void endProtocol() {
+    public String endProtocol() {
 
+        return null;
     }
 
     /**

@@ -15,7 +15,7 @@ public interface IClientPeer extends Remote {
      * @throws NoSuchAlgorithmException
      * @throws InterruptedException
      */
-    void BackupFile(byte[] fileData, String pathname, int replicationDegree) throws IOException, NoSuchAlgorithmException, InterruptedException;
+    String BackupFile(byte[] fileData, String pathname, int replicationDegree) throws IOException, NoSuchAlgorithmException, InterruptedException;
 
     /**
      * @param pathname

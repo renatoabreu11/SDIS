@@ -43,7 +43,7 @@ public class Restore implements Runnable {
         for(int i = 0; i < chunks.size(); i++) {
             if(chunks.get(i).getChunkNo() == chunkNo) {
                 MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, parentPeer.getId(), fileId, chunkNo);
-                Path path = Paths.get("data/" + fileId + chunkNo);
+                Path path = Paths.get("data/chunks/" + fileId + chunkNo);
                 byte[] data = new byte[0];
                 try {
                     data = Files.readAllBytes(path);
