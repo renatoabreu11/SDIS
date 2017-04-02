@@ -98,6 +98,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
 
         ArrayList<Chunk> chunkList = new ArrayList<>();
         while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
             Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
             _File file = entry.getValue();
 
