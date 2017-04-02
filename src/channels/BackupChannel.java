@@ -1,9 +1,6 @@
 package channels;
 
-import messageSystem.Message;
 import network.Peer;
-import protocols.ProtocolDispatcher;
-import sun.rmi.server.Dispatcher;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -30,7 +27,7 @@ public class BackupChannel extends Channel {
     @Override
     public void run() {
         while (true) {
-            byte[] buffer = new byte[310];
+            byte[] buffer = new byte[HEADER_SIZE + BODY_SIZE];
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
             try {
                 this.getSocket().receive(dgp);

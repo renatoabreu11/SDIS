@@ -8,6 +8,9 @@ import protocols.initiator.*;
 import utils.Utils;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -33,7 +36,7 @@ public class Peer implements IClientPeer {
     private ArrayList<String> chunkRestoring = new ArrayList<>();        // Hosts the chunks who have already sent by other peers.
 
     // Manage disk space auxiliar variables.
-    private long maxDiskSpace = 74;
+    private long maxDiskSpace = 740;
     private ArrayList<String> chunkBackingUp = new ArrayList<>();
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {

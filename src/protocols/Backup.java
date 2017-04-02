@@ -59,6 +59,7 @@ public class Backup implements Runnable {
         if(!parentPeer.getManager().addChunkToStorage(fileId, chunk)) {
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
+            System.out.println("Now enough disk space. Aborting.");
             return;
         }
 

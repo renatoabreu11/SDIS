@@ -51,7 +51,7 @@ public class RestoreInitiator extends ProtocolInitiator{
 
         this.currState = protocolState.RESTOREMESSAGE;
         for(int i = 0; i < numChunks; i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
+            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i+1);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
 
@@ -69,7 +69,7 @@ public class RestoreInitiator extends ProtocolInitiator{
         long t = System.currentTimeMillis();
         long end = t+Utils.RecoverMaxTime;
 
-        while(System.currentTimeMillis() < end || !foundAllChunks){
+        while(System.currentTimeMillis() < end && !foundAllChunks){
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {

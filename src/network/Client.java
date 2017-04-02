@@ -65,7 +65,7 @@ public class Client {
                     stub.BackupFile(fileData, pathname, replicationDegree);
                     break;
                 case 2:
-                    System.out.println("File pathname: ");
+                    System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
                     fileData = stub.RestoreFile(pathname);
                     
@@ -74,12 +74,12 @@ public class Client {
                     fos.close();
                     break;
                 case 3:
-                    System.out.println("File pathname: ");
+                    System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
                     stub.DeleteFile(pathname);
                     break;
                 case 4:
-                    System.out.println("Maximum disk space available (in KBytes): ");
+                    System.out.print("Maximum disk space available (in KBytes): ");
                     long maxDiskSpace = scanner.nextLong();
                     String msgManage = stub.ManageDiskSpace(maxDiskSpace);
                     System.out.println(msgManage);

@@ -220,14 +220,20 @@ public class FileManager {
             _File file = storedFile.getValue();
 
             str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + ".." + file.getChunks().size() + "\n";
-            for(Chunk chunk : file.getChunks()) {
+            for(int i = 0; i < file.getChunks().size(); i++) {
+                Chunk chunk = file.getChunks().get(i);
                 str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
-                for(int i = 0; i < chunk.getPeers().size(); i++) {
-                    str += chunk.getPeers().get(i);
-                    if(i < chunk.getPeers().size())
+                for(int j = 0; j < chunk.getPeers().size(); j++) {
+                    str += chunk.getPeers().get(j);
+                    if(j < chunk.getPeers().size() - 1)
                         str += "..";
                 }
+                if(i < file.getChunks().size() - 1)
+                str += "\n";
             }
+
+            if(it.hasNext())
+                str += "\n";
         }
 
         fos.write(str.getBytes());

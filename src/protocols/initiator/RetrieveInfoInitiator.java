@@ -52,7 +52,8 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
             out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, perceived replication degree: " + chunk.getReplicationDegree();
         }
 
-        out += "\n\nPeer's storage capacity: " + getParentPeer().getMaxDiskSpace() + " KBytes, current occupied storage: " + getParentPeer().getManager().getCurrOccupiedSize() + " Bytes\n";
+        long occupiedSpace = getParentPeer().getManager().getCurrOccupiedSize();
+        out += "\n\nPeer's storage capacity: " + getParentPeer().getMaxDiskSpace() + " KBytes, current occupied storage: " + occupiedSpace + " Bytes (or " + occupiedSpace / 1000.0 + " KBytes).\n";
         out += "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
     }
 
