@@ -45,7 +45,7 @@ public class Manage implements Runnable {
         if(chunk == null)
             return;
 
-        chunk.subReplicationDegree();
+        chunk.removePeer(senderId);
 
         // If the new replication degree is less than the desired, we need to get it back to that number.
         if(chunk.getCurrReplicationDegree() < chunk.getReplicationDegree()) {

@@ -90,8 +90,13 @@ public class FileManager {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
+        _File f = new _File(null, fileId, 0);
+        this.addFileToStorage(f);
         _File file = this.getFileStorage(fileId);
-        if(file != null)
+        Chunk c = new Chunk(chunkNo, fileId);
+        c.updateReplication(senderId);
+        boolean exists = file.addChunk(c);
+        if(!exists)
             file.updateChunk(chunkNo, senderId);
     }
 
@@ -122,16 +127,19 @@ public class FileManager {
      * system and the map.
      * @param fileId
      * @param chunkNo
+     * @param id
      * @throws IOException
      */
-    public synchronized void deleteStoredChunk(String fileId, int chunkNo) throws IOException {
+    public synchronized void deleteStoredChunk(String fileId, int chunkNo, int id) throws IOException {
         _File file = storage.get(fileId);
 
         for(Chunk chunk : file.getChunks()) {
             if(chunk.getChunkNo() == chunkNo) {
-                Path path = Paths.get(backupLocation + fileId + chunkNo);
-                Files.delete(path);
-                file.removeChunk(chunk);
+                if(chunk.peerHasChunk(id)) {
+                    Path path = Paths.get(backupLocation + fileId + chunkNo);
+                    Files.delete(path);
+                    file.removeChunkPeer(chunkNo, id);
+                }
                 break;
             }
         }

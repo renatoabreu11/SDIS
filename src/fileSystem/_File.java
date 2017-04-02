@@ -77,8 +77,9 @@ public class _File {
             if(chunks.get(i).getChunkNo() == c.getChunkNo())
                 return false;
         }
-
         chunks.add(c);
+        if(numChunks < chunks.size())
+            numChunks++;
         return true;
     }
 
@@ -144,5 +145,23 @@ public class _File {
         }
 
         return numBytes;
+    }
+
+    public ArrayList<Chunk> getStoredChunks(int peer_id) {
+        ArrayList<Chunk> storedChunks = new ArrayList<>();
+        for(int i = 0; i < chunks.size(); i++){
+            if(chunks.get(i).peerHasChunk(peer_id))
+                storedChunks.add(chunks.get(i));
+        }
+        return storedChunks;
+    }
+
+    public void removeChunkPeer(int chunkNo, int id) {
+        for(int i = 0; i < this.chunks.size(); i++){
+            if(chunks.get(i).getChunkNo() == chunkNo){
+                chunks.get(i).removePeer(id);
+                chunks.get(i).subReplicationDegree();
+            }
+        }
     }
 }

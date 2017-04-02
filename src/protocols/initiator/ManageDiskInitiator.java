@@ -76,7 +76,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             Message message = new Message(header);
             byte[] buffer = message.getMessageBytes();
             getParentPeer().getMc().sendMessage(buffer);
-            getParentPeer().getManager().deleteStoredChunk(fileId, currChunkToDelete.getChunkNo());
+            getParentPeer().getManager().deleteStoredChunk(fileId, currChunkToDelete.getChunkNo(), getParentPeer().getId());
 
             i++;
             if(i == orderedChunks.size()) {
@@ -103,8 +103,10 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
             _File file = entry.getValue();
 
-            for(int i = 0; i < file.getNumChunks(); i++)
-                chunkList.add(file.getChunks().get(i));
+            ArrayList<Chunk> storedChunks = file.getStoredChunks(getParentPeer().getId());
+
+            if(storedChunks != null && storedChunks.size() != 0)
+                chunkList.addAll(storedChunks);
         }
 
         Collections.sort(chunkList);
