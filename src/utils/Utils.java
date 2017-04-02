@@ -14,6 +14,14 @@ public class Utils {
         REMOVED
     }
 
+    public enum SubProtocol{
+        BACKUP,
+        RESTORE,
+        DELETE,
+        RECLAIM,
+        STATE
+    }
+
     public final static char CR  = (char) 0x0D;
     public final static char LF  = (char) 0x0A;
 
