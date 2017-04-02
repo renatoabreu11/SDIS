@@ -93,7 +93,7 @@ public class FileManager {
         _File f = new _File(null, fileId, 0);
         this.addFileToStorage(f);
         _File file = this.getFileStorage(fileId);
-        Chunk c = new Chunk(chunkNo);
+        Chunk c = new Chunk(chunkNo, fileId);
         c.updateReplication(senderId);
         boolean exists = file.addChunk(c);
         if(!exists)

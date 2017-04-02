@@ -36,7 +36,13 @@ public class Chunk implements Comparable<Chunk>{
     /**
      *
      * @param chunkNo
+     * @param fileId
      */
+    public Chunk(int chunkNo, String fileId){
+        this.chunkNo = chunkNo;
+        this.fileId = fileId;
+    }
+
     public Chunk(int chunkNo){
         this.chunkNo = chunkNo;
     }

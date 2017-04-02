@@ -38,10 +38,9 @@ public class Backup implements Runnable {
         int chunkNo = header.getChunkNo();
         int replicationDegree = header.getReplicationDegree();
 
-/*      Uncomment this later
         if(senderId == parentPeer.getId()) // a peer never stores the chunks of it own files
             return;
-*/
+
 
         byte[] chunkData = body.getBody();
         Chunk chunk = new Chunk(replicationDegree, chunkNo, fileId);
@@ -54,6 +53,7 @@ public class Backup implements Runnable {
             e.printStackTrace();
         }
         if(futureOccupiedSpace > parentPeer.getMaxDiskSpace() * 1000) {
+           //change this!
             System.out.println("WARNING: Peer discarded a chunk because it had no available space to host it.");
             //here we need to start the space manage protocol
             return;
@@ -61,6 +61,7 @@ public class Backup implements Runnable {
 
         // Manage disk space related.
         parentPeer.addChunkBackingUp(chunk);
+        chunk.updateReplication(senderId);
 
         // Saves the chunk's info in the file manager.
         if(!parentPeer.getManager().addChunkToStorage(fileId, chunk)) {
@@ -69,8 +70,6 @@ public class Backup implements Runnable {
             System.out.println("Chunk already stored. Aborting.");
             return;
         }
-
-        chunk.updateReplication(senderId);
 
         // Writes to file.
         FileOutputStream fileOutputStream = null;
