@@ -29,6 +29,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
         ArrayList<Chunk> storedChunks = new ArrayList<>();
 
         while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
             Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
             String fileId = entry.getKey();
             _File file = entry.getValue();

@@ -164,6 +164,7 @@ public class FileManager {
         long numBytes = 0;
 
         while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
             Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
             _File file = entry.getValue();
 
@@ -215,6 +216,7 @@ public class FileManager {
 
         Iterator it = storage.entrySet().iterator();
         while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
             Map.Entry<String, _File> storedFile = (Map.Entry<String, _File>) it.next();
             String fileId = storedFile.getKey();
             _File file = storedFile.getValue();
