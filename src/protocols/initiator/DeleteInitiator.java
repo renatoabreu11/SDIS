@@ -26,7 +26,7 @@ public class DeleteInitiator extends ProtocolInitiator{
         _File file = getParentPeer().getManager().getFile(pathname);
         String fileId = file.getFileId();
 
-        System.out.println("Pathname: " + pathname + ", file id: " + file.getFileId());
+        logMessage("Pathname: " + pathname + ", file id: " + file.getFileId());
 
         MessageHeader header = new MessageHeader(Utils.MessageType.DELETE, getVersion(), getParentPeer().getId(), fileId);
         Message message = new Message(header);

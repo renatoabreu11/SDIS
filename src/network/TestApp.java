@@ -99,9 +99,14 @@ public class TestApp {
             case RESTORE:
                 pathname = args[2];
                 byte[] recoveredChunks = stub.RestoreFile(pathname);
-                FileOutputStream fos = new FileOutputStream(pathname);
-                fos.write(recoveredChunks);
-                fos.close();
+                if(recoveredChunks == null){
+                    System.out.println("The specified file cannot be restored!");
+                }else{
+                    FileOutputStream fos = new FileOutputStream(pathname);
+                    fos.write(recoveredChunks);
+                    fos.close();
+                    System.out.println("File successfully restored!");
+                }
                 break;
             case DELETE:
                 pathname = args[2];

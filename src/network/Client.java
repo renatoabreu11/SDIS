@@ -69,10 +69,14 @@ public class Client {
                     System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
                     fileData = stub.RestoreFile(pathname);
-                    
-                    FileOutputStream fos = new FileOutputStream(pathname);
-                    fos.write(fileData);
-                    fos.close();
+                    if(fileData == null){
+                        System.out.println("The specified file cannot be restored");
+                    }else{
+                        FileOutputStream fos = new FileOutputStream(pathname);
+                        fos.write(fileData);
+                        fos.close();
+                        System.out.println("File successfully restored!");
+                    }
                     break;
                 case 3:
                     System.out.print("File pathname: ");

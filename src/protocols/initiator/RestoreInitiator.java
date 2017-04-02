@@ -51,7 +51,7 @@ public class RestoreInitiator extends ProtocolInitiator{
 
         this.currState = protocolState.RESTOREMESSAGE;
         for(int i = 0; i < numChunks; i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i+1);
+            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
 
@@ -92,7 +92,7 @@ public class RestoreInitiator extends ProtocolInitiator{
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for(int i = 0; i < restoring.size(); i++){
-            Path path = Paths.get("data/" + f.getFileId() + restoring.get(i).getChunkNo());
+            Path path = Paths.get("data/chunks/" + f.getFileId() + restoring.get(i).getChunkNo());
             try {
                 outputStream.write(Files.readAllBytes(path));
             } catch (IOException e) {
