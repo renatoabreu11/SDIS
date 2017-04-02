@@ -4,6 +4,7 @@ import messageSystem.Message;
 import network.Peer;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,12 +15,23 @@ public class ProtocolDispatcher implements Runnable{
     private AtomicBoolean execute;
     private ExecutorService executor;
     private ConcurrentLinkedQueue<Message> messages;
+    private boolean logSystem;
+    private PrintWriter logFile;
 
-    public ProtocolDispatcher(Peer parentPeer){
+    public ProtocolDispatcher(Peer parentPeer, boolean logSystem){
         executor = Executors.newFixedThreadPool(5);
         execute = new AtomicBoolean(true);
         this.parentPeer = parentPeer;
         messages = new ConcurrentLinkedQueue<>();
+
+        this.logSystem = logSystem;
+        if(this.logSystem){
+            try{
+                logFile = new PrintWriter("data/Dispatcher.log", "UTF-8");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -84,5 +96,10 @@ public class ProtocolDispatcher implements Runnable{
     public void addMessage(String msgWrapper) {
         Message message = new Message(msgWrapper);
         messages.add(message);
+    }
+
+    public void logMessage(String s){
+        if(logSystem)
+            logFile.println(s);
     }
 }

@@ -3,6 +3,7 @@ package channels;
 import network.Peer;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -14,6 +15,8 @@ public abstract class Channel implements Runnable {
     public static final int HEADER_SIZE = 256;
     public static final int BODY_SIZE = 64000;
 
+    private boolean logSystem;
+    private PrintWriter logFile;
     private String mcAddress;
     private int mcPort;
     private MulticastSocket socket;
@@ -28,12 +31,20 @@ public abstract class Channel implements Runnable {
      * @throws UnknownHostException
      * @throws IOException
      */
-    public Channel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
+    public Channel(String mcAddress, String mcPort, Peer parentPeer, boolean logSystem) throws UnknownHostException, IOException {
         if(!isValidIPV4(mcAddress)){
             System.out.println("Invalid IPV4 address!");
             return;
         }
 
+        this.logSystem = logSystem;
+        if(this.logSystem){
+            try{
+                logFile = new PrintWriter("data/Multicast.log", "UTF-8");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         this.parentPeer = parentPeer;
 
         this.mcAddress = mcAddress;
@@ -150,5 +161,10 @@ public abstract class Channel implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void logMessage(String s){
+        if(logSystem)
+            logFile.println(s);
     }
 }

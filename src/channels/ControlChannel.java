@@ -16,8 +16,8 @@ public class ControlChannel extends Channel {
      * @param parentPeer
      * @throws IOException
      */
-    public ControlChannel(String mcAddress, String mcPort, Peer parentPeer) throws IOException {
-        super(mcAddress, mcPort, parentPeer);
+    public ControlChannel(String mcAddress, String mcPort, Peer parentPeer, boolean logSystem) throws IOException {
+        super(mcAddress, mcPort, parentPeer, logSystem);
         System.out.println("Control channel online.");
     }
 

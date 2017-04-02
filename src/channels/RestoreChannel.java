@@ -17,8 +17,8 @@ public class RestoreChannel extends Channel {
      * @param parentPeer
      * @throws IOException
      */
-    public RestoreChannel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
-        super(mcAddress, mcPort, parentPeer);
+    public RestoreChannel(String mcAddress, String mcPort, Peer parentPeer, boolean logSystem) throws UnknownHostException, IOException {
+        super(mcAddress, mcPort, parentPeer, logSystem);
         System.out.println("Restore channel online.");
     }
 

@@ -126,7 +126,7 @@ public class BackupInitiator extends ProtocolInitiator{
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        String fileInfo = pathname + lastModified;
+        String fileInfo = pathname + replicationDegree + lastModified;
         md.update(fileInfo.getBytes(StandardCharsets.UTF_8));
         byte[] fileIdHashed = md.digest();
 

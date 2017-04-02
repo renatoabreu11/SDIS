@@ -16,8 +16,8 @@ public class BackupChannel extends Channel {
      * @throws UnknownHostException
      * @throws IOException
      */
-    public BackupChannel(String mcAddress, String mcPort, Peer parentPeer) throws UnknownHostException, IOException {
-        super(mcAddress, mcPort, parentPeer);
+    public BackupChannel(String mcAddress, String mcPort, Peer parentPeer, boolean logSystem) throws UnknownHostException, IOException {
+        super(mcAddress, mcPort, parentPeer, logSystem);
         System.out.println("Backup channel online.");
     }
 

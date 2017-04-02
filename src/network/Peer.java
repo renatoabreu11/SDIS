@@ -46,10 +46,10 @@ public class Peer implements IClientPeer {
         manager = new FileManager();
 
         manager.LoadMetadata();
-        mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this);
-        mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this);
-        mdr = new RestoreChannel(multicastInfo[4], multicastInfo[5], this);
-        dispatcher = new ProtocolDispatcher(this);
+        mc = new ControlChannel(multicastInfo[0], multicastInfo[1], this, true);
+        mdb = new BackupChannel(multicastInfo[2], multicastInfo[3], this, true);
+        mdr = new RestoreChannel(multicastInfo[4], multicastInfo[5], this, true);
+        dispatcher = new ProtocolDispatcher(this, true);
 
         new Thread(mc).start();
         new Thread(mdb).start();
