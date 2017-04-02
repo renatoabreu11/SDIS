@@ -16,13 +16,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class RestoreInitiator extends ProtocolInitiator{
+public class RestoreInitiator extends ProtocolInitiator {
 
     private String pathname;
     private ArrayList<Chunk> restoring = new ArrayList<>();
     private byte[] fileData;
     private protocolState currState;
-    private enum protocolState{
+
+    private enum protocolState {
         INIT,
         RESTOREMESSAGE,
         INVALIDFILE,
@@ -41,7 +42,7 @@ public class RestoreInitiator extends ProtocolInitiator{
     @Override
     public void startProtocol() throws IOException, InterruptedException {
         _File file = getParentPeer().getFileFromManager(pathname);
-        if(file == null){
+        if (file == null) {
             this.currState = protocolState.INVALIDFILE;
             return;
         }
@@ -50,7 +51,7 @@ public class RestoreInitiator extends ProtocolInitiator{
         int numChunks = file.getNumChunks();
 
         this.currState = protocolState.RESTOREMESSAGE;
-        for(int i = 0; i < numChunks; i++) {
+        for (int i = 0; i < numChunks; i++) {
             MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
@@ -60,38 +61,38 @@ public class RestoreInitiator extends ProtocolInitiator{
         waitForChunks();
     }
 
-    public void waitForChunks(){
+    public void waitForChunks() {
         this.currState = protocolState.RECOVERCHUNKS;
 
         _File f = getParentPeer().getFileFromManager(pathname);
         int chunksNo = f.getNumChunks();
         boolean foundAllChunks = false;
         long t = System.currentTimeMillis();
-        long end = t+Utils.RecoverMaxTime;
+        long end = t + Utils.RecoverMaxTime;
 
-        while(System.currentTimeMillis() < end && !foundAllChunks){
+        while (System.currentTimeMillis() < end && !foundAllChunks) {
             try {
                 Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if(chunksNo == restoring.size())
+            if (chunksNo == restoring.size())
                 foundAllChunks = true;
         }
 
-        if(!foundAllChunks)
+        if (!foundAllChunks)
             currState = protocolState.BROKENFILE;
         else currState = protocolState.CONCATFILE;
 
         joinFile();
     }
 
-    public void joinFile(){
+    public void joinFile() {
         _File f = getParentPeer().getFileFromManager(pathname);
         Collections.sort(restoring);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        for(int i = 0; i < restoring.size(); i++){
+        for (int i = 0; i < restoring.size(); i++) {
             Path path = Paths.get("data/chunks/" + f.getFileId() + restoring.get(i).getChunkNo());
             try {
                 outputStream.write(Files.readAllBytes(path));
@@ -105,13 +106,14 @@ public class RestoreInitiator extends ProtocolInitiator{
     }
 
     public byte[] getFile() {
-        if(currState != protocolState.SENDFILE)
+        if (currState != protocolState.SENDFILE)
             return null;
         return fileData;
     }
 
     /**
      * Restore protocol callable.
+     *
      * @param message
      */
     public synchronized void addChunkToRestoring(Message message) {
@@ -123,41 +125,7 @@ public class RestoreInitiator extends ProtocolInitiator{
 
         Chunk chunk = new Chunk(chunkNo, data);
 
-        if(!restoring.contains(chunk))
+        if (!restoring.contains(chunk))
             restoring.add(chunk);
     }
-
-    public String getPathname() {
-        return pathname;
-    }
-
-    public void setPathname(String pathname) {
-        this.pathname = pathname;
-    }
-
-    public ArrayList<Chunk> getRestoring() {
-        return restoring;
-    }
-
-    public void setRestoring(ArrayList<Chunk> restoring) {
-        this.restoring = restoring;
-    }
-
-    public protocolState getCurrState() {
-        return currState;
-    }
-
-    public void setCurrState(protocolState currState) {
-        this.currState = currState;
-    }
-
-    public byte[] getFileData() {
-        return fileData;
-    }
-
-    public void setFileData(byte[] fileData) {
-        this.fileData = fileData;
-    }
-
-
 }

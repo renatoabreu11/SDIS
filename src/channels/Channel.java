@@ -56,67 +56,11 @@ public abstract class Channel implements Runnable {
     }
 
     /**
-     * Returns the multicast port
-     * @return mcPort
-     */
-    public int getMcPort() {
-        return mcPort;
-    }
-
-    /**
-     * Updates the multicast port
-     * @param mcPort
-     */
-    public void setMcPort(int mcPort) {
-        this.mcPort = mcPort;
-    }
-
-    /**
      * Returns the multicast socket where the communication was established
      * @return multicast socket
      */
     public MulticastSocket getSocket() {
         return socket;
-    }
-
-    /**
-     * Updates the multicast socket
-     * @param socket
-     */
-    public void setSocket(MulticastSocket socket) {
-        this.socket = socket;
-    }
-
-    /**
-     * Returns the multicast address
-     * @return multicast address
-     */
-    public String getMcAddress() {
-        return mcAddress;
-    }
-
-    /**
-     * Updates the multicast address
-     * @param mcAddress
-     */
-    public void setMcAddress(String mcAddress) {
-        this.mcAddress = mcAddress;
-    }
-
-    /**
-     * Changes the inetAddress instance
-     * @param group
-     */
-    public void setGroup(InetAddress group) {
-        this.group = group;
-    }
-
-    /**
-     * Returns the inetAddress instance
-     * @return InetAddress
-     */
-    public InetAddress getGroup() {
-        return this.group;
     }
 
     /**
@@ -133,21 +77,6 @@ public abstract class Channel implements Runnable {
      */
     public void setParentPeer(Peer parentPeer) {
         this.parentPeer = parentPeer;
-    }
-
-    /**
-     * Sends a message via the multicast channel
-     * @param message String
-     */
-    public void sendMessage(String message){
-        byte[] buffer = message.getBytes();
-        DatagramPacket packet = null;
-        packet = new DatagramPacket(buffer, buffer.length, group, mcPort);
-        try {
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**

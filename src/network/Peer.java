@@ -175,72 +175,20 @@ public class Peer implements IClientPeer {
         return protocolVersion;
     }
 
-    public void setProtocolVersion(String protocolVersion) {
-        this.protocolVersion = protocolVersion;
-    }
-
-    public String getServerAccessPoint() {
-        return serverAccessPoint;
-    }
-
-    public void setServerAccessPoint(String serverAccessPoint) {
-        this.serverAccessPoint = serverAccessPoint;
-    }
-
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public IClientPeer getStub() {
         return stub;
     }
 
-    public void setStub(IClientPeer stub) {
-        this.stub = stub;
-    }
-
     public ControlChannel getMc() {
         return mc;
     }
 
-    public void setMc(ControlChannel mc) {
-        this.mc = mc;
-    }
-
-    public BackupChannel getMdb() {
-        return mdb;
-    }
-
-    public void setMdb(BackupChannel mdb) {
-        this.mdb = mdb;
-    }
-
-    public RestoreChannel getMdr() {
-        return mdr;
-    }
-
-    public void setMdr(RestoreChannel mdr) {
-        this.mdr = mdr;
-    }
-
     public FileManager getManager() {
         return manager;
-    }
-
-    public void setManager(FileManager manager) {
-        this.manager = manager;
-    }
-
-    public ProtocolDispatcher getDispatcher() {
-        return dispatcher;
-    }
-
-    public void setDispatcher(ProtocolDispatcher dispatcher) {
-        this.dispatcher = dispatcher;
     }
 
     public long getMaxDiskSpace() {
@@ -255,10 +203,6 @@ public class Peer implements IClientPeer {
         return chunkBackingUp;
     }
 
-    public void setChunkBackingUp(ArrayList<String> chunkBackingUp) {
-        this.chunkBackingUp = chunkBackingUp;
-    }
-
     public void addChunkBackingUp(Chunk chunk) {
         this.chunkBackingUp.add(chunk.getFileId() + chunk.getChunkNo());
     }
@@ -269,14 +213,6 @@ public class Peer implements IClientPeer {
 
     public void addMessageToDispatcher(String message) {
         dispatcher.addMessage(message);
-    }
-
-    public ProtocolInitiator getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(ProtocolInitiator protocol) {
-        this.protocol = protocol;
     }
 
     public void saveFileToStorage(_File f) {

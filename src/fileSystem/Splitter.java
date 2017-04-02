@@ -19,22 +19,6 @@ public class Splitter {
     }
 
     /**
-     * Gets the byte array that contains the file data
-     * @return
-     */
-    public byte[] getFileData() {
-        return fileData;
-    }
-
-    /**
-     * Set the byte array that contains the file data
-     * @param fileData
-     */
-    public void setFileData(byte[] fileData) {
-        this.fileData = fileData;
-    }
-
-    /**
      * Get the all chunks
      * @return
      */
@@ -48,32 +32,6 @@ public class Splitter {
      */
     public void setChunks(ArrayList<Chunk> chunks) {
         this.chunks = chunks;
-    }
-
-    /**
-     * Clears the file data and the respective chunks
-     */
-    public void resetSplitter(){
-        fileData = null;
-        chunks.clear();
-    }
-
-    /**
-     * Get the chunk at the given position
-     * @param i
-     * @return
-     */
-    public Chunk getChunk(int i){
-        return this.chunks.get(i);
-    }
-
-    /**
-     * Get the chunk data at the given position
-     * @param i
-     * @return
-     */
-    public byte[] getChunkData(int i){
-        return this.chunks.get(i).getChunkData();
     }
 
     /**

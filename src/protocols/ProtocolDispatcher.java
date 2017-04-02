@@ -87,10 +87,6 @@ public class ProtocolDispatcher implements Runnable{
         this.parentPeer = parentPeer;
     }
 
-    public void setMessages(ConcurrentLinkedQueue<Message> messages) {
-        this.messages = messages;
-    }
-
     public void addMessage(String msgWrapper) {
         Message message = new Message(msgWrapper);
         messages.add(message);

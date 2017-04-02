@@ -163,45 +163,4 @@ public class BackupInitiator extends ProtocolInitiator{
             return "Backup Protocol Success";
         else return "Beep Boop Error Beep Boop";
     }
-
-    public byte[] getFileData() {
-        return fileData;
-    }
-
-    public void setFileData(byte[] fileData) {
-        this.fileData = fileData;
-    }
-
-    public String getPathname() {
-        return pathname;
-    }
-
-    public void setPathname(String pathname) {
-        this.pathname = pathname;
-    }
-
-    public int getReplicationDegree() {
-        return replicationDegree;
-    }
-
-    public void setReplicationDegree(int replicationDegree) {
-        this.replicationDegree = replicationDegree;
-    }
-
-    public int getNumTransmission() {
-        return numTransmission;
-    }
-
-    public void setNumTransmission(int numTransmission) {
-        this.numTransmission = numTransmission;
-    }
-
-    public ArrayList<Chunk> getUploading() {
-        return uploading;
-    }
-
-    public void setUploading(ArrayList<Chunk> uploading) {
-        this.uploading = uploading;
-    }
-
 }

@@ -19,12 +19,4 @@ public class MessageBody {
     public byte[] getBody() {
         return body;
     }
-
-    /**
-     * Set the body data
-     * @param body
-     */
-    public void setBody(byte[] body) {
-        this.body = body;
-    }
 }

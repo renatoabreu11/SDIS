@@ -78,28 +78,11 @@ public class MessageHeader {
     }
 
     /**
-     * Creates a byte array accordingly to the message header
-     * @return
-     */
-    public byte[] getMessageHeaderAsBytes(){
-        String header = getMessageHeaderAsString();
-        return header.getBytes();
-    }
-
-    /**
      * Get the type of message
      * @return
      */
     public Utils.MessageType getMessageType() {
         return messageType;
-    }
-
-    /**
-     * Set the type of message
-     * @param messageType
-     */
-    public void setMessageType(Utils.MessageType messageType) {
-        this.messageType = messageType;
     }
 
     /**
@@ -111,27 +94,11 @@ public class MessageHeader {
     }
 
     /**
-     * Set the protocol version currently being used
-     * @param version
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
      * Get the peer that sent the message
      * @return
      */
     public int getSenderId() {
         return senderId;
-    }
-
-    /**
-     * Set the peer that sent the message
-     * @param senderId
-     */
-    public void setSenderId(int senderId) {
-        this.senderId = senderId;
     }
 
     /**
@@ -159,26 +126,10 @@ public class MessageHeader {
     }
 
     /**
-     * Set the chunk number of the file sent through the message body
-     * @param chunkNo
-     */
-    public void setChunkNo(int chunkNo) {
-        this.chunkNo = chunkNo;
-    }
-
-    /**
      * Get the file replication degree
      * @return
      */
     public int getReplicationDegree() {
         return replicationDegree;
-    }
-
-    /**
-     * Set the file replication degree
-     * @param replicationDegree
-     */
-    public void setReplicationDegree(int replicationDegree) {
-        this.replicationDegree = replicationDegree;
     }
 }

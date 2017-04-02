@@ -28,14 +28,6 @@ public class _File {
     }
 
     /**
-     * Set the file pathname
-     * @param pathname
-     */
-    public void setPathname(String pathname) {
-        this.pathname = pathname;
-    }
-
-    /**
      * Get the file identifier
      * @return
      */
@@ -84,22 +76,6 @@ public class _File {
     }
 
     /**
-     * Remove a chunk from the list of file chunks
-     * @param c
-     * @return
-     */
-    public boolean removeChunk(Chunk c){
-        for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).equals(c)){
-                chunks.remove(i);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Update the current replication degree of a chunk
      * @param chunkNo
      * @param senderId
@@ -121,14 +97,6 @@ public class _File {
      */
     public int getNumChunks() {
         return numChunks;
-    }
-
-    /**
-     * Set the number of chunks
-     * @param numChunks
-     */
-    public void setNumChunks(int numChunks) {
-        this.numChunks = numChunks;
     }
 
     /**

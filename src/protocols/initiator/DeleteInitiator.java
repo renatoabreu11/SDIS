@@ -12,9 +12,6 @@ import java.security.MessageDigest;
 public class DeleteInitiator extends ProtocolInitiator{
 
     private String pathname;
-    private enum protocolState{
-
-    }
 
     public DeleteInitiator(String version, boolean logSystem, Peer parentPeer, String pathname) {
         super(version, logSystem, parentPeer);
@@ -35,13 +32,5 @@ public class DeleteInitiator extends ProtocolInitiator{
         // We send 'Utils.DeleteRetransmissions' messages to make sure every chunk is properly deleted.
         for(int i = 0; i < Utils.DeleteRetransmissions; i++)
             getParentPeer().sendMessageMC(buffer);
-    }
-
-    public String getPathname() {
-        return pathname;
-    }
-
-    public void setPathname(String pathname) {
-        this.pathname = pathname;
     }
 }

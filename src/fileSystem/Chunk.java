@@ -99,26 +99,10 @@ public class Chunk implements Comparable<Chunk>{
 
     /**
      *
-     * @param chunkNo
-     */
-    public void setChunkNo(int chunkNo) {
-        this.chunkNo = chunkNo;
-    }
-
-    /**
-     *
      * @return
      */
     public byte[] getChunkData() {
         return chunkData;
-    }
-
-    /**
-     *
-     * @param chunkData
-     */
-    public void setChunkData(byte[] chunkData) {
-        this.chunkData = chunkData;
     }
 
     /**
@@ -131,26 +115,10 @@ public class Chunk implements Comparable<Chunk>{
 
     /**
      *
-     * @param replicationDegree
-     */
-    public void setReplicationDegree(int replicationDegree) {
-        this.replicationDegree = replicationDegree;
-    }
-
-    /**
-     *
      * @return
      */
     public int getCurrReplicationDegree() {
         return currReplicationDegree;
-    }
-
-    /**
-     *
-     * @param currReplicationDegree
-     */
-    public void setCurrReplicationDegree(int currReplicationDegree) {
-        this.currReplicationDegree = currReplicationDegree;
     }
 
     /**
@@ -205,14 +173,6 @@ public class Chunk implements Comparable<Chunk>{
      */
     public ArrayList<Integer> getPeers() {
         return peers;
-    }
-
-    /**
-     *
-     * @param peers
-     */
-    public void setPeers(ArrayList<Integer> peers) {
-        this.peers = peers;
     }
 
     @Override

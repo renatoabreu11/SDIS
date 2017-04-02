@@ -34,21 +34,6 @@ public class FileManager {
 
     /**
      *
-     * @param storage
-     */
-    public void setStorage(ConcurrentHashMap<String, _File> storage) {
-        this.storage = storage;
-    }
-
-    /**
-     *
-     */
-    public void resetStorage(){
-        this.storage.clear();
-    }
-
-    /**
-     *
      * @param fileId
      * @return
      */
@@ -157,14 +142,6 @@ public class FileManager {
             storage.put(fileId, _file);
         }
         return storage.get(fileId).addChunk(c);
-    }
-
-    public String getBackupLocation() {
-        return backupLocation;
-    }
-
-    public void setBackupLocation(String backupLocation) {
-        this.backupLocation = backupLocation;
     }
 
     public synchronized long getCurrOccupiedSize() throws IOException {
@@ -290,17 +267,5 @@ public class FileManager {
 
             storage.put(fileId, file);
         }
-
-        /*int numChunks = 0;
-        Iterator it = storage.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry<String, _File> storedFile = (Map.Entry<String, _File>) it.next();
-            _File file = storedFile.getValue();
-
-            for(Chunk chunk : file.getChunks())
-                numChunks++;
-        }
-
-        System.out.println("Loaded " + storage.size() + " files, and " + numChunks + " chunks.");*/
     }
 }

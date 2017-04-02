@@ -28,31 +28,6 @@ public abstract class ProtocolInitiator {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public boolean isLogSystem() {
-        return logSystem;
-    }
-
-    public void setLogSystem(boolean logSystem) {
-        this.logSystem = logSystem;
-    }
-
-    public PrintWriter getLogFile() {
-        return logFile;
-    }
-
-    public void setLogFile(PrintWriter logFile) {
-        this.logFile = logFile;
-    }
-
-    public void closeLogWriter(){
-        if(logSystem)
-            logFile.close();
-    }
-
     public Peer getParentPeer() {
         return parentPeer;
     }
@@ -74,13 +49,5 @@ public abstract class ProtocolInitiator {
         if(logSystem)
             logFile.close();
         return null;
-    }
-
-    public void sleep(int time){
-        try {
-            Thread.sleep(time * 1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -144,12 +144,4 @@ public class Message {
     public MessageBody getBody() {
         return body;
     }
-
-    /**
-     * Set the message body
-     * @param body
-     */
-    public void setBody(MessageBody body) {
-        this.body = body;
-    }
 }
