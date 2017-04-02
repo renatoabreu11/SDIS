@@ -54,6 +54,7 @@ public class Backup implements Runnable {
         }
         if(futureOccupiedSpace > parentPeer.getMaxDiskSpace() * 1000) {
             System.out.println("WARNING: Peer discarded a chunk because it had no available space to host it.");
+            //here we need to start the space manage protocol
             return;
         }
 

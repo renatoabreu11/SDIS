@@ -99,8 +99,6 @@ public class Splitter {
                 int maxDelimiter = i;
                 byte[] chunkData = copyOfRange(fileData, minDelimiter, maxDelimiter);
                 Chunk c = new Chunk(desiredReplicationDegree, currentChunkNo, chunkData, fileId);
-                System.out.println(chunkData.length);
-                System.out.println(Arrays.toString(chunkData));
                 chunks.add(c);
                 currentChunkNo++;
             }
@@ -108,14 +106,12 @@ public class Splitter {
             int nrChunks = currentChunkNo;
             int leftoverBytes = fileData.length - (nrChunks * 64000);
             if(leftoverBytes != 0){
-                currentChunkNo++;
                 int minDelimiter = fileData.length - leftoverBytes;
                 int maxDelimiter = fileData.length;
                 byte[] chunkData = copyOfRange(fileData, minDelimiter, maxDelimiter);
                 Chunk c = new Chunk(desiredReplicationDegree, currentChunkNo, chunkData, fileId);
                 chunks.add(c);
             }else{
-                currentChunkNo++;
                 byte[] emptyChunk = new byte[0];
                 Chunk lastC = new Chunk(desiredReplicationDegree, currentChunkNo, emptyChunk, fileId);
                 chunks.add(lastC);

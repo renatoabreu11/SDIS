@@ -74,7 +74,7 @@ public class _File {
      */
     public boolean addChunk(Chunk c){
         for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).equals(c))
+            if(chunks.get(i).getChunkNo() == c.getChunkNo())
                 return false;
         }
 
@@ -138,7 +138,7 @@ public class _File {
         long numBytes = 0;
 
         for(Chunk chunk : chunks) {
-            Path path = Paths.get("data/" + fileId + chunk.getChunkNo());
+            Path path = Paths.get("data/chunks/" + fileId + chunk.getChunkNo());
             long bytesSize = Files.readAllBytes(path).length;
             numBytes += bytesSize;
         }
