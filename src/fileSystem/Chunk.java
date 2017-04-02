@@ -185,7 +185,7 @@ public class Chunk implements Comparable<Chunk>{
      * @param senderId
      * @return
      */
-    private boolean peerHasChunk(int senderId) {
+    public boolean peerHasChunk(int senderId) {
         for(int i = 0; i < this.peers.size(); i++){
             if(this.peers.get(i) == senderId)
                 return true;
@@ -219,5 +219,12 @@ public class Chunk implements Comparable<Chunk>{
 
     public String getFileId() {
         return fileId;
+    }
+
+    public void removePeer(int id) {
+        for(int i = 0; i < this.peers.size(); i++){
+            if(this.peers.get(i) == id)
+                this.peers.remove(i);
+        }
     }
 }

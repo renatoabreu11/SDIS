@@ -51,7 +51,7 @@ public class RestoreInitiator extends ProtocolInitiator{
 
         this.currState = protocolState.RESTOREMESSAGE;
         for(int i = 0; i < numChunks; i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i+1);
+            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
 
