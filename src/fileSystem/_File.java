@@ -66,14 +66,29 @@ public class _File {
      */
     public boolean addChunk(Chunk c){
         for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).getChunkNo() == c.getChunkNo())
+            if(chunks.get(i).getChunkNo() == c.getChunkNo()){
                 return false;
+            }
         }
         chunks.add(c);
         if(numChunks < chunks.size())
             numChunks++;
         return true;
     }
+
+    public boolean addChunkPeer(Chunk c, int peer){
+        for(int i = 0; i < this.chunks.size(); i++){
+            if(chunks.get(i).getChunkNo() == c.getChunkNo()){
+                return chunks.get(i).updateReplication(peer);
+            }
+        }
+        c.updateReplication(peer);
+        chunks.add(c);
+        if(numChunks < chunks.size())
+            numChunks++;
+        return true;
+    }
+
 
     /**
      * Update the current replication degree of a chunk

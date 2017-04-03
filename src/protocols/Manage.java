@@ -39,7 +39,7 @@ public class Manage implements Runnable {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        Chunk chunk = parentPeer.getManager().getChunk(fileId, chunkNo);
+        Chunk chunk = parentPeer.getManager().getChunk(fileId, chunkNo, parentPeer.getId());
 
         // If this peer doesn't have the chunk, it simply returns.
         if(chunk == null)
@@ -64,11 +64,7 @@ public class Manage implements Runnable {
                 byte[] fileData = Files.readAllBytes(path);
 
                 parentPeer.BackupFile(fileData, chunkPathname, 1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
+            } catch (InterruptedException | IOException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }

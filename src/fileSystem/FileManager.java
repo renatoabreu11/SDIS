@@ -79,10 +79,7 @@ public class FileManager {
         this.addFileToStorage(f);
         _File file = this.getFileStorage(fileId);
         Chunk c = new Chunk(chunkNo, fileId);
-        c.updateReplication(senderId);
-        boolean exists = file.addChunk(c);
-        if(!exists)
-            file.updateChunk(chunkNo, senderId);
+        boolean exists = file.addChunkPeer(c, senderId);
     }
 
     /**
@@ -91,7 +88,7 @@ public class FileManager {
      * @param fileId name of the file to delete.
      * @throws IOException
      */
-    public synchronized void deleteStoredChunks(String fileId) throws IOException {
+    public synchronized void deleteStoredChunks(String fileId, int peer) throws IOException {
         _File file = storage.get(fileId);
         if(file == null)
             return;
@@ -99,8 +96,10 @@ public class FileManager {
         // Removes all the chunk's files from the computer.
         for(int i = 0; i < file.getChunks().size(); i++) {
             Chunk chunk = file.getChunks().get(i);
-            Path path = Paths.get(backupLocation + fileId + chunk.getChunkNo());
-            Files.delete(path);
+            if(chunk.peerHasChunk(peer)){
+                Path path = Paths.get(backupLocation + fileId + chunk.getChunkNo());
+                Files.delete(path);
+            }
         }
 
         // Removes the entry on the map.
@@ -138,12 +137,12 @@ public class FileManager {
      * Returns a boolean indicating if the chunk was added to the storage or not (in case it's a duplicate).
      * @param c
      */
-    public synchronized boolean addChunkToStorage(String fileId, Chunk c) {
+    public synchronized boolean addChunkToStorage(String fileId, Chunk c, int peer) {
         if(!storage.containsKey(fileId)) {
             _File _file = new _File(null, fileId, 0);
             storage.put(fileId, _file);
         }
-        return storage.get(fileId).addChunk(c);
+        return storage.get(fileId).addChunkPeer(c, peer);
     }
 
     public synchronized long getCurrOccupiedSize(int peer_id) throws IOException {
@@ -167,14 +166,14 @@ public class FileManager {
      * @param chunkNo
      * @return
      */
-    public synchronized Chunk getChunk(String fileId, int chunkNo) {
+    public synchronized Chunk getChunk(String fileId, int chunkNo, int peer) {
         _File file = storage.get(fileId);
         if(file == null) {
             return null;
         }
 
         for(Chunk chunk : file.getChunks()) {
-            if(chunk.getChunkNo() == chunkNo)
+            if(chunk.getChunkNo() == chunkNo && chunk.peerHasChunk(peer))
                 return chunk;
         }
 

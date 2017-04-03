@@ -39,7 +39,7 @@ public class Restore implements Runnable {
         if(file == null)
             return;
 
-        ArrayList<Chunk> chunks = file.getChunks();
+        ArrayList<Chunk> chunks = file.getStoredChunks(parentPeer.getId());
         for(int i = 0; i < chunks.size(); i++) {
             if(chunks.get(i).getChunkNo() == chunkNo) {
                 MessageHeader header = new MessageHeader(Utils.MessageType.CHUNK, version, parentPeer.getId(), fileId, chunkNo);
@@ -61,11 +61,10 @@ public class Restore implements Runnable {
                         return;
 
                     parentPeer.sendMessageMDR(buffer);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
+                break;
             }
         }
     }

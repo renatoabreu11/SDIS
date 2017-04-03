@@ -84,7 +84,7 @@ public class Chunk implements Comparable<Chunk>{
         if (obj instanceof Chunk) {
             Chunk c = (Chunk) obj;
             // SEE IF THIS DOESN'T BLOW UP THE COMPARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            return (c.chunkNo == this.chunkNo && Arrays.equals(c.chunkData, this.chunkData));
+            return (c.chunkNo == this.chunkNo);
         } else
             return false;
     }
@@ -147,11 +147,13 @@ public class Chunk implements Comparable<Chunk>{
      *
      * @param senderId
      */
-    public void updateReplication(int senderId) {
+    public boolean updateReplication(int senderId) {
         if(!peerHasChunk(senderId)){
             peers.add(senderId);
             addReplicationDegree();
+            return true;
         }
+        return false;
     }
 
     /**

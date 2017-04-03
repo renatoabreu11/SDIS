@@ -78,7 +78,7 @@ public class Peer implements IClientPeer {
     }
 
     public void deleteFileStorage(String fileId) throws IOException {
-        this.manager.deleteStoredChunks(fileId);
+        this.manager.deleteStoredChunks(fileId, id);
     }
 
     @Override
