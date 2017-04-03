@@ -103,13 +103,16 @@ public class _File {
      * Returns the number of bytes all the chunks of this file occupies.
      * @return
      */
-    public long getFileBytesSize() throws IOException {
+    public long getFileBytesSize(int id) throws IOException {
         long numBytes = 0;
 
         for(Chunk chunk : chunks) {
-            Path path = Paths.get("data/chunks/" + fileId + chunk.getChunkNo());
-            long bytesSize = Files.readAllBytes(path).length;
-            numBytes += bytesSize;
+            //Só faz isto se o peer tiver o chunk guardado. Na storage está a info de todos os chunks!!!
+            if(chunk.peerHasChunk(id)){
+                Path path = Paths.get("data/chunks/" + fileId + chunk.getChunkNo());
+                long bytesSize = Files.readAllBytes(path).length;
+                numBytes += bytesSize;
+            }
         }
 
         return numBytes;
@@ -132,4 +135,14 @@ public class _File {
             }
         }
     }
+
+    public ArrayList<Chunk> getStoredChunksWithHigherRD(int id) {
+        ArrayList<Chunk> storedChunks = new ArrayList<>();
+        for(int i = 0; i < chunks.size(); i++){
+            if(chunks.get(i).peerHasChunk(id) && chunks.get(i).higherRD())
+                storedChunks.add(chunks.get(i));
+        }
+        return storedChunks;
+    }
+
 }

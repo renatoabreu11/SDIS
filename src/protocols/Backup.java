@@ -46,17 +46,14 @@ public class Backup implements Runnable {
         Chunk chunk = new Chunk(replicationDegree, chunkNo, fileId);
 
         // Only keeps the chunk if there's available space.
-        long futureOccupiedSpace = 0;
-        try {
-            futureOccupiedSpace = chunkData.length + parentPeer.getManager().getCurrOccupiedSize();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        long futureOccupiedSpace = chunkData.length + parentPeer.getDiskUsage();
         if(futureOccupiedSpace > parentPeer.getMaxDiskSpace() * 1000) {
-           //change this!
-            System.out.println("WARNING: Peer discarded a chunk because it had no available space to host it.");
-            //here we need to start the space manage protocol
-            return;
+            long spaceNeeded = (futureOccupiedSpace / 1000) - parentPeer.getMaxDiskSpace();
+            boolean hasSpace = parentPeer.freeDisposableSpace(spaceNeeded);
+            if(!hasSpace){
+                System.out.println("WARNING: Peer discarded a chunk because it had no available space to host it.");
+                return;
+            }
         }
 
         // Manage disk space related.

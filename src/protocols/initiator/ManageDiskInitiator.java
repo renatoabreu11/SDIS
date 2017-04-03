@@ -44,7 +44,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             return;
         }
 
-        if(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize() / 1000)
+        if(clientMaxDiskSpace < getParentPeer().getDiskUsage()  / 1000)
             ManageChunks();
 
         getParentPeer().setMaxDiskSpace(clientMaxDiskSpace);
@@ -84,7 +84,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
                 return;
             }
             currChunkToDelete = orderedChunks.get(i);
-        } while(clientMaxDiskSpace < getParentPeer().getManager().getCurrOccupiedSize() / 1000);
+        } while(clientMaxDiskSpace < getParentPeer().getDiskUsage() / 1000);
 
         successMessage = "The maximum disk space available was updated.";
     }

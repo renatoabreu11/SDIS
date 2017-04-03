@@ -115,19 +115,21 @@ public class FileManager {
      * @param id
      * @throws IOException
      */
-    public synchronized void deleteStoredChunk(String fileId, int chunkNo, int id) throws IOException {
+    public synchronized long deleteStoredChunk(String fileId, int chunkNo, int id) throws IOException {
         _File file = storage.get(fileId);
-
+        long spaceReclaimed = 0;
         for(Chunk chunk : file.getChunks()) {
             if(chunk.getChunkNo() == chunkNo) {
                 if(chunk.peerHasChunk(id)) {
                     Path path = Paths.get(backupLocation + fileId + chunkNo);
+                    spaceReclaimed = Files.readAllBytes(path).length;
                     Files.delete(path);
                     file.removeChunkPeer(chunkNo, id);
                 }
                 break;
             }
         }
+        return spaceReclaimed;
     }
 
     /**
@@ -144,7 +146,7 @@ public class FileManager {
         return storage.get(fileId).addChunk(c);
     }
 
-    public synchronized long getCurrOccupiedSize() throws IOException {
+    public synchronized long getCurrOccupiedSize(int peer_id) throws IOException {
         Iterator it = storage.entrySet().iterator();
         long numBytes = 0;
 
@@ -153,7 +155,7 @@ public class FileManager {
             Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
             _File file = entry.getValue();
 
-            numBytes += file.getFileBytesSize();
+            numBytes += file.getFileBytesSize(peer_id);
         }
 
         return numBytes;
@@ -267,5 +269,37 @@ public class FileManager {
 
             storage.put(fileId, file);
         }
+    }
+
+    public ArrayList<Chunk> getChunksWithHighRD(int id) {
+        ArrayList<Chunk> ret = new ArrayList<>();
+        Iterator it = storage.entrySet().iterator();
+
+        while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            _File file = entry.getValue();
+
+            ArrayList<Chunk> chunks = file.getStoredChunksWithHigherRD(id);
+            if(chunks != null && chunks.size() != 0)
+                ret.addAll(chunks);
+        }
+
+        return ret;
+    }
+
+    public long countDisposableSpace(ArrayList<Chunk> storedChunksWithHighRD) {
+        long numBytes = 0;
+        for(Chunk c : storedChunksWithHighRD){
+            Path path = Paths.get("data/chunks/" + c.getFileId() + c.getChunkNo());
+            long bytesSize = 0;
+            try {
+                bytesSize = Files.readAllBytes(path).length;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            numBytes += bytesSize;
+        }
+        return numBytes;
     }
 }

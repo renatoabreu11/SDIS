@@ -238,4 +238,41 @@ public class Peer implements IClientPeer {
     public ArrayList<String> getChunkRestoring() {
         return chunkRestoring;
     }
+
+    public boolean freeDisposableSpace(long spaceNeeded) {
+        ArrayList<Chunk> storedChunksWithHighRD = manager.getChunksWithHighRD(id);
+        Collections.sort(storedChunksWithHighRD);
+
+        if(storedChunksWithHighRD.size() == 0)
+            return false;
+
+        long disposableSpace = manager.countDisposableSpace(storedChunksWithHighRD);
+
+        if(disposableSpace > spaceNeeded){
+            long spaceToRemove = disposableSpace - spaceNeeded;
+            long spaceRemoved = 0;
+            for(Chunk c : storedChunksWithHighRD){
+                long aux = 0;
+                try {
+                   aux = manager.deleteStoredChunk(c.getFileId(), c.getChunkNo(), id);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                spaceRemoved += aux;
+                if(spaceRemoved >= spaceToRemove)
+                    break;
+            }
+        }else return false;
+
+        return true;
+    }
+
+    public long getDiskUsage() {
+        try {
+            return manager.getCurrOccupiedSize(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

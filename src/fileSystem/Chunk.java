@@ -193,4 +193,8 @@ public class Chunk implements Comparable<Chunk>{
                 this.peers.remove(i);
         }
     }
+
+    public boolean higherRD() {
+        return (currReplicationDegree > replicationDegree);
+    }
 }
