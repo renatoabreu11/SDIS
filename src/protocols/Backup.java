@@ -6,7 +6,6 @@ import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 import network.Peer;
-import sun.misc.Version;
 import utils.Utils;
 
 import java.io.IOException;
@@ -62,6 +61,11 @@ public class Backup implements Runnable {
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
             System.out.println("Chunk already stored. Aborting.");
+            try {
+                SendStoredMessage(chunk, version, fileId, chunkNo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return;
         }
 
@@ -81,19 +85,22 @@ public class Backup implements Runnable {
             }
 
             parentPeer.getManager().storeChunk(fileId, chunk, parentPeer.getId(), chunkData);
-
-            // Creates the message to send back to the initiator peer.
-            MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, parentPeer.getId(), fileId, chunkNo);
-            byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
-            // Sends the message to the initiator peer.
-            parentPeer.getMc().sendMessage(responseBytes);
-
-            // Updates peer's metadata.
-            parentPeer.getManager().WriteMetadata();
-            // Manage disk space related.
-            parentPeer.removeChunkBackingUp(chunk);
+            SendStoredMessage(chunk, version, fileId, chunkNo);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void SendStoredMessage(Chunk chunk, String version, String fileId, int chunkNo) throws IOException {
+        // Creates the message to send back to the initiator peer.
+        MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, parentPeer.getId(), fileId, chunkNo);
+        byte[] responseBytes = response.getMessageHeaderAsString().getBytes();
+        // Sends the message to the initiator peer.
+        parentPeer.getMc().sendMessage(responseBytes);
+
+        // Updates peer's metadata.
+        parentPeer.getManager().WriteMetadata();
+        // Manage disk space related.
+        parentPeer.removeChunkBackingUp(chunk);
     }
 }
