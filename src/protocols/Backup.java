@@ -7,12 +7,7 @@ import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
-import javax.lang.model.type.ArrayType;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +43,6 @@ public class Backup implements Runnable {
 
         // Only keeps the chunk if there's available space.
         long futureOccupiedSpace = chunkData.length + parentPeer.getDiskUsage();
-        System.out.println(futureOccupiedSpace + " > " + parentPeer.getMaxDiskSpace() * 1000);
         if(futureOccupiedSpace > parentPeer.getMaxDiskSpace() * 1000) {
             long spaceNeeded = (futureOccupiedSpace / 1000) - parentPeer.getMaxDiskSpace();
             boolean hasSpace = parentPeer.freeDisposableSpace(spaceNeeded);

@@ -75,11 +75,14 @@ public class FileManager {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        _File f = new _File(null, fileId, 0);
-        this.addFileToStorage(f);
-        _File file = this.getFileStorage(fileId);
+        _File f;
+        if(!storage.containsKey(fileId)){
+           storage.put(fileId, new _File(null, fileId, 0));
+        }
+        f = storage.get(fileId);
+        System.out.println(f.toString());
         Chunk c = new Chunk(chunkNo, fileId);
-        boolean exists = file.addChunkPeer(c, senderId);
+        f.addChunkPeer(c, senderId);
     }
 
     /**

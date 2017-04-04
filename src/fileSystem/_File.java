@@ -20,6 +20,11 @@ public class _File {
         numChunks = totalChunks;
     }
 
+    public String toString(){
+        String s = "FileId: " + fileId + " pathname: " + pathname + " numChunks: " + numChunks;
+        return s;
+    }
+
     /**
      * Return the file pathname
      * @return String pathname
@@ -84,6 +89,7 @@ public class _File {
             }
         }
         c.updateReplication(peer);
+
         chunks.add(c);
         if(numChunks < chunks.size())
             numChunks++;

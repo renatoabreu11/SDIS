@@ -1,5 +1,8 @@
 #!/bin/sh
 rm -rf bin
+rm TestApp.jar
+rm Client.jar
+rm Peer.jar
 mkdir -p bin
 javac -Xlint:unchecked -d bin -sourcepath src src/network/TestApp.java src/network/Peer.java src/network/Client.java
 
@@ -19,6 +22,6 @@ Main-Class: network.Client
 
 EOF
 
-jar cfm bin/TestApp.jar bin/META-INF/TestApp.mf -C bin .
-jar cfm bin/Client.jar bin/META-INF/Client.mf -C bin .
-jar cfm bin/Peer.jar bin/META-INF/Peer.mf -C bin .
+jar cfm TestApp.jar bin/META-INF/TestApp.mf -C bin .
+jar cfm Client.jar bin/META-INF/Client.mf -C bin .
+jar cfm Peer.jar bin/META-INF/Peer.mf -C bin .
