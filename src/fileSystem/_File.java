@@ -25,6 +25,12 @@ public class _File {
         return s;
     }
 
+    public Chunk getChunk(int id){
+      for(Chunk c : chunks)
+        if(c.getChunkNo() == id)
+          return c;
+    }
+
     /**
      * Return the file pathname
      * @return String pathname
@@ -91,7 +97,7 @@ public class _File {
 
         c.updateReplication(peer);
         chunks.add(c);
-        
+
         if(numChunks < chunks.size())
             numChunks++;
         return true;
