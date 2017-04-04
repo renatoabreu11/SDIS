@@ -37,7 +37,6 @@ public class Backup implements Runnable {
         if(senderId == parentPeer.getId()) // a peer never stores the chunks of it own files
             return;
 
-
         byte[] chunkData = body.getBody();
         Chunk chunk = new Chunk(replicationDegree, chunkNo, fileId);
 

@@ -76,11 +76,10 @@ public class FileManager {
         int chunkNo = header.getChunkNo();
 
         _File f;
-        if(!storage.containsKey(fileId)){
+        if(!storage.containsKey(fileId))
            storage.put(fileId, new _File(null, fileId, 0));
-        }
+
         f = storage.get(fileId);
-        System.out.println(f.toString());
         Chunk c = new Chunk(chunkNo, fileId);
         f.addChunkPeer(c, senderId);
     }

@@ -85,12 +85,13 @@ public class _File {
     public boolean addChunkPeer(Chunk c, int peer){
         for(int i = 0; i < this.chunks.size(); i++){
             if(chunks.get(i).getChunkNo() == c.getChunkNo()){
-                return chunks.get(i).updateReplication(peer);
+                return chunks.get(i).updateReplication(peer, c.getReplicationDegree());
             }
         }
-        c.updateReplication(peer);
 
+        c.updateReplication(peer);
         chunks.add(c);
+        
         if(numChunks < chunks.size())
             numChunks++;
         return true;

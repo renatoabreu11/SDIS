@@ -41,6 +41,7 @@ public class Chunk implements Comparable<Chunk>{
     public Chunk(int chunkNo, String fileId){
         this.chunkNo = chunkNo;
         this.fileId = fileId;
+        replicationDegree = -1;
     }
 
     public Chunk(int chunkNo){
@@ -147,6 +148,16 @@ public class Chunk implements Comparable<Chunk>{
      *
      * @param senderId
      */
+    public boolean updateReplication(int senderId, int desiredRD) {
+        if(!peerHasChunk(senderId)){
+            this.replicationDegree = desiredRD;
+            peers.add(senderId);
+            addReplicationDegree();
+            return true;
+        }
+        return false;
+    }
+
     public boolean updateReplication(int senderId) {
         if(!peerHasChunk(senderId)){
             peers.add(senderId);

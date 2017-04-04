@@ -52,7 +52,7 @@ public class Splitter {
                 chunks.add(lastC);
             }
         }  else{
-            for(int i = 64000; i < fileData.length; i += 64000){
+            for(int i = 64000; i <= fileData.length; i += 64000){
                 int minDelimiter = i - 64000;
                 int maxDelimiter = i;
                 byte[] chunkData = copyOfRange(fileData, minDelimiter, maxDelimiter);
