@@ -59,6 +59,18 @@ public class MessageHeader {
     }
 
     /**
+     * Awake message (used in version 1.3 and above).
+     * @param messageType
+     * @param version
+     * @param senderId
+     */
+    public MessageHeader(Utils.MessageType messageType, String version, int senderId) {
+        this.messageType = messageType;
+        this.version = version;
+        this.senderId = senderId;
+    }
+
+    /**
      * Creates a string accordingly to the message header
      * @return
      */

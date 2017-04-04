@@ -75,6 +75,8 @@ public class ProtocolDispatcher implements Runnable{
                 Manage manage = new Manage(parentPeer, message);
                 executor.execute(manage);
                 break;
+            case AWOKE:
+                
             default: return;
         }
     }
