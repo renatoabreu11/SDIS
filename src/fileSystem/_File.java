@@ -98,8 +98,8 @@ public class _File {
         }
 
         c.updateReplication(peer, -1);
-        if(c.getReplicationDegree() != -1)
-            c.setReplicationDegree(0);
+        if(c.getReplicationDegree() == 0)
+            c.setReplicationDegree(1);
         chunks.add(c);
 
         if(numChunks < chunks.size())

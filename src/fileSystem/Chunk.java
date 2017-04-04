@@ -32,6 +32,7 @@ public class Chunk implements Comparable<Chunk>{
         this.replicationDegree = replicationDegree;
         this.currReplicationDegree = 0;
         this.fileId = fileId;
+        receivedPutChunk = true;
     }
 
     /**
