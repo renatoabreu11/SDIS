@@ -77,7 +77,7 @@ public class Backup implements Runnable {
                 _File file = parentPeer.getManager().getFileStorage(fileId);
                 if(file != null) {
                     Chunk chunkStored = file.getChunk(chunkNo);
-                    if(chunkStored.getCurrReplicationDegree() >= replicationDegree)
+                    if(chunkStored != null && chunkStored.getCurrReplicationDegree() >= replicationDegree)
                       return;
                 }
             }

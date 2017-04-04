@@ -29,6 +29,8 @@ public class _File {
       for(Chunk c : chunks)
         if(c.getChunkNo() == id)
           return c;
+
+      return null;
     }
 
     /**
