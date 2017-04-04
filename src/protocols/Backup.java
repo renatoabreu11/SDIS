@@ -1,10 +1,12 @@
 package protocols;
 
 import fileSystem.Chunk;
+import fileSystem._File;
 import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 import network.Peer;
+import sun.misc.Version;
 import utils.Utils;
 
 import java.io.IOException;
@@ -66,6 +68,17 @@ public class Backup implements Runnable {
         try {
             // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
             TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
+
+            if(version.equals("1.1")) {
+                _File file = parentPeer.getManager().getFileStorage(fileId);
+                if(file != null) {
+                    if(chunkNo <= file.getChunks().size()) {
+                        int currChunkRD = file.getChunks().get(chunkNo-1).getCurrReplicationDegree();
+                        if(currChunkRD >= replicationDegree)
+                            return;
+                    }
+                }
+            }
 
             parentPeer.getManager().storeChunk(fileId, chunk, parentPeer.getId(), chunkData);
 
