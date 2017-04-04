@@ -58,7 +58,7 @@ public class FileManager {
     /**
      *
      */
-    public boolean addFileToStorage(_File f){
+    public synchronized boolean addFileToStorage(_File f){
         if(storage.put(f.getFileId(), f) == null)
             return false;
         else return true;
@@ -129,20 +129,6 @@ public class FileManager {
             }
         }
         return spaceReclaimed;
-    }
-
-    /**
-     * If a peer is receiving a chunk from a file it doesn't have on the 'storage', it creates the file
-     * first and then it adds the chunk to the file array.
-     * Returns a boolean indicating if the chunk was added to the storage or not (in case it's a duplicate).
-     * @param c
-     */
-    public synchronized boolean addChunkToStorage(String fileId, Chunk c, int peer) {
-        if(!storage.containsKey(fileId)) {
-            _File _file = new _File(null, fileId, 0);
-            storage.put(fileId, _file);
-        }
-        return storage.get(fileId).addChunkPeer(c, peer);
     }
 
     public synchronized long getCurrOccupiedSize(int peer_id) throws IOException {
@@ -270,7 +256,7 @@ public class FileManager {
         }
     }
 
-    public ArrayList<Chunk> getChunksWithHighRD(int id) {
+    public synchronized ArrayList<Chunk> getChunksWithHighRD(int id) {
         ArrayList<Chunk> ret = new ArrayList<>();
         Iterator it = storage.entrySet().iterator();
 
@@ -287,7 +273,7 @@ public class FileManager {
         return ret;
     }
 
-    public long countDisposableSpace(ArrayList<Chunk> storedChunksWithHighRD) {
+    public synchronized long countDisposableSpace(ArrayList<Chunk> storedChunksWithHighRD) {
         long numBytes = 0;
         for(Chunk c : storedChunksWithHighRD){
             Path path = Paths.get("data/chunks/" + c.getFileId() + c.getChunkNo());
@@ -300,5 +286,37 @@ public class FileManager {
             numBytes += bytesSize;
         }
         return numBytes;
+    }
+
+    public synchronized boolean checkStoredChunk(String fileId, Chunk chunk, int id) {
+        if(!storage.containsKey(fileId)) {
+            return false;
+        }
+
+        ArrayList<Chunk> storedChunks = storage.get(fileId).getStoredChunks(id);
+        for(Chunk c : storedChunks){
+            if(c.getChunkNo() == chunk.getChunkNo())
+                return true;
+        }
+        return false;
+    }
+
+    public synchronized void storeChunk(String fileId, Chunk chunk, int id, byte[] chunkData) {
+        if(!storage.containsKey(fileId)) {
+            _File _file = new _File(null, fileId, 0);
+            storage.put(fileId, _file);
+        }
+
+        boolean updateChunk =  storage.get(fileId).addChunkPeer(chunk, id);
+        if(updateChunk){
+            FileOutputStream fileOutputStream = null;
+            try {
+                fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunk.getChunkNo());
+                fileOutputStream.write(chunkData);
+                fileOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

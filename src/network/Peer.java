@@ -239,7 +239,7 @@ public class Peer implements IClientPeer {
         return chunkRestoring;
     }
 
-    public boolean freeDisposableSpace(long spaceNeeded) {
+    public synchronized boolean freeDisposableSpace(long spaceNeeded) {
         ArrayList<Chunk> storedChunksWithHighRD = manager.getChunksWithHighRD(id);
         Collections.sort(storedChunksWithHighRD);
 
@@ -267,7 +267,7 @@ public class Peer implements IClientPeer {
         return true;
     }
 
-    public long getDiskUsage() {
+    public synchronized long getDiskUsage() {
         try {
             return manager.getCurrOccupiedSize(id);
         } catch (IOException e) {

@@ -60,22 +60,19 @@ public class Backup implements Runnable {
         parentPeer.addChunkBackingUp(chunk);
 
         // Saves the chunk's info in the file manager.
-        if(!parentPeer.getManager().addChunkToStorage(fileId, chunk, parentPeer.getId())) {
+        boolean isStored = parentPeer.getManager().checkStoredChunk(fileId, chunk, parentPeer.getId());
+        if(isStored){
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
             System.out.println("Chunk already stored. Aborting.");
             return;
         }
 
-        // Writes to file.
-        FileOutputStream fileOutputStream = null;
         try {
             // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
             TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
 
-            fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunkNo);
-            fileOutputStream.write(chunkData);
-            fileOutputStream.close();
+            parentPeer.getManager().storeChunk(fileId, chunk, parentPeer.getId(), chunkData);
 
             // Creates the message to send back to the initiator peer.
             MessageHeader response = new MessageHeader(Utils.MessageType.STORED, version, parentPeer.getId(), fileId, chunkNo);
