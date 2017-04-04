@@ -8,6 +8,7 @@ import network.Peer;
 import utils.Utils;
 
 import javax.lang.model.type.ArrayType;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,6 +48,7 @@ public class Backup implements Runnable {
 
         // Only keeps the chunk if there's available space.
         long futureOccupiedSpace = chunkData.length + parentPeer.getDiskUsage();
+        System.out.println(futureOccupiedSpace + " > " + parentPeer.getMaxDiskSpace() * 1000);
         if(futureOccupiedSpace > parentPeer.getMaxDiskSpace() * 1000) {
             long spaceNeeded = (futureOccupiedSpace / 1000) - parentPeer.getMaxDiskSpace();
             boolean hasSpace = parentPeer.freeDisposableSpace(spaceNeeded);
@@ -73,7 +75,7 @@ public class Backup implements Runnable {
             // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
             TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
 
-            fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunkNo);
+            fileOutputStream = new FileOutputStream("data" + File.separator + "chunks" + File.separator + fileId + chunkNo);
             fileOutputStream.write(chunkData);
             fileOutputStream.close();
 
