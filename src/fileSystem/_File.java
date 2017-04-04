@@ -101,10 +101,6 @@ public class _File {
         if(c.getReplicationDegree() != -1)
             c.setReplicationDegree(0);
         chunks.add(c);
-<<<<<<< HEAD
-        chunks.add(c);
-=======
->>>>>>> origin/master
 
         if(numChunks < chunks.size())
             numChunks++;
