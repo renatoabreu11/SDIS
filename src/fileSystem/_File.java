@@ -25,6 +25,14 @@ public class _File {
         return s;
     }
 
+    public Chunk getChunk(int id){
+      for(Chunk c : chunks)
+        if(c.getChunkNo() == id)
+          return c;
+
+      return null;
+    }
+
     /**
      * Return the file pathname
      * @return String pathname
@@ -93,7 +101,10 @@ public class _File {
         if(c.getReplicationDegree() != -1)
             c.setReplicationDegree(0);
         chunks.add(c);
+<<<<<<< HEAD
         chunks.add(c);
+=======
+>>>>>>> origin/master
 
         if(numChunks < chunks.size())
             numChunks++;
