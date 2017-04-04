@@ -8,6 +8,7 @@ public class Chunk implements Comparable<Chunk>{
     private int chunkNo;
     private int replicationDegree;
     private int currReplicationDegree;
+    private boolean receivedPutChunk;
     private ArrayList<Integer> peers = new ArrayList<>();
     private byte[] chunkData;
     private String fileId;
@@ -42,6 +43,7 @@ public class Chunk implements Comparable<Chunk>{
         this.chunkNo = chunkNo;
         this.fileId = fileId;
         replicationDegree = -1;
+        receivedPutChunk = false;
     }
 
     public Chunk(int chunkNo){
@@ -84,7 +86,6 @@ public class Chunk implements Comparable<Chunk>{
     public boolean equals(Object obj){
         if (obj instanceof Chunk) {
             Chunk c = (Chunk) obj;
-            // SEE IF THIS DOESN'T BLOW UP THE COMPARATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             return (c.chunkNo == this.chunkNo);
         } else
             return false;
@@ -104,6 +105,14 @@ public class Chunk implements Comparable<Chunk>{
      */
     public byte[] getChunkData() {
         return chunkData;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public void setReplicationDegree(int rd) {
+        replicationDegree = rd;
     }
 
     /**
@@ -150,18 +159,12 @@ public class Chunk implements Comparable<Chunk>{
      */
     public boolean updateReplication(int senderId, int desiredRD) {
         if(desiredRD != -1 && this.replicationDegree != desiredRD){
+            receivedPutChunk = true;
             this.replicationDegree = desiredRD;
         }
         if(!peerHasChunk(senderId)){
-            peers.add(senderId);
-            addReplicationDegree();
-            return true;
-        }
-        return false;
-    }
-
-    public boolean updateReplication(int senderId) {
-        if(!peerHasChunk(senderId)){
+            if(!receivedPutChunk)
+                replicationDegree++;
             peers.add(senderId);
             addReplicationDegree();
             return true;

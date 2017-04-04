@@ -72,7 +72,7 @@ public class Client {
                     if(fileData == null){
                         System.out.println("The specified file cannot be restored");
                     }else{
-                        FileOutputStream fos = new FileOutputStream(pathname);
+                        FileOutputStream fos = new FileOutputStream("docs/restoredfile");
                         fos.write(fileData);
                         fos.close();
                         System.out.println("File successfully restored!");

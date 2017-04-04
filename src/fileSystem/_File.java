@@ -89,29 +89,15 @@ public class _File {
             }
         }
 
-        c.updateReplication(peer);
+        c.updateReplication(peer, -1);
+        if(c.getReplicationDegree() != -1)
+            c.setReplicationDegree(0);
         chunks.add(c);
-        
+        chunks.add(c);
+
         if(numChunks < chunks.size())
             numChunks++;
         return true;
-    }
-
-
-    /**
-     * Update the current replication degree of a chunk
-     * @param chunkNo
-     * @param senderId
-     * @return
-     */
-    public boolean updateChunk(int chunkNo, int senderId) {
-        for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).getChunkNo() == chunkNo){
-                chunks.get(i).updateReplication(senderId);
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

@@ -93,9 +93,8 @@ public class RestoreInitiator extends ProtocolInitiator {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (int i = 0; i < restoring.size(); i++) {
-            Path path = Paths.get("data/chunks/" + f.getFileId() + restoring.get(i).getChunkNo());
             try {
-                outputStream.write(Files.readAllBytes(path));
+                outputStream.write(restoring.get(i).getChunkData());
             } catch (IOException e) {
                 e.printStackTrace();
             }

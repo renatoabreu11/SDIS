@@ -6,7 +6,6 @@ import messageSystem.Message;
 import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 import network.Peer;
-import sun.misc.Version;
 import utils.Utils;
 
 import java.io.IOException;
