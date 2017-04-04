@@ -149,8 +149,10 @@ public class Chunk implements Comparable<Chunk>{
      * @param senderId
      */
     public boolean updateReplication(int senderId, int desiredRD) {
-        if(!peerHasChunk(senderId)){
+        if(desiredRD != -1 && this.replicationDegree != desiredRD){
             this.replicationDegree = desiredRD;
+        }
+        if(!peerHasChunk(senderId)){
             peers.add(senderId);
             addReplicationDegree();
             return true;

@@ -185,7 +185,7 @@ public class FileManager {
         * chunk_2..current_replication_degree..peer1..peer2..peer_n
         * chunk_number..current_replication_degree..peer1..peer2..peer_n"
         * */
-        FileOutputStream fos = new FileOutputStream("data/metadata.txt");
+        FileOutputStream fos = new FileOutputStream(Utils.METADATA_PATHNAME);
         String str = "";
 
         Iterator it = storage.entrySet().iterator();

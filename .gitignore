@@ -2,5 +2,4 @@ out
 .idea/
 SDIS.iml
 *.iml
-data/chunks/
 bin/
