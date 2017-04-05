@@ -25,6 +25,7 @@ public class Chunk implements Comparable<Chunk>{
         this.currReplicationDegree = 0;
         this.chunkData = chunkData;
         this.fileId = fileId;
+        receivedPutChunk = true;
     }
 
     public Chunk( int replicationDegree, int chunkNo, String fileId){
