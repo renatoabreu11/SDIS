@@ -1,5 +1,9 @@
 package utils;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 
 public class Utils {
@@ -28,6 +32,13 @@ public class Utils {
 
     public final static String CRLF  = "" + CR + LF;
 
+    public final static int BackupRetransmissions = 5;
+    public final static int DeleteRetransmissions = 3;
+
+    public final static int RMI_PORT = 1099;
+
+    public final static String METADATA_PATHNAME = "data/chunks/metadata.txt";
+
     static private final String IPV4_REGEX = "(([0-1]?[0-9]{1,2}\\.)|(2[0-4][0-9]\\.)|(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))";
     static private Pattern IPV4_PATTERN = Pattern.compile(IPV4_REGEX);
 
@@ -36,11 +47,27 @@ public class Utils {
         return IPV4_PATTERN.matcher(s).matches();
     }
 
-    public final static int BackupRetransmissions = 5;
-    public final static int DeleteRetransmissions = 3;
+    public static String getIPV4address(){
+        String ip;
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
 
-    public final static int RMI_PORT = 1099;
-    public final static String IPV4_ADDRESS = "192.168.32.201";
-
-    public final static String METADATA_PATHNAME = "data/chunks/metadata.txt";
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while(addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    ip = addr.getHostAddress();
+                    if(Utils.isValidIPV4(ip))
+                        return ip;
+                }
+            }
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
 }

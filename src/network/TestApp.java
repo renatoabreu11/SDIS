@@ -21,7 +21,7 @@ public class TestApp {
 
         String peer_ap = args[0];
         String sub_protocol = args[1];
-        String IPV4Address = null;
+        String IPV4Address;
         String remoteObject;
 
         boolean validProtocol = false;
@@ -114,7 +114,7 @@ public class TestApp {
                 break;
             case RECLAIM:
                 int spaceToReclaim = Integer.parseInt(args[2]);
-                stub.ManageDiskSpace(spaceToReclaim); // Space to reclaim, however in the protocol the variable that is defined is the maxSpace
+                stub.ManageDiskSpace(spaceToReclaim);
                 break;
             case STATE:
                 System.out.println(stub.RetrieveInformation());

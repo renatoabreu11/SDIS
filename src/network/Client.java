@@ -1,14 +1,11 @@
 package network;
 
-import utils.Utils;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.security.NoSuchAlgorithmException;
@@ -20,16 +17,28 @@ public class Client {
     private static IClientPeer stub;
 
     public static void main(String[] args) throws InterruptedException, IOException, NotBoundException, NoSuchAlgorithmException {
-        if(args.length != 0) {
-            System.out.println("Usage: java -jar Client");
+        if(args.length != 1) {
+            System.out.println("Usage: java Client <peer_ap>");
             return;
         }
 
-        String hostname = Utils.IPV4_ADDRESS;
-        String remoteObjectName = "IClientPeer";
+        String peer_ap = args[0];
+        String IPV4Address;
+        String remoteObject;
+        String[] accessPointSplit = peer_ap.split(":");
+        if(accessPointSplit.length == 2){
+            IPV4Address = accessPointSplit[0];
+            remoteObject = accessPointSplit[1];
+        }else if(accessPointSplit.length == 1){
+            remoteObject = accessPointSplit[0];
+            IPV4Address = "127.0.0.1";
+        }else{
+            System.out.println("The initiator peer access point must be in the following format: <IP address>:<RemoteObject> or only <RemoteObject> if the initiator peer runs on the localhost");
+            return;
+        }
 
-        registry = LocateRegistry.getRegistry(hostname);
-        stub = (IClientPeer) registry.lookup(remoteObjectName);
+        registry = LocateRegistry.getRegistry(IPV4Address);
+        stub = (IClientPeer) registry.lookup(remoteObject);
 
         Menu();
     }

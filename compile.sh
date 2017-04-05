@@ -1,8 +1,6 @@
 #!/bin/sh
 rm -rf bin
-rm TestApp.jar
-rm Client.jar
-rm Peer.jar
+rm -f *.jar
 mkdir -p bin
 javac -Xlint:unchecked -d bin -sourcepath src src/network/TestApp.java src/network/Peer.java src/network/Client.java
 

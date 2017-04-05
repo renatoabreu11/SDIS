@@ -149,7 +149,7 @@ public class Peer implements IClientPeer {
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
         if(args.length != 6) {
-            System.out.println("Usage: java Initializer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
+            System.out.println("Usage: java Peer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
             return;
         }
 
@@ -167,17 +167,16 @@ public class Peer implements IClientPeer {
 
         String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
 
-        // Overrides the RMI connection to the actual server, instead of the localhost address.
-        System.setProperty("java.rmi.server.hostname", Utils.IPV4_ADDRESS);
-
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
         Registry registry;
         if(peer.id == 1){
+            String IPV4 = Utils.getIPV4address();
+            System.out.println("My address: " + IPV4);
+            System.setProperty("java.rmi.server.hostname", IPV4);
             registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
-            registry.bind("IClientPeer", peer.getStub());
-        } else
-            registry = LocateRegistry.getRegistry();
+            registry.bind(peer.serverAccessPoint, peer.getStub());
+        }
 
         System.out.println("Server is ready.");
     }
