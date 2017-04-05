@@ -56,7 +56,18 @@ public class Peer implements IClientPeer {
         if(id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
+        /*if(protocolVersion.equals("1.3")) {
+            SendBornMessage();
+        }*/
+
         System.out.println("All channels online.");
+    }
+
+    private void SendBornMessage() throws IOException {
+        MessageHeader header = new MessageHeader(Utils.MessageType.AWOKE, protocolVersion, id);
+        Message message = new Message(header);
+        byte[] buffer = message.getMessageBytes();
+        mc.sendMessage(buffer);
     }
 
     @Override

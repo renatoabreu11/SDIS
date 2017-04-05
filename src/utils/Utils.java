@@ -11,7 +11,8 @@ public class Utils {
         GETCHUNK,
         CHUNK,
         DELETE,
-        REMOVED
+        REMOVED,
+        AWOKE
     }
 
     public enum SubProtocol{
