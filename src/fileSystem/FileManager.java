@@ -8,10 +8,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileManager {
@@ -271,6 +268,8 @@ public class FileManager {
             if(chunks != null && chunks.size() != 0)
                 ret.addAll(chunks);
         }
+
+        ret.sort(Comparator.comparingInt(Chunk::getCurrReplicationDegree).reversed());
 
         return ret;
     }

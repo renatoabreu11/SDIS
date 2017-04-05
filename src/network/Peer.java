@@ -252,7 +252,11 @@ public class Peer implements IClientPeer {
 
     public synchronized boolean freeDisposableSpace(long spaceNeeded) {
         ArrayList<Chunk> storedChunksWithHighRD = manager.getChunksWithHighRD(id);
-        Collections.sort(storedChunksWithHighRD);
+
+        storedChunksWithHighRD.sort((s1, s2) -> {
+            if (s1.getReplicationDegree() > s2.getReplicationDegree()) return 1;
+            else return 0;
+        });
 
         if(storedChunksWithHighRD.size() == 0)
             return false;

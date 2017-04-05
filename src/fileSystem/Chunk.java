@@ -3,7 +3,7 @@ package fileSystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Chunk implements Comparable<Chunk>{
+public class Chunk{
 
     private int chunkNo;
     private int replicationDegree;
@@ -193,14 +193,6 @@ public class Chunk implements Comparable<Chunk>{
      */
     public ArrayList<Integer> getPeers() {
         return peers;
-    }
-
-    @Override
-    public int compareTo(Chunk chunk) {
-        if(this.chunkNo > chunk.getChunkNo())
-            return 1;
-        else
-            return 0;
     }
 
     public String getFileId() {

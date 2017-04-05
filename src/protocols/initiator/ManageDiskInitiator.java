@@ -9,10 +9,7 @@ import utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class ManageDiskInitiator extends ProtocolInitiator{
 
@@ -109,7 +106,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
                 chunkList.addAll(storedChunks);
         }
 
-        Collections.sort(chunkList);
+        chunkList.sort(Comparator.comparingInt(Chunk::getCurrReplicationDegree).reversed());
         return chunkList;
     }
 

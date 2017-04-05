@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 public class RestoreInitiator extends ProtocolInitiator {
 
@@ -88,8 +89,7 @@ public class RestoreInitiator extends ProtocolInitiator {
     }
 
     public void joinFile() {
-        _File f = getParentPeer().getFileFromManager(pathname);
-        Collections.sort(restoring);
+        restoring.sort(Comparator.comparingInt(Chunk::getChunkNo));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (int i = 0; i < restoring.size(); i++) {
