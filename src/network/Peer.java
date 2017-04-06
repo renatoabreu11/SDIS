@@ -38,9 +38,6 @@ public class Peer implements IClientPeer {
     private long maxDiskSpace = 740;
     private ArrayList<String> chunkBackingUp = new ArrayList<>();
 
-    // Enhancement delete auxiliar variables.
-    private HashMap<String, ArrayList<Integer>> sendersIdRepliesToDelete;
-
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
         this.id = id;
@@ -61,10 +58,8 @@ public class Peer implements IClientPeer {
         if(id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE)) {
-            sendersIdRepliesToDelete = new HashMap<>();
+        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE))
             SendBornMessage();
-        }
 
         System.out.println("All channels online.");
     }
@@ -90,13 +85,10 @@ public class Peer implements IClientPeer {
             int senderId = header.getSenderId();
             String fileId = header.getFileId();
 
-            if(!sendersIdRepliesToDelete.containsKey(fileId))
-                sendersIdRepliesToDelete.put(fileId, new ArrayList<>(senderId));
-            else {
-                ArrayList<Integer> senderArray = sendersIdRepliesToDelete.get(fileId);
-                if(!senderArray.contains(senderId))
-                    senderArray.add(senderId);
-            }
+            if(!manager.getHostIdDelete().containsKey(fileId))
+                return;
+
+            manager.RemovePeerId(fileId, senderId);
         }
     }
 
@@ -313,19 +305,5 @@ public class Peer implements IClientPeer {
             e.printStackTrace();
         }
         return 0;
-    }
-
-    public HashMap<String, ArrayList<Integer>> getSendersIdRepliesToDelete() {
-        return sendersIdRepliesToDelete;
-    }
-
-    /**
-     * Sets the list of the peers who didn't reply to 'list'.
-     * @param list
-     * @param fileId
-     */
-    public void setPeersDeletedReply(ArrayList<Integer> list, String fileId) {
-        sendersIdRepliesToDelete.get(fileId).clear();
-        sendersIdRepliesToDelete.get(fileId).addAll(list);
     }
 }

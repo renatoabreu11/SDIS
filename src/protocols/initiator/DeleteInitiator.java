@@ -39,22 +39,15 @@ public class DeleteInitiator extends ProtocolInitiator{
         Message message = new Message(header);
         byte[] buffer = message.getMessageBytes();
 
+        if(getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))
+            getParentPeer().getManager().FillIdDelete(fileId);
+
         // We send 'Utils.DeleteRetransmissions' messages to make sure every chunk is properly deleted.
         for(int i = 0; i < Utils.DeleteRetransmissions; i++)
             getParentPeer().sendMessageMC(buffer);
 
-        if(getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_ALL)) {
+        if(getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))
             // Waits for the reply messages in order to receive the id of the peers that confirm the file deletion.
             TimeUnit.MILLISECONDS.sleep(Utils.DELETED_MAX_TIME);
-
-            ArrayList<Integer> sendersIdReplied = getParentPeer().getSendersIdRepliesToDelete().get(fileId);
-            ArrayList<Integer> allPeers = file.getAllPeers();
-
-            // Subtracts from all the peers the ones that replied, leaving the list with only those who haven't.
-            allPeers.removeAll(sendersIdReplied);
-
-            // Sets the list in the peer with only the id's of the peers that did not reply.
-            getParentPeer().setPeersDeletedReply(allPeers, fileId);
-        }
     }
 }

@@ -13,13 +13,45 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FileManager {
 
-    private ConcurrentHashMap<String, _File> storage = new ConcurrentHashMap<>();
-    private String backupLocation = "data/chunks/";
+    private ConcurrentHashMap<String, _File> storage;
+    private String backupLocation;
+    private HashMap<String, ArrayList<Integer>> hostIdDelete;
 
     /**
      * File manager Constructor
      */
-    public FileManager(){}
+    public FileManager(){
+        storage = new ConcurrentHashMap<>();
+        backupLocation = "data/chunks/";
+        hostIdDelete = new HashMap<>();
+    }
+
+    /**
+     * Associates all the peer's id that have chunks of the fileId.
+     * @param fileId
+     */
+    public void FillIdDelete(String fileId) {
+        if(hostIdDelete.containsKey(fileId))
+            return;
+
+        _File file = storage.get(fileId);
+        hostIdDelete.put(fileId, new ArrayList<>(file.getAllPeers()));
+    }
+
+    /**
+     * Removes peer's id associated with fileId from the map.
+     * @param fileId
+     * @param id
+     */
+    public void RemovePeerId(String fileId, int id) {
+        ArrayList<Integer> peers = hostIdDelete.get(fileId);
+
+        if(peers.contains(id)) {
+            peers.remove(id);
+            if(peers.size() == 0)
+                hostIdDelete.remove(fileId);
+        }
+    }
 
     /**
      *
@@ -319,5 +351,9 @@ public class FileManager {
                 e.printStackTrace();
             }
         }
+    }
+
+    public HashMap<String, ArrayList<Integer>> getHostIdDelete() {
+        return hostIdDelete;
     }
 }

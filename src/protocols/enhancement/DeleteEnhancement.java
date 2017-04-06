@@ -29,7 +29,7 @@ public class DeleteEnhancement implements Runnable {
         String version = header.getVersion();
         int senderId = header.getSenderId();
 
-        Map<String, ArrayList<Integer>> filesForAwoke = parentPeer.getSendersIdRepliesToDelete();
+        Map<String, ArrayList<Integer>> filesForAwoke = parentPeer.getManager().getHostIdDelete();
         Iterator it = filesForAwoke.entrySet().iterator();
 
         while(it.hasNext()) {
