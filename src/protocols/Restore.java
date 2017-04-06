@@ -10,6 +10,7 @@ import protocols.initiator.RestoreInitiator;
 import utils.Utils;
 
 import java.io.IOException;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +35,10 @@ public class Restore implements Runnable {
         String version = request.getHeader().getVersion();
         String fileId = request.getHeader().getFileId();
         int chunkNo = request.getHeader().getChunkNo();
+        String[] sender = null;
+        if(version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL)){
+            sender = request.getHeader().getSender_access().split(":");
+        }
 
         _File file = parentPeer.getManager().getFileStorage(fileId);
         if(file == null)
@@ -51,18 +56,53 @@ public class Restore implements Runnable {
                     e.printStackTrace();
                 }
                 MessageBody body = new MessageBody(data);
-                Message message = new Message(header, body);
+
                 try {
-                    byte[] buffer = message.getMessageBytes();
-
                     TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
-
-                    if(parentPeer.getChunkRestoring().contains(fileId + chunkNo))
-                        return;
-
-                    parentPeer.sendMessageMDR(buffer);
-                } catch (IOException | InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+
+                if(parentPeer.getChunkRestoring().contains(fileId + chunkNo)){
+                    parentPeer.getChunkRestoring().remove(fileId + chunkNo);
+                    return;
+                }
+
+                if((version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL)) &&
+                        (parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_RESTORE) || parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))){
+                    Message message = new Message(header, body);
+                    Message msgMulticast = new Message(header);
+
+                    DatagramSocket socket = null;
+                    InetAddress address = null;
+                    byte[] bufferPrivate = null;
+                    byte[] bufferMulticast = null;
+                    try {
+                        socket = new DatagramSocket();
+                        assert sender != null;
+                        address = InetAddress.getByName(sender[0]);
+                        bufferPrivate = message.getMessageBytes();
+                        bufferMulticast = msgMulticast.getMessageBytes();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    assert bufferPrivate != null;
+                    DatagramPacket packet = new DatagramPacket(bufferPrivate, bufferPrivate.length, address, Integer.parseInt(sender[1]));
+                    try {
+                        socket.send(packet);
+                        parentPeer.sendMessageMDR(bufferMulticast);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else {
+                    Message message = new Message(header, body);
+                    try {
+                        byte[] buffer = message.getMessageBytes();
+                        parentPeer.sendMessageMDR(buffer);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             }

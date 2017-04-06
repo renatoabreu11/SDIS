@@ -48,6 +48,9 @@ public class Message {
 
         Utils.MessageType type;
         int numberOfArgs;
+        String version, fileId;
+        int senderId, chunkNo, replicationDegree;
+        version = headerSplit[1];
 
         switch(headerSplit[0]){
             case "PUTCHUNK":
@@ -55,7 +58,11 @@ public class Message {
             case "STORED":
                 type = Utils.MessageType.STORED; numberOfArgs = 5; break;
             case "GETCHUNK":
-                type = Utils.MessageType.GETCHUNK; numberOfArgs = 5; break;
+                type = Utils.MessageType.GETCHUNK;
+                if(version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))
+                    numberOfArgs = 6;
+                else numberOfArgs = 5;
+                break;
             case "CHUNK":
                 type = Utils.MessageType.CHUNK; numberOfArgs = 5; break;
             case "DELETE":
@@ -73,10 +80,6 @@ public class Message {
         if(headerSplit.length != numberOfArgs)
             return;
 
-        String version, fileId;
-        int senderId, chunkNo, replicationDegree;
-
-        version = headerSplit[1];
         senderId = Integer.parseInt(headerSplit[2]);
         fileId = headerSplit[3];
 
@@ -84,7 +87,11 @@ public class Message {
             chunkNo = Integer.parseInt(headerSplit[4]);
             replicationDegree = Integer.parseInt(headerSplit[5]);
             header = new MessageHeader(type, version, senderId, fileId, chunkNo, replicationDegree);
-        }else if(type == Utils.MessageType.GETCHUNK || type == Utils.MessageType.CHUNK || type == Utils.MessageType.REMOVED || type == Utils.MessageType.STORED){
+        }else if(type == Utils.MessageType.GETCHUNK && (version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))){
+            chunkNo = Integer.parseInt(headerSplit[4]);
+            String sender_access = headerSplit[5];
+            header = new MessageHeader(type, version, senderId, fileId, chunkNo, sender_access);
+        } else if(type == Utils.MessageType.GETCHUNK || type == Utils.MessageType.CHUNK || type == Utils.MessageType.REMOVED || type == Utils.MessageType.STORED){
             chunkNo = Integer.parseInt(headerSplit[4]);
             header = new MessageHeader(type, version, senderId, fileId, chunkNo);
         }else

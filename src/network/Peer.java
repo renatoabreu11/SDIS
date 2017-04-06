@@ -139,6 +139,7 @@ public class Peer implements IClientPeer {
      * @param msgWrapper
      */
     public void receiveChunk(Message msgWrapper) {
+        chunkRestoring.add(msgWrapper.getHeader().getFileId() + msgWrapper.getHeader().getChunkNo());
         if(this.protocol instanceof RestoreInitiator)
             ((RestoreInitiator) this.protocol).addChunkToRestoring(msgWrapper);
     }
