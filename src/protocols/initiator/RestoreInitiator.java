@@ -13,11 +13,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 public class RestoreInitiator extends ProtocolInitiator {
@@ -27,6 +23,8 @@ public class RestoreInitiator extends ProtocolInitiator {
     private byte[] fileData;
     private protocolState currState;
     private DatagramSocket socket;
+    private int privatePort;
+    private String ipv4;
 
     private enum protocolState {
         INIT,
@@ -42,12 +40,15 @@ public class RestoreInitiator extends ProtocolInitiator {
         super(protocolVersion, b, peer);
         this.pathname = pathname;
         this.currState = protocolState.INIT;
-        if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
+        if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL)){
+            privatePort = 4572;
+            ipv4 = Utils.getIPV4address();
             try {
-                socket = new DatagramSocket(4572);
+                socket = new DatagramSocket(privatePort);
             } catch (SocketException e) {
                 e.printStackTrace();
             }
+        }
     }
 
     @Override
@@ -63,7 +64,12 @@ public class RestoreInitiator extends ProtocolInitiator {
 
         this.currState = protocolState.RESTOREMESSAGE;
         for (int i = 0; i < numChunks; i++) {
-            MessageHeader header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
+
+            MessageHeader header = null;
+            if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL)){
+                header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i, ipv4 + ":" + privatePort);
+            }
+            else header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();
 

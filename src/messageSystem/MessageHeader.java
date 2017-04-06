@@ -9,6 +9,7 @@ public class MessageHeader {
     private String fileId;
     private int chunkNo = -1;
     private int replicationDegree = -1;
+    private String sender_access = null;
 
     /**
      * Putchunk protocol header
@@ -87,6 +88,15 @@ public class MessageHeader {
         this.fileId = fileId;
     }
 
+    public MessageHeader(Utils.MessageType messageType, String version, int senderId, String fileId, int chunkNo, String sender_access){
+        this.messageType = messageType;
+        this.version = version;
+        this.senderId = senderId;
+        this.fileId = fileId;
+        this.chunkNo = chunkNo;
+        this.sender_access = sender_access;
+    }
+
     /**
      * Creates a string accordingly to the message header
      * @return
@@ -105,6 +115,11 @@ public class MessageHeader {
                 break;
             case ENH_DELETED:
                 header = messageType + " " + senderId + fileId + Utils.CRLF + Utils.CRLF;
+                break;
+            case GETCHUNK:
+                if(version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))
+                    header = messageType + " " + version + " " + senderId + " " + fileId + " " + chunkNo + " " + sender_access + " "+  Utils.CRLF + Utils.CRLF;
+                else header = messageType + " " + version + " " + senderId + " " + fileId + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
                 break;
             default:
                 header = messageType + " " + version + " " + senderId + " " + fileId + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;
@@ -135,6 +150,12 @@ public class MessageHeader {
     public int getSenderId() {
         return senderId;
     }
+
+
+    public String getSender_access() {
+        return sender_access;
+    }
+
 
     /**
      * Get the identifier of the file sent through the message body
