@@ -7,7 +7,8 @@ import network.Peer;
 import utils.Utils;
 
 import java.io.IOException;
-import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class DeleteInitiator extends ProtocolInitiator{
 
@@ -19,7 +20,7 @@ public class DeleteInitiator extends ProtocolInitiator{
     }
 
     @Override
-    public void startProtocol() throws IOException {
+    public void startProtocol() throws IOException, InterruptedException {
         _File file = getParentPeer().getManager().getFile(pathname);
         String fileId = file.getFileId();
 
@@ -32,5 +33,20 @@ public class DeleteInitiator extends ProtocolInitiator{
         // We send 'Utils.DeleteRetransmissions' messages to make sure every chunk is properly deleted.
         for(int i = 0; i < Utils.DeleteRetransmissions; i++)
             getParentPeer().sendMessageMC(buffer);
+
+
+        if(getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_ALL)) {
+            // Waits for the reply messages in order to receive the id of the peers that confirm the file deletion.
+            TimeUnit.MILLISECONDS.sleep(Utils.DELETED_MAX_TIME);
+
+            ArrayList<Integer> sendersIdReplied = getParentPeer().getSendersIdRepliesToDelete().get(fileId);
+            ArrayList<Integer> allPeers = file.getAllPeers();
+
+            // Subtracts from all the peers the ones that replied, leaving the list with only those who haven't.
+            allPeers.removeAll(sendersIdReplied);
+
+            // Sets the list in the peer with only the id's of the peers that did not reply.
+            getParentPeer().setPeersDeletedReply(allPeers, fileId);
+        }
     }
 }

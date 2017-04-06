@@ -4,10 +4,12 @@ import channels.*;
 import fileSystem.*;
 import messageSystem.*;
 import protocols.ProtocolDispatcher;
+import protocols.enhancement.DeleteEnhancement;
 import protocols.initiator.*;
 import utils.Utils;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -29,12 +31,15 @@ public class Peer implements IClientPeer {
     private String serverAccessPoint;
     private IClientPeer stub;
 
-    //Restore protocol auxiliar variables.
+    // Restore protocol auxiliar variables.
     private ArrayList<String> chunkRestoring = new ArrayList<>();        // Hosts the chunks who have already sent by other peers.
 
     // Manage disk space auxiliar variables.
     private long maxDiskSpace = 740;
     private ArrayList<String> chunkBackingUp = new ArrayList<>();
+
+    // Enhancement delete auxiliar variables.
+    private HashMap<String, ArrayList<Integer>> sendersIdRepliesToDelete;
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
         this.protocolVersion = protocolVersion;
@@ -56,18 +61,42 @@ public class Peer implements IClientPeer {
         if(id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-        /*if(protocolVersion.equals("1.3")) {
+        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE)) {
+            sendersIdRepliesToDelete = new HashMap<>();
             SendBornMessage();
-        }*/
+        }
 
         System.out.println("All channels online.");
     }
 
     private void SendBornMessage() throws IOException {
-        MessageHeader header = new MessageHeader(Utils.MessageType.AWOKE, protocolVersion, id);
+        MessageHeader header = new MessageHeader(Utils.MessageType.ENH_AWOKE, protocolVersion, id);
         Message message = new Message(header);
         byte[] buffer = message.getMessageBytes();
         mc.sendMessage(buffer);
+    }
+
+    /**
+     * Only callable by the initiator peer and on the Delete Enhanced Protocol.
+     * Every time the initiator peer that sent the delete message receives a confirmation from
+     * the other peers, it stores the id of the confirmation peer in an array related to the file
+     * removed.
+     * @param msgWrapper
+     */
+    public void ENH_UpdateDeleteResponse(Message msgWrapper) {
+        if(this.protocol instanceof DeleteInitiator) {
+            MessageHeader header = msgWrapper.getHeader();
+            int senderId = header.getSenderId();
+            String fileId = header.getFileId();
+
+            if(!sendersIdRepliesToDelete.containsKey(fileId))
+                sendersIdRepliesToDelete.put(fileId, new ArrayList<>(senderId));
+            else {
+                ArrayList<Integer> senderArray = sendersIdRepliesToDelete.get(fileId);
+                if(!senderArray.contains(senderId))
+                    senderArray.add(senderId);
+            }
+        }
     }
 
     @Override
@@ -283,5 +312,19 @@ public class Peer implements IClientPeer {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public HashMap<String, ArrayList<Integer>> getSendersIdRepliesToDelete() {
+        return sendersIdRepliesToDelete;
+    }
+
+    /**
+     * Sets the list of the peers who didn't reply to 'list'.
+     * @param list
+     * @param fileId
+     */
+    public void setPeersDeletedReply(ArrayList<Integer> list, String fileId) {
+        sendersIdRepliesToDelete.get(fileId).clear();
+        sendersIdRepliesToDelete.get(fileId).addAll(list);
     }
 }

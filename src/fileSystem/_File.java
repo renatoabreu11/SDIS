@@ -161,4 +161,17 @@ public class _File {
         return storedChunks;
     }
 
+    public ArrayList<Integer> getAllPeers() {
+        ArrayList<Integer> allPeers = new ArrayList<>();
+
+        for(Chunk chunk : chunks) {
+            for(int i = 0; i < chunk.getPeers().size(); i++) {
+                if(!allPeers.contains(chunk.getPeers().get(i)))
+                    allPeers.add(chunk.getPeers().get(i));
+            }
+        }
+
+        return allPeers;
+    }
+
 }

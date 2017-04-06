@@ -70,6 +70,23 @@ public class MessageHeader {
         this.senderId = senderId;
     }
 
+    public MessageHeader(Utils.MessageType messageType, int senderId) {
+        this.messageType = messageType;
+        this.senderId = senderId;
+    }
+
+    /**
+     * Only callable by the peers that receive a DELETE message.
+     * @param messageType
+     * @param senderId
+     * @param fileId
+     */
+    public MessageHeader(Utils.MessageType messageType, int senderId, String fileId) {
+        this.messageType = messageType;
+        this.senderId = senderId;
+        this.fileId = fileId;
+    }
+
     /**
      * Creates a string accordingly to the message header
      * @return
@@ -82,6 +99,12 @@ public class MessageHeader {
                 break;
             case PUTCHUNK:
                 header = messageType + " " + version + " " + senderId + " " + fileId + " " + chunkNo + " " + replicationDegree + " " + Utils.CRLF + Utils.CRLF;
+                break;
+            case ENH_AWOKE:
+                header = messageType + " " + version + " " + senderId + Utils.CRLF + Utils.CRLF;
+                break;
+            case ENH_DELETED:
+                header = messageType + " " + senderId + fileId + Utils.CRLF + Utils.CRLF;
                 break;
             default:
                 header = messageType + " " + version + " " + senderId + " " + fileId + " " + chunkNo + " " + Utils.CRLF + Utils.CRLF;

@@ -2,6 +2,7 @@ package protocols;
 
 import messageSystem.Message;
 import network.Peer;
+import protocols.enhancement.DeleteEnhancement;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -75,8 +76,13 @@ public class ProtocolDispatcher implements Runnable{
                 Manage manage = new Manage(parentPeer, message);
                 executor.execute(manage);
                 break;
-            case AWOKE:
-                
+            case ENH_DELETED:
+                parentPeer.ENH_UpdateDeleteResponse(message);
+                break;
+            case ENH_AWOKE:
+                DeleteEnhancement deleteEnhancement = new DeleteEnhancement(parentPeer, message);
+                executor.execute(deleteEnhancement);
+                break;
             default: return;
         }
     }

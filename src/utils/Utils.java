@@ -7,7 +7,12 @@ import java.util.Enumeration;
 import java.util.regex.Pattern;
 
 public class Utils {
+
+    public static String ENHANCEMENT_DELETE = "1.3";
+    public static String ENHANCEMENT_ALL = "2.0";
+
     public static long RecoverMaxTime = 2500;
+    public static long DELETED_MAX_TIME = 3000;
 
     public enum MessageType {
         PUTCHUNK,
@@ -16,7 +21,9 @@ public class Utils {
         CHUNK,
         DELETE,
         REMOVED,
-        AWOKE
+
+        ENH_DELETED,
+        ENH_AWOKE
     }
 
     public enum SubProtocol{

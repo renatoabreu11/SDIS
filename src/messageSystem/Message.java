@@ -62,6 +62,10 @@ public class Message {
                 type = Utils.MessageType.DELETE; numberOfArgs = 4; break;
             case "REMOVED":
                 type = Utils.MessageType.REMOVED; numberOfArgs = 5; break;
+            case "ENH_DELETED":
+                type = Utils.MessageType.ENH_DELETED; numberOfArgs = 3; break;
+            case "ENH_AWOKE":
+                type = Utils.MessageType.ENH_AWOKE; numberOfArgs = 3; break;
             default:
                 return;
         }
@@ -116,8 +120,7 @@ public class Message {
             outputStream.write( header );
             outputStream.write( body.getBody() );
 
-            byte messageBytes[] = outputStream.toByteArray( );
-            return messageBytes;
+            return outputStream.toByteArray( );
         } else return header;
     }
 
