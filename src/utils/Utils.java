@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
+    public static String ENHANCEMENT_BACKUP = "1.1";
+    public static String ENHANCEMENT_RESTORE = "1.2";
     public static String ENHANCEMENT_DELETE = "1.3";
     public static String ENHANCEMENT_ALL = "2.0";
 
@@ -33,6 +35,9 @@ public class Utils {
         RECLAIM,
         STATE
     }
+
+    public static final int HEADER_SIZE = 256;
+    public static final int BODY_SIZE = 64000;
 
     public final static char CR  = (char) 0x0D;
     public final static char LF  = (char) 0x0A;

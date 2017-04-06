@@ -3,6 +3,7 @@ package channels;
 import messageSystem.Message;
 import network.Peer;
 import protocols.ProtocolDispatcher;
+import utils.Utils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -28,7 +29,7 @@ public class RestoreChannel extends Channel {
     @Override
     public void run() {
         while (true) {
-            byte[] buffer = new byte[HEADER_SIZE + BODY_SIZE];
+            byte[] buffer = new byte[Utils.HEADER_SIZE + Utils.BODY_SIZE];
             DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
             try {
                 this.getSocket().receive(dgp);

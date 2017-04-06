@@ -12,9 +12,6 @@ import java.net.UnknownHostException;
 import static utils.Utils.isValidIPV4;
 
 public abstract class Channel implements Runnable {
-    public static final int HEADER_SIZE = 256;
-    public static final int BODY_SIZE = 64000;
-
     private boolean logSystem;
     private PrintWriter logFile;
     private String mcAddress;

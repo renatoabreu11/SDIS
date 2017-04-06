@@ -10,6 +10,9 @@ import utils.Utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +26,7 @@ public class RestoreInitiator extends ProtocolInitiator {
     private ArrayList<Chunk> restoring = new ArrayList<>();
     private byte[] fileData;
     private protocolState currState;
+    private DatagramSocket socket;
 
     private enum protocolState {
         INIT,
@@ -38,6 +42,12 @@ public class RestoreInitiator extends ProtocolInitiator {
         super(protocolVersion, b, peer);
         this.pathname = pathname;
         this.currState = protocolState.INIT;
+        if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
+            try {
+                socket = new DatagramSocket(4572);
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
@@ -71,11 +81,16 @@ public class RestoreInitiator extends ProtocolInitiator {
         long t = System.currentTimeMillis();
         long end = t + Utils.RecoverMaxTime;
 
+
         while (System.currentTimeMillis() < end && !foundAllChunks) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL)){
+                byte[] buffer = new byte[Utils.HEADER_SIZE + Utils.BODY_SIZE];
+                DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
+                String msgWrapper = new String(dgp.getData(), 0, dgp.getLength());
+                logMessage("Restore Chunk Message Version 1.3\n");
+                logMessage(msgWrapper);
+                Message message = new Message(msgWrapper);
+                addChunkToRestoring(message);
             }
             if (chunksNo == restoring.size())
                 foundAllChunks = true;
