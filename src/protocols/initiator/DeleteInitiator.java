@@ -6,6 +6,7 @@ import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +22,16 @@ public class DeleteInitiator extends ProtocolInitiator{
 
     @Override
     public void startProtocol() throws IOException, InterruptedException {
-        _File file = getParentPeer().getManager().getFile(pathname);
-        String fileId = file.getFileId();
+        _File file;
+        String fileId;
+
+        if(pathname.contains(File.separator)) {
+            file = getParentPeer().getManager().getFile(pathname);
+            fileId = file.getFileId();
+        } else {
+            fileId = pathname;
+            file = getParentPeer().getManager().getFileStorage(fileId);
+        }
 
         logMessage("Pathname: " + pathname + ", file id: " + file.getFileId());
 
@@ -33,7 +42,6 @@ public class DeleteInitiator extends ProtocolInitiator{
         // We send 'Utils.DeleteRetransmissions' messages to make sure every chunk is properly deleted.
         for(int i = 0; i < Utils.DeleteRetransmissions; i++)
             getParentPeer().sendMessageMC(buffer);
-
 
         if(getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || getParentPeer().getProtocolVersion().equals(Utils.ENHANCEMENT_ALL)) {
             // Waits for the reply messages in order to receive the id of the peers that confirm the file deletion.

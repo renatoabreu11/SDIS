@@ -4,6 +4,8 @@ import messageSystem.Message;
 import messageSystem.MessageHeader;
 import network.Peer;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -27,14 +29,25 @@ public class DeleteEnhancement implements Runnable {
         String version = header.getVersion();
         int senderId = header.getSenderId();
 
-        // Verificar se este peer tem algum peerId que nao estava activo no momento do delete.
         Map<String, ArrayList<Integer>> filesForAwoke = parentPeer.getSendersIdRepliesToDelete();
-
         Iterator it = filesForAwoke.entrySet().iterator();
+
         while(it.hasNext()) {
             Map.Entry<String, ArrayList<Integer>> entry = (Map.Entry<String, ArrayList<Integer>>) it.next();
             String fileId = entry.getKey();
-            //ArrayList<Integer>
+            ArrayList<Integer> peersId = entry.getValue();
+
+            if(peersId.contains(senderId)) {
+                try {
+                    parentPeer.DeleteFile(fileId);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

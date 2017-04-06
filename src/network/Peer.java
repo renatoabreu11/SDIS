@@ -77,7 +77,8 @@ public class Peer implements IClientPeer {
     }
 
     /**
-     * Only callable by the initiator peer and on the Delete Enhanced Protocol.
+     * Only callable by the initiator peer when he receives a delete confirmation message from
+     * the other peers.
      * Every time the initiator peer that sent the delete message receives a confirmation from
      * the other peers, it stores the id of the confirmation peer in an array related to the file
      * removed.
