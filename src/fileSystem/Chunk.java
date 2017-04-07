@@ -44,7 +44,8 @@ public class Chunk{
     public Chunk(int chunkNo, String fileId){
         this.chunkNo = chunkNo;
         this.fileId = fileId;
-        replicationDegree = -1;
+        this.currReplicationDegree = 0;
+        this.replicationDegree = 0;
         receivedPutChunk = false;
     }
 

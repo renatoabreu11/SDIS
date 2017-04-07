@@ -148,7 +148,8 @@ public class BackupInitiator extends ProtocolInitiator{
 
         Iterator<Chunk> it = uploading.iterator();
         while(it.hasNext()){
-            if(it.next().desiredReplication()){
+            System.out.println(uploading.size());
+            if(it.next().getCurrReplicationDegree() >= it.next().getReplicationDegree()){
                 it.remove();
             }else nrChunksWithoutReplication++;
         }

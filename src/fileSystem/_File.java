@@ -90,21 +90,29 @@ public class _File {
         return true;
     }
 
-    public void addChunkThroughPutchunk(Chunk c){
+    public synchronized boolean addChunkReceived(Chunk c, int peer, boolean message){
+        if(message) //putchunk
+            addChunkThroughPutchunk(c, peer);
+        else return addChunkThroughStored(c, peer);
+        return true;
+    }
+
+    public synchronized void addChunkThroughPutchunk(Chunk c, int peer){
         for(int i = 0; i < this.chunks.size(); i++){
             if(chunks.get(i).getChunkNo() == c.getChunkNo()){
                 chunks.get(i).updateReplication(c.getReplicationDegree());
-                chunks.get(i).addPeer(c.getPeers().get(0));
-                break;
+                chunks.get(i).addPeer(peer);
+                return;
             }
         }
 
+        c.addPeer(peer);
         chunks.add(c);
         if(numChunks < chunks.size())
             numChunks++;
     }
 
-    public boolean addChunkThroughStored(Chunk c, int peer){
+    public synchronized boolean addChunkThroughStored(Chunk c, int peer){
         for(int i = 0; i < this.chunks.size(); i++){
             if(chunks.get(i).getChunkNo() == c.getChunkNo()){
                 return chunks.get(i).addPeer(peer);
