@@ -117,7 +117,7 @@ public class BackupInitiator extends ProtocolInitiator{
         for(int i = 0; i < uploading.size(); i++){
             if(c.getChunkNo() == uploading.get(i).getChunkNo()){
                 logMessage("Updating replication degree");
-                uploading.get(i).updateReplication(senderId, -1);
+                uploading.get(i).addPeer(senderId);
                 break;
             }
         }
