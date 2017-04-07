@@ -110,7 +110,7 @@ public class FileManager {
 
         f = storage.get(fileId);
         Chunk c = new Chunk(chunkNo, fileId);
-        f.addChunkPeer(c, senderId);
+        f.addChunkThroughStored(c, senderId);
     }
 
     /**
@@ -340,16 +340,15 @@ public class FileManager {
             storage.put(fileId, _file);
         }
 
-        boolean updateChunk =  storage.get(fileId).addChunkPeer(chunk, id);
-        if(updateChunk){
-            FileOutputStream fileOutputStream = null;
-            try {
-                fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunk.getChunkNo());
-                fileOutputStream.write(chunkData);
-                fileOutputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        chunk.addPeer(id);
+        storage.get(fileId).addChunkThroughPutchunk(chunk);
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunk.getChunkNo());
+            fileOutputStream.write(chunkData);
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

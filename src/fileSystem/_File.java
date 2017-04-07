@@ -90,23 +90,34 @@ public class _File {
         return true;
     }
 
-    public boolean addChunkPeer(Chunk c, int peer){
+    public void addChunkThroughPutchunk(Chunk c){
         for(int i = 0; i < this.chunks.size(); i++){
             if(chunks.get(i).getChunkNo() == c.getChunkNo()){
-                return chunks.get(i).updateReplication(peer, c.getReplicationDegree());
+                chunks.get(i).updateReplication(c.getReplicationDegree());
+                chunks.get(i).addPeer(c.getPeers().get(0));
+                break;
             }
         }
 
-        c.updateReplication(peer, -1);
-        if(c.getReplicationDegree() == 0)
-            c.setReplicationDegree(1);
         chunks.add(c);
+        if(numChunks < chunks.size())
+            numChunks++;
+    }
 
+    public boolean addChunkThroughStored(Chunk c, int peer){
+        for(int i = 0; i < this.chunks.size(); i++){
+            if(chunks.get(i).getChunkNo() == c.getChunkNo()){
+                return chunks.get(i).addPeer(peer);
+            }
+        }
+
+        c.addPeer(peer);
+        chunks.add(c);
         if(numChunks < chunks.size())
             numChunks++;
         return true;
     }
-
+    
     /**
      * Get the number of chunks from which the file is composed
      * @return

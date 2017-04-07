@@ -158,25 +158,6 @@ public class Chunk{
     /**
      *
      * @param senderId
-     */
-    public boolean updateReplication(int senderId, int desiredRD) {
-        if(desiredRD != -1 && this.replicationDegree != desiredRD){
-            receivedPutChunk = true;
-            this.replicationDegree = desiredRD;
-        }
-        if(!peerHasChunk(senderId)){
-            if(!receivedPutChunk)
-                replicationDegree++;
-            peers.add(senderId);
-            addReplicationDegree();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     * @param senderId
      * @return
      */
     public boolean peerHasChunk(int senderId) {
@@ -209,4 +190,21 @@ public class Chunk{
     public boolean higherRD() {
         return (currReplicationDegree > replicationDegree);
     }
+
+    public void updateReplication(int replicationDegree) {
+        receivedPutChunk = true;
+        this.replicationDegree = replicationDegree;
+    }
+
+    public boolean addPeer(int peer_id){
+        if(!peerHasChunk(peer_id)){
+            if(!receivedPutChunk)
+                replicationDegree++;
+            peers.add(peer_id);
+            addReplicationDegree();
+            return true;
+        }
+        return false;
+    }
+
 }
