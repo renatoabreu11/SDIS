@@ -259,7 +259,7 @@ public class Peer implements IClientPeer {
     }
 
     public void removeChunkBackingUp(Chunk chunk) {
-        this.chunkBackingUp.remove(chunk);
+        this.chunkBackingUp.remove(chunk.getFileId() + chunk.getChunkNo());
     }
 
     public void addMessageToDispatcher(String message) {

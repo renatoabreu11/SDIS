@@ -60,7 +60,7 @@ public class Backup implements Runnable {
         if(isStored){
             // Manage disk space related.
             parentPeer.removeChunkBackingUp(chunk);
-            System.out.println("Chunk already stored. Aborting.");
+            System.out.println("Chunk discarded because it is already stored.");
             try {
                 SendStoredMessage(chunk, version, fileId, chunkNo);
             } catch (IOException e) {
@@ -77,17 +77,20 @@ public class Backup implements Runnable {
                 _File file = parentPeer.getManager().getFileStorage(fileId);
                 if(file != null) {
                     Chunk chunkStored = file.getChunk(chunkNo);
-                    if(chunkStored != null && chunkStored.getCurrReplicationDegree() >= replicationDegree)
-                      return;
+                    if(chunkStored != null && chunkStored.getCurrReplicationDegree() >= replicationDegree) {
+                        parentPeer.removeChunkBackingUp(chunk);
+                        return;
+                    }
                 }
             }
 
-            System.out.println("Going to store...********************\n***********************");
             parentPeer.getManager().storeChunk(fileId, chunk, parentPeer.getId(), chunkData);
             SendStoredMessage(chunk, version, fileId, chunkNo);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
+
+        parentPeer.removeChunkBackingUp(chunk);
     }
 
     public void SendStoredMessage(Chunk chunk, String version, String fileId, int chunkNo) throws IOException {
