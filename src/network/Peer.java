@@ -7,7 +7,11 @@ import protocols.ProtocolDispatcher;
 import protocols.initiator.*;
 import utils.Utils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -33,7 +37,7 @@ public class Peer implements IClientPeer {
     private ArrayList<String> chunkRestoring = new ArrayList<>();        // Hosts the chunks who have already sent by other peers.
 
     // Manage disk space auxiliar variables.
-    private long maxDiskSpace = 740;
+    private long maxDiskSpace = Utils.MAX_DISK_SPACE;
     private ArrayList<String> chunkBackingUp = new ArrayList<>();
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
@@ -56,12 +60,25 @@ public class Peer implements IClientPeer {
         if(id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE))
+        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE)) {
+            manager.LoadRemovePeerId();
             SendBornMessage();
+        }
+
+        /*try {
+            ManageDiskSpace(80);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
 
         System.out.println("All channels online.");
     }
 
+    /**
+     * Sends an awake message when the peer initializes, in order for the other peers to know the peer awoke,
+     * so that they can update his files which have been deleted on the other peers.
+     * @throws IOException
+     */
     private void SendBornMessage() throws IOException {
         MessageHeader header = new MessageHeader(Utils.MessageType.ENH_AWOKE, protocolVersion, id);
         Message message = new Message(header);
@@ -77,7 +94,7 @@ public class Peer implements IClientPeer {
      * removed.
      * @param msgWrapper
      */
-    public void ENH_UpdateDeleteResponse(Message msgWrapper) {
+    public void ENH_UpdateDeleteResponse(Message msgWrapper) throws IOException {
         if(this.protocol instanceof DeleteInitiator) {
             MessageHeader header = msgWrapper.getHeader();
             int senderId = header.getSenderId();
@@ -87,6 +104,7 @@ public class Peer implements IClientPeer {
                 return;
 
             manager.RemovePeerId(fileId, senderId);
+            manager.WriteRemovePeerId();
         }
     }
 
@@ -168,38 +186,40 @@ public class Peer implements IClientPeer {
         return msgReply;
     }
 
-    public static void main(String[] args) throws IOException, AlreadyBoundException {
-        if(args.length != 6) {
-            System.out.println("Usage: java Peer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
-            return;
+    public synchronized boolean freeDisposableSpace(long spaceNeeded) {
+        ArrayList<Chunk> storedChunksWithHighRD = manager.getChunksWithHighRD(id);
+
+        if(storedChunksWithHighRD.size() == 0)
+            return false;
+
+        long disposableSpace = manager.countDisposableSpace(storedChunksWithHighRD);
+
+        if(disposableSpace > spaceNeeded){
+            long spaceToRemove = disposableSpace - spaceNeeded;
+            long spaceRemoved = 0;
+            for(Chunk c : storedChunksWithHighRD){
+                long aux = 0;
+                try {
+                   aux = manager.deleteStoredChunk(c.getFileId(), c.getChunkNo(), id);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                spaceRemoved += aux;
+                if(spaceRemoved >= spaceToRemove)
+                    break;
+            }
+        }else return false;
+
+        return true;
+    }
+
+    public synchronized long getDiskUsage() {
+        try {
+            return manager.getCurrOccupiedSize(id);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        String[] msgSplit = args[3].split(":");
-        String multicastAddress = msgSplit[0];
-        String multicastPort = msgSplit[1];
-
-        msgSplit = args[4].split(":");
-        String mdbAddress = msgSplit[0];
-        String mdbPort = msgSplit[1];
-
-        msgSplit = args[5].split(":");
-        String mdrAddress = msgSplit[0];
-        String mdrPort = msgSplit[1];
-
-        String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
-
-        Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
-
-        Registry registry;
-        if(peer.id == 1){
-            String IPV4 = Utils.getIPV4address();
-            System.out.println("My address: " + IPV4);
-            System.setProperty("java.rmi.server.hostname", IPV4);
-            registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
-            registry.bind(peer.serverAccessPoint, peer.getStub());
-        }
-
-        System.out.println("Server is ready.");
+        return 0;
     }
 
     public String getProtocolVersion() {
@@ -270,39 +290,111 @@ public class Peer implements IClientPeer {
         return chunkRestoring;
     }
 
-    public synchronized boolean freeDisposableSpace(long spaceNeeded) {
-        ArrayList<Chunk> storedChunksWithHighRD = manager.getChunksWithHighRD(id);
-        
-        if(storedChunksWithHighRD.size() == 0)
-            return false;
+    public static void Menu(Peer peer) throws IOException, InterruptedException, NoSuchAlgorithmException {
+        boolean exit = false;
+        while(!exit) {
+            System.out.print(
+                    "1 - Backup a file\n" +
+                            "2 - Restore a file\n" +
+                            "3 - Delete a file\n" +
+                            "4 - Manage local service storage\n" +
+                            "5 - Retrieve local service state information\n" +
+                            "6 - Exit\n\n" +
+                            "Select an option: ");
+            Scanner scanner = new Scanner(System.in);
+            int decider = scanner.nextInt();
+            scanner.nextLine();     // Needed to pick up the '\n'
 
-        long disposableSpace = manager.countDisposableSpace(storedChunksWithHighRD);
+            switch (decider) {
+                case 1:
+                    System.out.print("File pathname: ");
+                    String pathname = scanner.nextLine();
+                    System.out.print("Replication degree: ");
+                    int replicationDegree = scanner.nextInt();
+                    scanner.nextLine();
 
-        if(disposableSpace > spaceNeeded){
-            long spaceToRemove = disposableSpace - spaceNeeded;
-            long spaceRemoved = 0;
-            for(Chunk c : storedChunksWithHighRD){
-                long aux = 0;
-                try {
-                   aux = manager.deleteStoredChunk(c.getFileId(), c.getChunkNo(), id);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                spaceRemoved += aux;
-                if(spaceRemoved >= spaceToRemove)
+                    Path path = Paths.get(pathname);
+                    byte[] fileData = Files.readAllBytes(path);
+                    String message = peer.BackupFile(fileData, pathname, replicationDegree);
+                    System.out.println(message);
                     break;
+                case 2:
+                    System.out.print("File pathname: ");
+                    pathname = scanner.nextLine();
+                    fileData = peer.RestoreFile(pathname);
+                    if(fileData == null){
+                        System.out.println("The specified file cannot be restored");
+                    }else{
+                        FileOutputStream fos = new FileOutputStream(pathname);
+                        fos.write(fileData);
+                        fos.close();
+                        System.out.println("File successfully restored!");
+                    }
+                    break;
+                case 3:
+                    System.out.print("File pathname: ");
+                    pathname = scanner.nextLine();
+                    peer.DeleteFile(pathname);
+                    break;
+                case 4:
+                    System.out.print("Maximum disk space available (in KBytes): ");
+                    long maxDiskSpace = scanner.nextLong();
+                    String msgManage = peer.ManageDiskSpace(maxDiskSpace);
+                    System.out.println("Ola1");
+                    System.out.println(msgManage);
+                    break;
+                case 5:
+                    String peerInfo = peer.RetrieveInformation();
+                    System.out.println(peerInfo);
+                    break;
+                case 6:
+                    exit = true;
+                    break;
+                default: break;
             }
-        }else return false;
 
-        return true;
+            System.out.println();
+        }
+
+        System.out.println("Client has ended.");
     }
 
-    public synchronized long getDiskUsage() {
-        try {
-            return manager.getCurrOccupiedSize(id);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void main(String[] args) throws IOException, AlreadyBoundException, NoSuchAlgorithmException, InterruptedException {
+        if(args.length != 7) {
+            System.out.println("Usage: java Peer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
+            return;
         }
-        return 0;
+
+        boolean useInterface = Boolean.parseBoolean(args[6]);
+
+        String[] msgSplit = args[3].split(":");
+        String multicastAddress = msgSplit[0];
+        String multicastPort = msgSplit[1];
+
+        msgSplit = args[4].split(":");
+        String mdbAddress = msgSplit[0];
+        String mdbPort = msgSplit[1];
+
+        msgSplit = args[5].split(":");
+        String mdrAddress = msgSplit[0];
+        String mdrPort = msgSplit[1];
+
+        String[] multicastInfo = {multicastAddress, multicastPort, mdbAddress, mdbPort, mdrAddress, mdrPort};
+
+        Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
+
+        Registry registry;
+        if(peer.id == 1){
+            String IPV4 = Utils.getIPV4address();
+            System.out.println("My address: " + IPV4);
+            System.setProperty("java.rmi.server.hostname", IPV4);
+            registry = LocateRegistry.createRegistry(Utils.RMI_PORT);
+            registry.bind(peer.serverAccessPoint, peer.getStub());
+        }
+
+        System.out.println("Server is ready.\n\n");
+
+        if(useInterface)
+            Menu(peer);
     }
 }

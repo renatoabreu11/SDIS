@@ -3,6 +3,7 @@ package protocols.initiator;
 import fileSystem.Chunk;
 import fileSystem._File;
 import network.Peer;
+import utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,7 +37,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
             out += "File pathname: " + file.getPathname() + ", id: " + fileId + ", desired replication degree: " + file.getChunks().get(0).getReplicationDegree();
             for(Chunk chunk : file.getChunks()) {
-                Path path = Paths.get("data/" + fileId + chunk.getChunkNo());
+                Path path = Paths.get(Utils.CHUNKS_DIR + fileId + chunk.getChunkNo());
                 long bytesSize = Files.readAllBytes(path).length;
                 out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, current replication degree: " + chunk.getCurrReplicationDegree();
                 if(chunk.getPeers().contains(getParentPeer().getId()))
@@ -48,7 +49,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
         out += "Stored Chunks";
         for(Chunk chunk : storedChunks) {
-            Path path = Paths.get("data/" + chunk.getFileId() + chunk.getChunkNo());
+            Path path = Paths.get(Utils.CHUNKS_DIR + chunk.getFileId() + chunk.getChunkNo());
             long bytesSize = Files.readAllBytes(path).length;
             out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, perceived replication degree: " + chunk.getReplicationDegree();
         }

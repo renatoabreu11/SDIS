@@ -14,7 +14,9 @@ public class Utils {
     public static String ENHANCEMENT_ALL = "2.0";
 
     public static long RecoverMaxTime = 2500;
-    public static long DELETED_MAX_TIME = 3000;
+    public static long DELETED_MAX_TIME = 2500;
+
+    public static long MAX_DISK_SPACE = 740;
 
     public enum MessageType {
         PUTCHUNK,
@@ -49,7 +51,9 @@ public class Utils {
 
     public final static int RMI_PORT = 1099;
 
+    public final static String CHUNKS_DIR = "data/chunks/";
     public final static String METADATA_PATHNAME = "data/chunks/metadata.txt";
+    public final static String PEERS_TO_DELETE_PATHNAME = "data/peers_to_delete.txt";
 
     static private final String IPV4_REGEX = "(([0-1]?[0-9]{1,2}\\.)|(2[0-4][0-9]\\.)|(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))";
     static private Pattern IPV4_PATTERN = Pattern.compile(IPV4_REGEX);

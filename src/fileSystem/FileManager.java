@@ -352,6 +352,55 @@ public class FileManager {
         }
     }
 
+    public void WriteRemovePeerId() throws IOException {
+        String str = "";
+        FileOutputStream fos = new FileOutputStream(Utils.PEERS_TO_DELETE_PATHNAME);
+        Iterator it = hostIdDelete.entrySet().iterator();
+
+        while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, ArrayList<Integer>> entry = (Map.Entry<String, ArrayList<Integer>>) it.next();
+            String fileId = entry.getKey();
+            ArrayList<Integer> peers = entry.getValue();
+
+            str += fileId + "..";
+            for(int i = 0; i < peers.size(); i++) {
+                str += peers.get(i);
+                if(i != peers.size()-1)
+                    str += "..";
+            }
+
+            if(it.hasNext())
+                str += "\n";
+        }
+
+        fos.write(str.getBytes());
+        fos.close();
+    }
+
+    public void LoadRemovePeerId() throws IOException {
+        if(!new File(Utils.PEERS_TO_DELETE_PATHNAME).exists())
+            return;
+
+        FileReader fr = new FileReader(Utils.PEERS_TO_DELETE_PATHNAME);
+        BufferedReader br = new BufferedReader(fr);
+        String line;
+
+        while(true) {
+            if((line = br.readLine()) == null)
+                return;
+
+            String[] lineSplit = line.split("\\.\\.");
+            String fileId = lineSplit[0];
+
+            ArrayList<Integer> peers = new ArrayList<>();
+            for(int i = 1; i < lineSplit.length; i++)
+                peers.add(Integer.parseInt(lineSplit[i]));
+
+            hostIdDelete.put(fileId, peers);
+        }
+    }
+
     public HashMap<String, ArrayList<Integer>> getHostIdDelete() {
         return hostIdDelete;
     }
