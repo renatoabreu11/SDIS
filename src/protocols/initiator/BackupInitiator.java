@@ -52,9 +52,9 @@ public class BackupInitiator extends ProtocolInitiator{
 
         String fileId;
         if(pathname.contains("/"))
-            fileId = pathname;
-        else
             fileId = createFileId();
+        else
+            fileId = pathname;
 
         logMessage("Splitting file in multiple chunks...");
         Splitter splitter = new Splitter(fileData);
@@ -65,7 +65,7 @@ public class BackupInitiator extends ProtocolInitiator{
         }
 
         // Never saves the file if the backup was started due to the Manage protocol.
-        if(pathname != null) {
+        if(pathname.contains("/")) {
             _File file = new _File(pathname, fileId, splitter.getChunks().size());
             this.getParentPeer().saveFileToStorage(file);
         }

@@ -66,9 +66,8 @@ public class RestoreInitiator extends ProtocolInitiator {
         for (int i = 0; i < numChunks; i++) {
 
             MessageHeader header = null;
-            if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL)){
+            if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
                 header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i, ipv4 + ":" + privatePort);
-            }
             else header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i);
             Message message = new Message(header);
             byte[] buf = message.getMessageBytes();

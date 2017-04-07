@@ -1,12 +1,9 @@
 package protocols;
 
 import fileSystem.Chunk;
-import fileSystem._File;
 import messageSystem.Message;
-import messageSystem.MessageBody;
 import messageSystem.MessageHeader;
 import network.Peer;
-import protocols.initiator.BackupInitiator;
 import utils.Utils;
 
 import java.io.IOException;
@@ -14,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -63,14 +59,7 @@ public class Manage implements Runnable {
                 if(parentPeer.getChunkBackingUp().contains(chunk.getFileId() + chunk.getChunkNo()))
                     return;
 
-                System.out.println("**********This peer is starting backup protocol based on manage!**********");
-
                 // Start backup protocol.
-                _File storedFile = parentPeer.getManager().getStorage().get(fileId);
-                String chunkPathname = storedFile.getPathname() + chunkNo;
-
-                System.out.println("Pathname: " + chunkPathname);
-
                 String pathname = Utils.CHUNKS_DIR + chunk.getFileId() + chunk.getChunkNo();
                 Path path = Paths.get(pathname);
                 byte[] fileData = Files.readAllBytes(path);
