@@ -185,11 +185,10 @@ public class FileManager {
      * @return
      */
     public synchronized Chunk getChunk(String fileId, int chunkNo, int peer) {
-        _File file = storage.get(fileId);
-        if(file == null) {
+        if(!storage.containsKey(fileId))
             return null;
-        }
 
+        _File file = storage.get(fileId);
         for(Chunk chunk : file.getChunks()) {
             if(chunk.getChunkNo() == chunkNo && chunk.peerHasChunk(peer))
                 return chunk;

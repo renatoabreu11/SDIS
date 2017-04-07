@@ -41,8 +41,10 @@ public class Manage implements Runnable {
         Chunk chunk = parentPeer.getManager().getChunk(fileId, chunkNo, parentPeer.getId());
 
         // If this peer doesn't have the chunk, it simply returns.
-        if(chunk == null)
+        if(chunk == null) {
+            System.out.println("Peer" + parentPeer.getId() + " does not have chunk number " + chunkNo);
             return;
+        }
 
         chunk.removePeer(senderId);
         try {
@@ -61,9 +63,14 @@ public class Manage implements Runnable {
                 if(parentPeer.getChunkBackingUp().contains(chunk.getFileId() + chunk.getChunkNo()))
                     return;
 
+                System.out.println("**********This peer is starting backup protocol based on manage!**********");
+
                 // Start backup protocol.
                 _File storedFile = parentPeer.getManager().getStorage().get(fileId);
                 String chunkPathname = storedFile.getPathname() + chunkNo;
+
+                System.out.println("Pathname: " + chunkPathname);
+
                 Path path = Paths.get(chunkPathname);
                 byte[] fileData = Files.readAllBytes(path);
 
