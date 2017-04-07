@@ -155,6 +155,7 @@ public class FileManager {
                     spaceReclaimed = Files.readAllBytes(path).length;
                     Files.delete(path);
                     file.removeChunkPeer(chunkNo, id);
+                    System.out.println("Apagando file no storage. Numero de chunk restanes no sttorage: " + storage.size());
                 }
                 break;
             }
@@ -184,11 +185,10 @@ public class FileManager {
      * @return
      */
     public synchronized Chunk getChunk(String fileId, int chunkNo, int peer) {
-        _File file = storage.get(fileId);
-        if(file == null) {
+        if(!storage.containsKey(fileId))
             return null;
-        }
 
+        _File file = storage.get(fileId);
         for(Chunk chunk : file.getChunks()) {
             if(chunk.getChunkNo() == chunkNo && chunk.peerHasChunk(peer))
                 return chunk;
