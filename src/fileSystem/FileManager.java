@@ -155,6 +155,7 @@ public class FileManager {
                     spaceReclaimed = Files.readAllBytes(path).length;
                     Files.delete(path);
                     file.removeChunkPeer(chunkNo, id);
+                    System.out.println("Apagando file no storage. Numero de chunk restanes no sttorage: " + storage.size());
                 }
                 break;
             }

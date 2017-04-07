@@ -1,5 +1,7 @@
 package fileSystem;
 
+import utils.Utils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -136,7 +138,7 @@ public class _File {
         for(Chunk chunk : chunks) {
             //Só faz isto se o peer tiver o chunk guardado. Na storage está a info de todos os chunks!!!
             if(chunk.peerHasChunk(id)){
-                Path path = Paths.get("data" + File.separator + "chunks" + File.separator + fileId + chunk.getChunkNo());
+                Path path = Paths.get(Utils.CHUNKS_DIR + fileId + chunk.getChunkNo());
                 long bytesSize = Files.readAllBytes(path).length;
                 numBytes += bytesSize;
             }

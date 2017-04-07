@@ -182,8 +182,10 @@ public class Chunk{
 
     public void removePeer(int id) {
         for(int i = 0; i < this.peers.size(); i++){
-            if(this.peers.get(i) == id)
+            if(this.peers.get(i) == id) {
                 this.peers.remove(i);
+                subReplicationDegree();
+            }
         }
     }
 

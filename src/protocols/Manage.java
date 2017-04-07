@@ -34,7 +34,6 @@ public class Manage implements Runnable {
     public void run() {
         MessageHeader header = request.getHeader();
 
-        String version = header.getVersion();
         int senderId = header.getSenderId();
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();

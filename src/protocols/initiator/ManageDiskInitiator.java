@@ -45,7 +45,6 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             ManageChunks();
 
         getParentPeer().setMaxDiskSpace(clientMaxDiskSpace);
-        getParentPeer().getManager().WriteMetadata();
     }
 
     @Override
@@ -72,9 +71,12 @@ public class ManageDiskInitiator extends ProtocolInitiator{
 
             MessageHeader header = new MessageHeader(Utils.MessageType.REMOVED, getParentPeer().getProtocolVersion(), getParentPeer().getId(), fileId, currChunkToDelete.getChunkNo());
             Message message = new Message(header);
+            
+            getParentPeer().getManager().deleteStoredChunk(fileId, currChunkToDelete.getChunkNo(), getParentPeer().getId());
             byte[] buffer = message.getMessageBytes();
             getParentPeer().getMc().sendMessage(buffer);
-            getParentPeer().getManager().deleteStoredChunk(fileId, currChunkToDelete.getChunkNo(), getParentPeer().getId());
+
+            getParentPeer().getManager().WriteMetadata();
 
             i++;
             if(i == orderedChunks.size()) {
