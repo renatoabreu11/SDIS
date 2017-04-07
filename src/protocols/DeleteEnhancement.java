@@ -1,4 +1,4 @@
-package protocols.enhancement;
+package protocols;
 
 import messageSystem.Message;
 import messageSystem.MessageHeader;

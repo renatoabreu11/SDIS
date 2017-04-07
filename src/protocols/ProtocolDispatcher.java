@@ -2,7 +2,6 @@ package protocols;
 
 import messageSystem.Message;
 import network.Peer;
-import protocols.enhancement.DeleteEnhancement;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -73,7 +73,7 @@ public class Backup implements Runnable {
             // Waits a random delay (in order for the message to be able to arrive via MC without conflicts with other peers).
             TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
 
-            if(version.equals("1.1")) {
+            if(version.equals(Utils.ENHANCEMENT_BACKUP) || version.equals(Utils.ENHANCEMENT_ALL)) {
                 _File file = parentPeer.getManager().getFileStorage(fileId);
                 if(file != null) {
                     Chunk chunkStored = file.getChunk(chunkNo);
