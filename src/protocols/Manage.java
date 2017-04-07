@@ -71,10 +71,11 @@ public class Manage implements Runnable {
 
                 System.out.println("Pathname: " + chunkPathname);
 
-                Path path = Paths.get(chunkPathname);
+                String pathname = Utils.CHUNKS_DIR + chunk.getFileId() + chunk.getChunkNo();
+                Path path = Paths.get(pathname);
                 byte[] fileData = Files.readAllBytes(path);
 
-                parentPeer.BackupFile(fileData, chunkPathname, 1);
+                parentPeer.BackupFile(fileData, fileId, 1);
             } catch (InterruptedException | IOException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }

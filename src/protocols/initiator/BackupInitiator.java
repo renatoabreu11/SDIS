@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import static utils.Utils.BackupRetransmissions;
 
 public class BackupInitiator extends ProtocolInitiator{
+
     private byte[] fileData;
     private String pathname;
     private int replicationDegree;
@@ -34,6 +35,8 @@ public class BackupInitiator extends ProtocolInitiator{
     }
     private protocolState currState;
 
+    // When the pathname doesn't have '/', it means the backup was started by the Manage protocol.
+
     public BackupInitiator(String version, boolean logSystem, Peer parentPeer, byte[] fileData, String pathname, int replicationDegree) {
         super(version, logSystem, parentPeer);
         logMessage("Init Backup protocol...");
@@ -46,7 +49,12 @@ public class BackupInitiator extends ProtocolInitiator{
 
     public void startProtocol(){
         logMessage("Creating file identifier...");
-        String fileId = createFileId();
+
+        String fileId;
+        if(pathname.contains("/"))
+            fileId = pathname;
+        else
+            fileId = createFileId();
 
         logMessage("Splitting file in multiple chunks...");
         Splitter splitter = new Splitter(fileData);
@@ -56,9 +64,12 @@ public class BackupInitiator extends ProtocolInitiator{
             e.printStackTrace();
         }
 
-        _File file = new _File(pathname, fileId, splitter.getChunks().size());
+        // Never saves the file if the backup was started due to the Manage protocol.
+        if(pathname != null) {
+            _File file = new _File(pathname, fileId, splitter.getChunks().size());
+            this.getParentPeer().saveFileToStorage(file);
+        }
 
-        this.getParentPeer().saveFileToStorage(file);
         uploading = splitter.getChunks();
 
         logMessage("Sending backup messages...");
