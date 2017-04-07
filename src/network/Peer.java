@@ -33,7 +33,7 @@ public class Peer implements IClientPeer {
     private ArrayList<String> chunkRestoring = new ArrayList<>();        // Hosts the chunks who have already sent by other peers.
 
     // Manage disk space auxiliar variables.
-    private long maxDiskSpace = 740;
+    private long maxDiskSpace = Utils.MAX_DISK_SPACE;
     private ArrayList<String> chunkBackingUp = new ArrayList<>();
 
     public Peer(String protocolVersion, int id, String serverAccessPoint, String[] multicastInfo) throws IOException {
@@ -56,12 +56,19 @@ public class Peer implements IClientPeer {
         if(id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE))
+        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE)) {
+            manager.LoadRemovePeerId();
             SendBornMessage();
+        }
 
         System.out.println("All channels online.");
     }
 
+    /**
+     * Sends an awake message when the peer initializes, in order for the other peers to know the peer awoke,
+     * so that they can update his files which have been deleted on the other peers.
+     * @throws IOException
+     */
     private void SendBornMessage() throws IOException {
         MessageHeader header = new MessageHeader(Utils.MessageType.ENH_AWOKE, protocolVersion, id);
         Message message = new Message(header);
@@ -77,7 +84,7 @@ public class Peer implements IClientPeer {
      * removed.
      * @param msgWrapper
      */
-    public void ENH_UpdateDeleteResponse(Message msgWrapper) {
+    public void ENH_UpdateDeleteResponse(Message msgWrapper) throws IOException {
         if(this.protocol instanceof DeleteInitiator) {
             MessageHeader header = msgWrapper.getHeader();
             int senderId = header.getSenderId();
@@ -87,6 +94,7 @@ public class Peer implements IClientPeer {
                 return;
 
             manager.RemovePeerId(fileId, senderId);
+            manager.WriteRemovePeerId();
         }
     }
 

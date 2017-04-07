@@ -33,6 +33,7 @@ public class DeleteEnhancement implements Runnable {
         Iterator it = filesForAwoke.entrySet().iterator();
 
         while(it.hasNext()) {
+            @SuppressWarnings("unchecked")
             Map.Entry<String, ArrayList<Integer>> entry = (Map.Entry<String, ArrayList<Integer>>) it.next();
             String fileId = entry.getKey();
             ArrayList<Integer> peersId = entry.getValue();
