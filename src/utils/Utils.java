@@ -51,6 +51,7 @@ public class Utils {
 
     public final static int RMI_PORT = 1099;
 
+    public final static String CHUNKS_DIR = "data/chunks/";
     public final static String METADATA_PATHNAME = "data/chunks/metadata.txt";
     public final static String PEERS_TO_DELETE_PATHNAME = "data/peers_to_delete.txt";
 

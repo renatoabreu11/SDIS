@@ -96,6 +96,7 @@ public class Client {
                     System.out.print("Maximum disk space available (in KBytes): ");
                     long maxDiskSpace = scanner.nextLong();
                     String msgManage = stub.ManageDiskSpace(maxDiskSpace);
+                    System.out.println("Ola1");
                     System.out.println(msgManage);
                     break;
                 case 5:

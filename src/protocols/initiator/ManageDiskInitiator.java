@@ -24,6 +24,8 @@ public class ManageDiskInitiator extends ProtocolInitiator{
 
     @Override
     public void startProtocol() throws IOException {
+        System.out.println("Ola3");
+
         long freeCurrSpace;
 
         switch(System.getProperty("os.name")) {
@@ -36,6 +38,8 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             default: freeCurrSpace = 0; break;
         }
 
+        System.out.println("Ola4");
+
         if(clientMaxDiskSpace > freeCurrSpace) {
             successMessage = "The machine hosting the peer doesn't have that much free space.";
             return;
@@ -45,6 +49,7 @@ public class ManageDiskInitiator extends ProtocolInitiator{
             ManageChunks();
 
         getParentPeer().setMaxDiskSpace(clientMaxDiskSpace);
+        getParentPeer().getManager().WriteMetadata();
     }
 
     @Override
