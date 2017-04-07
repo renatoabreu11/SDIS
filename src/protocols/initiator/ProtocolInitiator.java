@@ -1,7 +1,6 @@
 package protocols.initiator;
 
 import network.Peer;
-import utils.Utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
