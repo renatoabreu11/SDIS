@@ -340,7 +340,6 @@ public class Peer implements IClientPeer {
                     System.out.print("Maximum disk space available (in KBytes): ");
                     long maxDiskSpace = scanner.nextLong();
                     String msgManage = peer.ManageDiskSpace(maxDiskSpace);
-                    System.out.println("Ola1");
                     System.out.println(msgManage);
                     break;
                 case 5:

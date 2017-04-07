@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static java.nio.file.Files.readAllBytes;
+import static jdk.nashorn.internal.objects.NativeMath.round;
 
 public class RetrieveInfoInitiator extends ProtocolInitiator{
 
@@ -55,7 +56,9 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
         }
 
         long occupiedSpace = getParentPeer().getManager().getCurrOccupiedSize(getParentPeer().getId());
-        out += "\n\nPeer's storage capacity: " + getParentPeer().getMaxDiskSpace() + " KBytes, current occupied storage: " + occupiedSpace + " Bytes (or " + occupiedSpace / 1000.0 + " KBytes).\n";
+        long maxDiskSpace = getParentPeer().getMaxDiskSpace();
+        double percentegeOccupied = Math.round((occupiedSpace/1000.0) / maxDiskSpace * 100);
+        out += "\n\nPeer's storage capacity: " + maxDiskSpace + " KBytes, current occupied storage: " + occupiedSpace + " Bytes (or " + occupiedSpace / 1000.0 + " KBytes).\n" + percentegeOccupied + "% of 100%\n";
         out += "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
     }
 

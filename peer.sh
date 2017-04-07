@@ -3,5 +3,7 @@ echo -n "Peer identifier\n> "
 read peer_id
 echo -n "Peer version\n> "
 read version
+echo -n "Interface available?\n> "
+read useInterface
 
-java -jar Peer.jar $version $peer_id IClientPeer 224.0.0.69:4445 224.0.0.69:4446 224.0.0.69:4447
+java -jar Peer.jar $version $peer_id IClientPeer 224.0.0.69:4445 224.0.0.69:4446 224.0.0.69:4447 $useInterface

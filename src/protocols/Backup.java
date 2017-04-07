@@ -82,6 +82,7 @@ public class Backup implements Runnable {
                 }
             }
 
+            System.out.println("Going to store...********************\n***********************");
             parentPeer.getManager().storeChunk(fileId, chunk, parentPeer.getId(), chunkData);
             SendStoredMessage(chunk, version, fileId, chunkNo);
         } catch (InterruptedException | IOException e) {

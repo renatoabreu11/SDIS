@@ -46,6 +46,11 @@ public class Manage implements Runnable {
             return;
 
         chunk.removePeer(senderId);
+        try {
+            parentPeer.getManager().WriteMetadata();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // If the new replication degree is less than the desired, we need to get it back to that number.
         if(chunk.getCurrReplicationDegree() < chunk.getReplicationDegree()) {
