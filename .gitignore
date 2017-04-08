@@ -3,3 +3,6 @@ out
 SDIS.iml
 *.iml
 bin/
+data/chunks/
+data/Dispatcher.log
+data/Multicast.log

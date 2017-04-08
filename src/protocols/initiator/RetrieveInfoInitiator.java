@@ -22,7 +22,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
     public RetrieveInfoInitiator(String version, boolean logSystem, Peer parentPeer) {
         super(version, logSystem, parentPeer);
-        out = "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
+        out = "\n\n**************************************************************************\n*************************** Local Service Info ***************************\n**************************************************************************\n\n";
     }
 
     @Override
@@ -38,9 +38,7 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
 
             out += "File pathname: " + file.getPathname() + ", id: " + fileId + ", desired replication degree: " + file.getChunks().get(0).getReplicationDegree();
             for(Chunk chunk : file.getChunks()) {
-                Path path = Paths.get(Utils.CHUNKS_DIR + fileId + chunk.getChunkNo());
-                long bytesSize = Files.readAllBytes(path).length;
-                out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, current replication degree: " + chunk.getCurrReplicationDegree();
+                out += "\n\tChunk id: " + chunk.getChunkNo() + ", perceived replication degree: " + chunk.getCurrReplicationDegree();
                 if(chunk.getPeers().contains(getParentPeer().getId()))
                     storedChunks.add(chunk);
             }
@@ -48,17 +46,21 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
             out += "\n\n";
         }
 
-        out += "Stored Chunks";
-        for(Chunk chunk : storedChunks) {
-            Path path = Paths.get(Utils.CHUNKS_DIR + chunk.getFileId() + chunk.getChunkNo());
-            long bytesSize = Files.readAllBytes(path).length;
-            out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, perceived replication degree: " + chunk.getReplicationDegree();
+        out += "Stored Chunks\n";
+        if(storedChunks.size() == 0)
+            out += "\tThere are no stored chunks in this peer.";
+        else {
+            for(Chunk chunk : storedChunks) {
+                Path path = Paths.get(Utils.CHUNKS_DIR + chunk.getFileId() + chunk.getChunkNo());
+                long bytesSize = Files.readAllBytes(path).length;
+                out += "\n\tChunk id: " + chunk.getChunkNo() + ", size: " + bytesSize + " bytes, perceived replication degree: " + chunk.getCurrReplicationDegree();
+            }
         }
 
         long occupiedSpace = getParentPeer().getManager().getCurrOccupiedSize(getParentPeer().getId());
         long maxDiskSpace = getParentPeer().getMaxDiskSpace();
         double percentegeOccupied = Math.round((occupiedSpace/1000.0) / maxDiskSpace * 100);
-        out += "\n\nPeer's storage capacity: " + maxDiskSpace + " KBytes, current occupied storage: " + occupiedSpace + " Bytes (or " + occupiedSpace / 1000.0 + " KBytes).\n" + percentegeOccupied + "% of 100%\n";
+        out += "\n\nPeer's storage capacity: " + maxDiskSpace + " KBytes, current occupied storage: " + occupiedSpace + " Bytes (or " + occupiedSpace / 1000.0 + " KBytes).\n" + percentegeOccupied + "% of 100% occupied.\n";
         out += "\n\n**************************************************************************\n**************************************************************************\n**************************************************************************\n\n";
     }
 
