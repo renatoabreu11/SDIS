@@ -36,9 +36,8 @@ public class Restore implements Runnable {
         String fileId = request.getHeader().getFileId();
         int chunkNo = request.getHeader().getChunkNo();
         String[] sender = null;
-        if(version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL)){
+        if(version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))
             sender = request.getHeader().getSender_access().split(":");
-        }
 
         _File file = parentPeer.getManager().getFileStorage(fileId);
         if(file == null)
@@ -71,18 +70,14 @@ public class Restore implements Runnable {
                 if((version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL)) &&
                         (parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_RESTORE) || parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))){
                     Message message = new Message(header, body);
-                    Message msgMulticast = new Message(header);
-
                     DatagramSocket socket = null;
                     InetAddress address = null;
                     byte[] bufferPrivate = null;
-                    byte[] bufferMulticast = null;
                     try {
                         socket = new DatagramSocket();
                         assert sender != null;
                         address = InetAddress.getByName(sender[0]);
                         bufferPrivate = message.getMessageBytes();
-                        bufferMulticast = msgMulticast.getMessageBytes();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -91,11 +86,10 @@ public class Restore implements Runnable {
                     DatagramPacket packet = new DatagramPacket(bufferPrivate, bufferPrivate.length, address, Integer.parseInt(sender[1]));
                     try {
                         socket.send(packet);
-                        parentPeer.sendMessageMDR(bufferMulticast);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }else {
+                } else {
                     Message message = new Message(header, body);
                     try {
                         byte[] buffer = message.getMessageBytes();

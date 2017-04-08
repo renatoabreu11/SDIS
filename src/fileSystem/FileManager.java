@@ -115,7 +115,6 @@ public class FileManager {
         f = storage.get(fileId);
         Chunk c = new Chunk(chunkNo, fileId);
         f.addChunkReceived(c, senderId, false);
-        System.out.println("This peer just updated his chunk CRD");
     }
 
     /**
@@ -355,6 +354,10 @@ public class FileManager {
         }
     }
 
+    /**
+     * Writes the peers who still need to delete the files deleted by the network.
+     * @throws IOException
+     */
     public void WriteRemovePeerId() throws IOException {
         String str = "";
         FileOutputStream fos = new FileOutputStream(Utils.PEERS_TO_DELETE_PATHNAME);
@@ -381,6 +384,10 @@ public class FileManager {
         fos.close();
     }
 
+    /**
+     * Loads the peers who still need to delete the files deleted by the network.
+     * @throws IOException
+     */
     public void LoadRemovePeerId() throws IOException {
         if(!new File(Utils.PEERS_TO_DELETE_PATHNAME).exists())
             return;

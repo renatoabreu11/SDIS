@@ -134,7 +134,6 @@ public class Peer implements IClientPeer {
         this.manager.WriteMetadata();
         if(this.protocol instanceof BackupInitiator)
             ((BackupInitiator) this.protocol).updateUploadingChunks(msgWrapper);
-
     }
 
     public void deleteFileStorage(String fileId) throws IOException {

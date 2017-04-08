@@ -56,6 +56,7 @@ public class RestoreInitiator extends ProtocolInitiator {
         _File file = getParentPeer().getFileFromManager(pathname);
         if (file == null) {
             this.currState = protocolState.INVALIDFILE;
+            socket.close();
             return;
         }
 
@@ -64,7 +65,6 @@ public class RestoreInitiator extends ProtocolInitiator {
 
         this.currState = protocolState.RESTOREMESSAGE;
         for (int i = 0; i < numChunks; i++) {
-
             MessageHeader header = null;
             if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
                 header = new MessageHeader(Utils.MessageType.GETCHUNK, getVersion(), getParentPeer().getId(), fileId, i, ipv4 + ":" + privatePort);
@@ -77,29 +77,31 @@ public class RestoreInitiator extends ProtocolInitiator {
         waitForChunks();
     }
 
-    public void waitForChunks() {
+    public void waitForChunks() throws IOException {
         this.currState = protocolState.RECOVERCHUNKS;
 
         _File f = getParentPeer().getFileFromManager(pathname);
         int chunksNo = f.getNumChunks();
         boolean foundAllChunks = false;
-        long t = System.currentTimeMillis();
-        long end = t + Utils.RecoverMaxTime;
+        long end = System.currentTimeMillis() + Utils.RecoverMaxTime;
 
-        // THREAD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        RestoreEnhancementReceptor restoreEnhancement = null;
+        if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL)) {
+            restoreEnhancement = new RestoreEnhancementReceptor(socket, this);
+            Thread t = new Thread(restoreEnhancement);
+            t.start();
+        }
+
         while (System.currentTimeMillis() < end && !foundAllChunks) {
-            if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL)){
-                byte[] buffer = new byte[Utils.HEADER_SIZE + Utils.BODY_SIZE];
-                DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
-                String msgWrapper = new String(dgp.getData(), 0, dgp.getLength());
-                logMessage("Restore Chunk Message Version 1.3\n");
-                logMessage(msgWrapper);
-                Message message = new Message(msgWrapper);
-                addChunkToRestoring(message);
-            }
+            System.out.println((System.currentTimeMillis() < end) + ", " + !foundAllChunks + ", " + restoring.size());
             if (chunksNo == restoring.size())
                 foundAllChunks = true;
         }
+
+        System.out.println((System.currentTimeMillis() < end) + ", " + !foundAllChunks + ", " + restoring.size());
+
+        if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
+            restoreEnhancement.setCanRun(false);
 
         if (!foundAllChunks)
             currState = protocolState.BROKENFILE;
@@ -110,6 +112,13 @@ public class RestoreInitiator extends ProtocolInitiator {
 
     public void joinFile() {
         restoring.sort(Comparator.comparingInt(Chunk::getChunkNo));
+
+        String str = "";
+        for(Chunk chunk : restoring) {
+            str += chunk.getChunkNo() + ", " + chunk.getChunkData().length + "\n";
+        }
+
+        System.out.println(str);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (int i = 0; i < restoring.size(); i++) {
@@ -125,6 +134,8 @@ public class RestoreInitiator extends ProtocolInitiator {
     }
 
     public byte[] getFile() {
+        socket.close();
+
         if (currState != protocolState.SENDFILE)
             return null;
         return fileData;
@@ -132,7 +143,6 @@ public class RestoreInitiator extends ProtocolInitiator {
 
     /**
      * Restore protocol callable.
-     *
      * @param message
      */
     public synchronized void addChunkToRestoring(Message message) {
@@ -146,5 +156,40 @@ public class RestoreInitiator extends ProtocolInitiator {
 
         if (!restoring.contains(chunk))
             restoring.add(chunk);
+    }
+
+    public class RestoreEnhancementReceptor implements Runnable {
+
+        private DatagramSocket socket;
+        private RestoreInitiator parent;
+        private boolean canRun;
+
+        public RestoreEnhancementReceptor(DatagramSocket socket, RestoreInitiator parent) {
+            this.socket = socket;
+            this.parent = parent;
+            canRun = true;
+        }
+
+        @Override
+        public void run() {
+            while(canRun) {
+                byte[] buffer = new byte[Utils.HEADER_SIZE + Utils.BODY_SIZE];
+                DatagramPacket dgp = new DatagramPacket(buffer, buffer.length);
+                try {
+                    socket.receive(dgp);
+                } catch (IOException e) {
+                    //e.printStackTrace();
+                }
+                String msgWrapper = new String(dgp.getData(), 0, dgp.getLength());
+                logMessage("Restore Chunk Message Version 1.3\n");
+                logMessage(msgWrapper);
+                Message message = new Message(msgWrapper);
+                parent.addChunkToRestoring(message);
+            }
+        }
+
+        public void setCanRun(boolean flag) {
+            canRun = flag;
+        }
     }
 }
