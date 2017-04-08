@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +37,7 @@ public class Manage implements Runnable {
 
         // If this peer doesn't have the chunk, it simply updates the current RD and returns.
         if(!chunk.peerHasChunk(parentPeer.getId())) {
-            System.out.println("Peer" + parentPeer.getId() + " does not have chunk number " + chunkNo);
+            //System.out.println("Peer " + parentPeer.getId() + " does not have chunk number " + chunkNo);
             return;
         }
 
