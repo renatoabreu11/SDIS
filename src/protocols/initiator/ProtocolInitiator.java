@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public abstract class ProtocolInitiator {
+
     private String version;
     private boolean logSystem;
     private PrintWriter logFile;

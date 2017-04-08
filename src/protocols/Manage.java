@@ -22,7 +22,6 @@ public class Manage implements Runnable {
     public Manage(Peer parentPeer, Message request) {
         this.parentPeer = parentPeer;
         this.request = request;
-
         System.out.println("Starting Managing Disk Space.");
     }
 
@@ -64,8 +63,8 @@ public class Manage implements Runnable {
                 Path path = Paths.get(pathname);
                 byte[] fileData = Files.readAllBytes(path);
 
-                parentPeer.BackupFile(fileData, fileId, 1);
-            } catch (InterruptedException | IOException | NoSuchAlgorithmException e) {
+                parentPeer.BackupFile(fileData, chunk);
+            } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
         }

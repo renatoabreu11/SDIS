@@ -210,4 +210,7 @@ public class Chunk{
         return false;
     }
 
+    public void setChunkData(byte[] chunkData) {
+        this.chunkData = chunkData;
+    }
 }

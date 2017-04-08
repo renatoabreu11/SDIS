@@ -9,7 +9,6 @@ import messageSystem.MessageHeader;
 import network.Peer;
 import utils.Utils;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -27,15 +26,15 @@ public class BackupInitiator extends ProtocolInitiator{
     private int replicationDegree;
     private int numTransmission;
     private ArrayList<Chunk> uploading = new ArrayList<>();
+    private boolean fromManageProtocol;     // True when the backup is initialized by the Manage Protocol.
     private enum protocolState{
         INIT,
         BACKUPMESSAGE,
         EXCEEDETRANSMISSIONS,
         SUCCESS
-    }
+        }
     private protocolState currState;
-
-    // When the pathname doesn't have '/', it means the backup was started by the Manage protocol.
+    private byte[] chunkData;
 
     public BackupInitiator(String version, boolean logSystem, Peer parentPeer, byte[] fileData, String pathname, int replicationDegree) {
         super(version, logSystem, parentPeer);
@@ -45,36 +44,52 @@ public class BackupInitiator extends ProtocolInitiator{
         this.replicationDegree = replicationDegree;
         this.numTransmission = 1;
         currState = protocolState.INIT;
+        this.fromManageProtocol = false;
+    }
+
+    /**
+     * Manage Storage callable.
+     * @param version
+     * @param logSystem
+     * @param parentPeer
+     * @param chunk
+     * @param chunkData
+     */
+    public BackupInitiator(String version, boolean logSystem, Peer parentPeer, Chunk chunk, byte[] chunkData) {
+        super(version, logSystem, parentPeer);
+        this.numTransmission = 1;
+        this.chunkData = chunkData;
+        this.fromManageProtocol = true;
+        uploading.add(chunk);
     }
 
     public void startProtocol(){
-        logMessage("Creating file identifier...");
+        if(fromManageProtocol)
+            uploadChunks(uploading.get(0).getFileId());
+        else {
+            logMessage("Creating file identifier...");
 
-        String fileId;
-        if(pathname.contains("/"))
-            fileId = createFileId();
-        else
-            fileId = pathname;
+            String fileId = createFileId();
 
-        logMessage("Splitting file in multiple chunks...");
-        Splitter splitter = new Splitter(fileData);
-        try {
-            splitter.splitFile(replicationDegree, fileId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            // Only splits the fileData if the backup protocol was started by the interface (and not the Manage Protocol).
+            logMessage("Splitting file in multiple chunks...");
+            Splitter splitter = new Splitter(fileData);
+            try {
+                splitter.splitFile(replicationDegree, fileId);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        // Never saves the file if the backup was started due to the Manage protocol.
-        if(pathname.contains("/")) {
+            // Never saves the file if the backup was started due to the Manage protocol.
             _File file = new _File(pathname, fileId, splitter.getChunks().size());
             this.getParentPeer().saveFileToStorage(file);
+            uploading = splitter.getChunks();
+
+
+            logMessage("Sending backup messages...");
+            this.currState = protocolState.BACKUPMESSAGE;
+            uploadChunks(fileId);
         }
-
-        uploading = splitter.getChunks();
-
-        logMessage("Sending backup messages...");
-        this.currState = protocolState.BACKUPMESSAGE;
-        uploadChunks(fileId);
     }
 
     private void uploadChunks(String fileId) {
@@ -90,7 +105,9 @@ public class BackupInitiator extends ProtocolInitiator{
             while(it.hasNext()){
                 Chunk c = it.next();
                 MessageHeader header = new MessageHeader(Utils.MessageType.PUTCHUNK, getVersion(), getParentPeer().getId(), fileId, c.getChunkNo(), replicationDegree);
-                MessageBody body = new MessageBody(c.getChunkData());
+                MessageBody body;
+                if (fromManageProtocol) body = new MessageBody(chunkData);
+                else body = new MessageBody(c.getChunkData());
                 Message message = new Message(header, body);
 
                 byte[] buffer = new byte[0];

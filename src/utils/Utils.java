@@ -18,6 +18,8 @@ public class Utils {
 
     public static long MAX_DISK_SPACE = 740;
 
+    public static boolean LOG_SYSTEM = true;
+
     public enum MessageType {
         PUTCHUNK,
         STORED,

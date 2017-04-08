@@ -118,6 +118,23 @@ public class Peer implements IClientPeer {
         return message;
     }
 
+    /**
+     * Manage Storage callable.
+     * @param fileData
+     * @param chunk
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public String BackupFile(byte[] fileData, Chunk chunk) throws IOException, InterruptedException {
+        protocol = new BackupInitiator(protocolVersion, Utils.LOG_SYSTEM, this, chunk, fileData);
+        protocol.startProtocol();
+        String message = protocol.endProtocol();
+        protocol = null;
+        manager.WriteMetadata();
+        return message;
+    }
+
     public void updateFileStorage(Message msgWrapper) throws IOException {
         this.manager.updateStorage(msgWrapper);
         this.manager.WriteMetadata();
