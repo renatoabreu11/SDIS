@@ -26,7 +26,7 @@ public interface IClientPeer extends Remote {
      * @param pathname the system path for the file to backup.
      * @throws RemoteException
      */
-    void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException, InterruptedException;
+    void DeleteFile(String pathname, int type) throws IOException, NoSuchAlgorithmException, InterruptedException;
 
     /**
      *

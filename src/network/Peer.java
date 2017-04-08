@@ -60,7 +60,7 @@ public class Peer implements IClientPeer {
         if(id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE)) {
+        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE) || protocolVersion.equals(Utils.ENHANCEMENT_ALL)) {
             manager.LoadRemovePeerId();
             SendBornMessage();
         }
@@ -164,8 +164,8 @@ public class Peer implements IClientPeer {
     }
 
     @Override
-    public void DeleteFile(String pathname) throws IOException, NoSuchAlgorithmException, InterruptedException {
-        protocol = new DeleteInitiator(protocolVersion, true, this, pathname);
+    public void DeleteFile(String pathname, int type) throws IOException, NoSuchAlgorithmException, InterruptedException {
+        protocol = new DeleteInitiator(protocolVersion, true, this, pathname, type);
         protocol.startProtocol();
         protocol.endProtocol();
         protocol = null;
@@ -345,7 +345,7 @@ public class Peer implements IClientPeer {
                 case 3:
                     System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
-                    peer.DeleteFile(pathname);
+                    peer.DeleteFile(pathname, 1);
                     break;
                 case 4:
                     System.out.print("Maximum disk space available (in KBytes): ");

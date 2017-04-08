@@ -3,6 +3,7 @@ package protocols;
 import messageSystem.Message;
 import messageSystem.MessageHeader;
 import network.Peer;
+import utils.Utils;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -25,28 +26,30 @@ public class DeleteEnhancement implements Runnable {
     @Override
     public void run() {
         MessageHeader header = request.getHeader();
-
         String version = header.getVersion();
         int senderId = header.getSenderId();
 
-        Map<String, ArrayList<Integer>> filesForAwoke = parentPeer.getManager().getHostIdDelete();
-        Iterator it = filesForAwoke.entrySet().iterator();
+        if((version.equals(Utils.ENHANCEMENT_DELETE) || version.equals(Utils.ENHANCEMENT_ALL)) &&
+                (parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))) {
+            Map<String, ArrayList<Integer>> filesForAwoke = parentPeer.getManager().getHostIdDelete();
+            Iterator it = filesForAwoke.entrySet().iterator();
 
-        while(it.hasNext()) {
-            @SuppressWarnings("unchecked")
-            Map.Entry<String, ArrayList<Integer>> entry = (Map.Entry<String, ArrayList<Integer>>) it.next();
-            String fileId = entry.getKey();
-            ArrayList<Integer> peersId = entry.getValue();
+            while(it.hasNext()) {
+                @SuppressWarnings("unchecked")
+                Map.Entry<String, ArrayList<Integer>> entry = (Map.Entry<String, ArrayList<Integer>>) it.next();
+                String fileId = entry.getKey();
+                ArrayList<Integer> peersId = entry.getValue();
 
-            if(peersId.contains(senderId)) {
-                try {
-                    parentPeer.DeleteFile(fileId);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if(peersId.contains(senderId)) {
+                    try {
+                        parentPeer.DeleteFile(fileId, 2);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

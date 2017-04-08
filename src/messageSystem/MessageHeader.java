@@ -114,7 +114,7 @@ public class MessageHeader {
                 header = messageType + " " + version + " " + senderId + Utils.CRLF + Utils.CRLF;
                 break;
             case ENH_DELETED:
-                header = messageType + " " + senderId + fileId + Utils.CRLF + Utils.CRLF;
+                header = messageType + " " + fileId + " " + senderId + Utils.CRLF + Utils.CRLF;
                 break;
             case GETCHUNK:
                 if(version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))

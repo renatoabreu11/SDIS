@@ -110,7 +110,7 @@ public class TestApp {
                 break;
             case DELETE:
                 pathname = args[2];
-                stub.DeleteFile(pathname);
+                stub.DeleteFile(pathname, 1);
                 break;
             case RECLAIM:
                 int spaceToReclaim = Integer.parseInt(args[2]);

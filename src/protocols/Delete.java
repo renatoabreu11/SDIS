@@ -29,9 +29,9 @@ public class Delete implements Runnable {
 
             if((version.equals(Utils.ENHANCEMENT_DELETE) || version.equals(Utils.ENHANCEMENT_ALL)) &&
                     (parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_DELETE) || parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))) {
-                header = new MessageHeader(Utils.MessageType.ENH_DELETED, parentPeer.getId(), fileId);
-                Message message = new Message(header);
-                byte[] buffer = message.getMessageBytes();
+                MessageHeader ENH_header = new MessageHeader(Utils.MessageType.ENH_DELETED, parentPeer.getId(), fileId);
+                Message ENH_message = new Message(ENH_header);
+                byte[] buffer = ENH_message.getMessageBytes();
                 parentPeer.sendMessageMC(buffer);
             }
         } catch (IOException e) {

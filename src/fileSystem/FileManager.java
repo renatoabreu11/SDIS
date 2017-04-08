@@ -47,7 +47,7 @@ public class FileManager {
         ArrayList<Integer> peers = hostIdDelete.get(fileId);
 
         if(peers.contains(id)) {
-            peers.remove(id);
+            peers.remove((Integer) id);     // Casting needed, otherwise 'remove' would consider to remove the int at index and not the object 'id'.
             if(peers.size() == 0)
                 hostIdDelete.remove(fileId);
         }
@@ -76,11 +76,15 @@ public class FileManager {
      * @return
      */
     public _File getFile(String pathname){
-        Map<String, _File> map =  storage;
-        for (_File f : map.values()) {
-           if(f.getPathname().equals(pathname))
-               return f;
+        Iterator it = storage.entrySet().iterator();
+
+        while(it.hasNext()) {
+            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            _File file = entry.getValue();
+            if(file.getPathname().equals(pathname))
+                return file;
         }
+
         return null;
     }
 
@@ -341,7 +345,7 @@ public class FileManager {
         }
 
         storage.get(fileId).addChunkReceived(chunk, id, true);
-        FileOutputStream fileOutputStream = null;
+        FileOutputStream fileOutputStream;
         try {
             fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunk.getChunkNo());
             fileOutputStream.write(chunkData);

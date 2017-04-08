@@ -48,8 +48,8 @@ public class Message {
 
         Utils.MessageType type;
         int numberOfArgs;
-        String version, fileId;
-        int senderId, chunkNo, replicationDegree;
+        String version, fileId = null;
+        int senderId = -1, chunkNo, replicationDegree;
         version = headerSplit[1];
 
         switch(headerSplit[0]){
@@ -81,20 +81,28 @@ public class Message {
             return;
 
         senderId = Integer.parseInt(headerSplit[2]);
-        fileId = headerSplit[3];
+
+        if(numberOfArgs >= 4)
+            fileId = headerSplit[3];
+        else
+            fileId = headerSplit[1];
 
         if(type == Utils.MessageType.PUTCHUNK){
             chunkNo = Integer.parseInt(headerSplit[4]);
             replicationDegree = Integer.parseInt(headerSplit[5]);
             header = new MessageHeader(type, version, senderId, fileId, chunkNo, replicationDegree);
-        }else if(type == Utils.MessageType.GETCHUNK && (version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))){
+        } else if(type == Utils.MessageType.GETCHUNK && (version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL))){
             chunkNo = Integer.parseInt(headerSplit[4]);
             String sender_access = headerSplit[5];
             header = new MessageHeader(type, version, senderId, fileId, chunkNo, sender_access);
         } else if(type == Utils.MessageType.GETCHUNK || type == Utils.MessageType.CHUNK || type == Utils.MessageType.REMOVED || type == Utils.MessageType.STORED){
             chunkNo = Integer.parseInt(headerSplit[4]);
             header = new MessageHeader(type, version, senderId, fileId, chunkNo);
-        }else
+        } else if(type == Utils.MessageType.ENH_AWOKE)
+            header = new MessageHeader(type, version, senderId);
+        else if(type == Utils.MessageType.ENH_DELETED)
+            header = new MessageHeader(type, senderId, fileId);
+        else
             header = new MessageHeader(type, version, senderId, fileId);
 
         if(msgBody != null){

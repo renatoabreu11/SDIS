@@ -6,3 +6,4 @@ bin/
 data/chunks/
 data/Dispatcher.log
 data/Multicast.log
+data/peers_to_delete.txt

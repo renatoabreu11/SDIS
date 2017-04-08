@@ -90,7 +90,7 @@ public class Client {
                 case 3:
                     System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
-                    stub.DeleteFile(pathname);
+                    stub.DeleteFile(pathname, 1);
                     break;
                 case 4:
                     System.out.print("Maximum disk space available (in KBytes): ");
