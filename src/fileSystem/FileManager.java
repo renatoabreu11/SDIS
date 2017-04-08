@@ -81,7 +81,8 @@ public class FileManager {
         while(it.hasNext()) {
             Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
             _File file = entry.getValue();
-            if(file.getPathname().equals(pathname))
+
+            if(file.getPathname() != null && file.getPathname().equals(pathname))
                 return file;
         }
 

@@ -332,9 +332,9 @@ public class Peer implements IClientPeer {
                     System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
                     fileData = peer.RestoreFile(pathname);
-                    if(fileData == null){
+                    if(fileData == null)
                         System.out.println("The specified file cannot be restored");
-                    }else{
+                    else{
                         FileOutputStream fos = new FileOutputStream(pathname);
                         fos.write(fileData);
                         fos.close();
