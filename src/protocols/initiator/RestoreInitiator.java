@@ -93,12 +93,9 @@ public class RestoreInitiator extends ProtocolInitiator {
         }
 
         while (System.currentTimeMillis() < end && !foundAllChunks) {
-            System.out.println((System.currentTimeMillis() < end) + ", " + !foundAllChunks + ", " + restoring.size());
             if (chunksNo == restoring.size())
                 foundAllChunks = true;
         }
-
-        System.out.println((System.currentTimeMillis() < end) + ", " + !foundAllChunks + ", " + restoring.size());
 
         if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
             restoreEnhancement.setCanRun(false);
@@ -180,6 +177,8 @@ public class RestoreInitiator extends ProtocolInitiator {
                 } catch (IOException e) {
                     //e.printStackTrace();
                 }
+                if(!canRun)
+                    return;
                 String msgWrapper = new String(dgp.getData(), 0, dgp.getLength());
                 logMessage("Restore Chunk Message Version 1.3\n");
                 logMessage(msgWrapper);

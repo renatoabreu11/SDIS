@@ -204,7 +204,7 @@ public class Peer implements IClientPeer {
 
         long disposableSpace = manager.countDisposableSpace(storedChunksWithHighRD);
 
-        if(disposableSpace > spaceNeeded){
+        if(disposableSpace > spaceNeeded) {
             long spaceToRemove = disposableSpace - spaceNeeded;
             long spaceRemoved = 0;
             for(Chunk c : storedChunksWithHighRD){
@@ -218,7 +218,7 @@ public class Peer implements IClientPeer {
                 if(spaceRemoved >= spaceToRemove)
                     break;
             }
-        }else return false;
+        } else return false;
 
         return true;
     }

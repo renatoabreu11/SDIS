@@ -60,6 +60,7 @@ public class BackupInitiator extends ProtocolInitiator{
         this.numTransmission = 1;
         this.chunkData = chunkData;
         this.fromManageProtocol = true;
+        this.replicationDegree = chunk.getReplicationDegree();
         uploading.add(chunk);
     }
 
@@ -116,6 +117,7 @@ public class BackupInitiator extends ProtocolInitiator{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
                 getParentPeer().sendMessageMDB(buffer);
             }
 
