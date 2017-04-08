@@ -56,17 +56,6 @@ public class Restore implements Runnable {
                 }
                 MessageBody body = new MessageBody(data);
 
-                try {
-                    TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if(parentPeer.getChunkRestoring().contains(fileId + chunkNo)){
-                    parentPeer.getChunkRestoring().remove(fileId + chunkNo);
-                    return;
-                }
-
                 if((version.equals(Utils.ENHANCEMENT_RESTORE) || version.equals(Utils.ENHANCEMENT_ALL)) &&
                         (parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_RESTORE) || parentPeer.getProtocolVersion().equals(Utils.ENHANCEMENT_ALL))){
                     Message message = new Message(header, body);
@@ -90,10 +79,19 @@ public class Restore implements Runnable {
                         e.printStackTrace();
                     }
                 } else {
-                    Message message = new Message(header, body);
                     try {
+                        TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
+
+                        if(parentPeer.getChunkRestoring().contains(fileId + chunkNo)){
+                            parentPeer.getChunkRestoring().remove(fileId + chunkNo);
+                            return;
+                        }
+
+                        Message message = new Message(header, body);
                         byte[] buffer = message.getMessageBytes();
                         parentPeer.sendMessageMDR(buffer);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
