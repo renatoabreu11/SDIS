@@ -24,22 +24,20 @@ public class ManageDiskInitiator extends ProtocolInitiator{
 
     @Override
     public void startProtocol() throws IOException {
-        long freeCurrSpace;
+        long freeCurrSpace = 0;
 
-        switch(System.getProperty("os.name")) {
-            case "Linux":
-                freeCurrSpace = new File("/").getFreeSpace() / 1000;
-                break;
-            case "Windows":
-                freeCurrSpace = new File("C:").getFreeSpace() / 1000;
-                break;
-            default: freeCurrSpace = 0; break;
-        }
+        String os = System.getProperty("os.name").toLowerCase();
+        if(os.contains("linux"))
+            freeCurrSpace = new File("/").getFreeSpace() / 1000;
+        else if(os.contains("windows"))
+            freeCurrSpace = new File("c:").getUsableSpace() / 1000;
+        else
+            System.out.println("Couldn't determine your Operating System. Ignoring max available space in your computer.");
 
-        /*if(clientMaxDiskSpace > freeCurrSpace) {
+        if(freeCurrSpace != 0 && clientMaxDiskSpace > freeCurrSpace) {
             successMessage = "The machine hosting the peer doesn't have that much free space.";
             return;
-        }*/
+        }
 
         if(clientMaxDiskSpace < getParentPeer().getDiskUsage()  / 1000)
             ManageChunks();
@@ -49,7 +47,6 @@ public class ManageDiskInitiator extends ProtocolInitiator{
 
     @Override
     public String endProtocol() {
-
         return null;
     }
 

@@ -65,12 +65,6 @@ public class Peer implements IClientPeer {
             SendBornMessage();
         }
 
-        /*try {
-            ManageDiskSpace(80);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
         System.out.println("All channels online.");
     }
 

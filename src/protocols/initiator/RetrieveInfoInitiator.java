@@ -46,9 +46,9 @@ public class RetrieveInfoInitiator extends ProtocolInitiator{
             out += "\n\n";
         }
 
-        out += "Stored Chunks\n";
+        out += "Stored Chunks";
         if(storedChunks.size() == 0)
-            out += "\tThere are no stored chunks in this peer.";
+            out += "\n\tThere are no stored chunks in this peer.";
         else {
             for(Chunk chunk : storedChunks) {
                 Path path = Paths.get(Utils.CHUNKS_DIR + chunk.getFileId() + chunk.getChunkNo());

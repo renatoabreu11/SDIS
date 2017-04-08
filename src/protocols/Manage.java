@@ -33,15 +33,15 @@ public class Manage implements Runnable {
         String fileId = header.getFileId();
         int chunkNo = header.getChunkNo();
 
-        Chunk chunk = parentPeer.getManager().getChunk(fileId, chunkNo, parentPeer.getId());
+        Chunk chunk = parentPeer.getManager().getChunk(fileId, chunkNo);
+        chunk.removePeer(senderId);
 
-        // If this peer doesn't have the chunk, it simply returns.
-        if(chunk == null) {
+        // If this peer doesn't have the chunk, it simply updates the current RD and returns.
+        if(!chunk.peerHasChunk(parentPeer.getId())) {
             System.out.println("Peer" + parentPeer.getId() + " does not have chunk number " + chunkNo);
             return;
         }
 
-        chunk.removePeer(senderId);
         try {
             parentPeer.getManager().WriteMetadata();
         } catch (IOException e) {

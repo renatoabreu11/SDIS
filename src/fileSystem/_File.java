@@ -116,9 +116,8 @@ public class _File {
 
     public synchronized boolean addChunkThroughStored(Chunk c, int peer){
         for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).getChunkNo() == c.getChunkNo()){
+            if(chunks.get(i).getChunkNo() == c.getChunkNo())
                 return chunks.get(i).addPeer(peer);
-            }
         }
 
         c.addPeer(peer);
@@ -166,10 +165,8 @@ public class _File {
 
     public void removeChunkPeer(int chunkNo, int id) {
         for(int i = 0; i < this.chunks.size(); i++){
-            if(chunks.get(i).getChunkNo() == chunkNo){
+            if(chunks.get(i).getChunkNo() == chunkNo)
                 chunks.get(i).removePeer(id);
-                chunks.get(i).subReplicationDegree();
-            }
         }
     }
 
