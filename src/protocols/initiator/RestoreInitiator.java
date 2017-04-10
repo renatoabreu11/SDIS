@@ -155,6 +155,13 @@ public class RestoreInitiator extends ProtocolInitiator {
 
         if (!restoring.contains(chunk))
             restoring.add(chunk);
+        else{
+            for(Chunk c : restoring){
+                if(c.getChunkData().length == 0)
+                    c.setChunkData(data);
+
+            }
+        }
     }
 
     public class RestoreEnhancementReceptor implements Runnable {

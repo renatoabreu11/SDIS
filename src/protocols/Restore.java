@@ -83,6 +83,7 @@ public class Restore implements Runnable {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    socket.close();
                 } else {
                     try {
                         TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
