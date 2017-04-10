@@ -56,7 +56,8 @@ public class RestoreInitiator extends ProtocolInitiator {
         _File file = getParentPeer().getFileFromManager(pathname);
         if (file == null) {
             this.currState = protocolState.INVALIDFILE;
-            socket.close();
+            if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
+                socket.close();
             return;
         }
 
@@ -131,7 +132,8 @@ public class RestoreInitiator extends ProtocolInitiator {
     }
 
     public byte[] getFile() {
-        socket.close();
+        if(getVersion().equals(Utils.ENHANCEMENT_RESTORE) || getVersion().equals(Utils.ENHANCEMENT_ALL))
+            socket.close();
 
         if (currState != protocolState.SENDFILE)
             return null;

@@ -37,7 +37,7 @@ public abstract class Channel implements Runnable {
         this.logSystem = logSystem;
         if(this.logSystem){
             try{
-                logFile = new PrintWriter("data/Multicast.log", "UTF-8");
+                logFile = new PrintWriter("bin/data/Multicast.log", "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }

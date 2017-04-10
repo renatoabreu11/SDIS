@@ -22,7 +22,7 @@ public class FileManager {
      */
     public FileManager(){
         storage = new ConcurrentHashMap<>();
-        backupLocation = "data/chunks/";
+        backupLocation = "bin/data/chunks/";
         hostIdDelete = new HashMap<>();
     }
 
@@ -76,10 +76,11 @@ public class FileManager {
      * @return
      */
     public _File getFile(String pathname){
-        Iterator it = storage.entrySet().iterator();
+        Iterator<Map.Entry<String, _File>> it = storage.entrySet().iterator();
 
         while(it.hasNext()) {
-            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, _File> entry = it.next();
             _File file = entry.getValue();
 
             if(file.getPathname() != null && file.getPathname().equals(pathname))
@@ -168,12 +169,12 @@ public class FileManager {
     }
 
     public synchronized long getCurrOccupiedSize(int peer_id) throws IOException {
-        Iterator it = storage.entrySet().iterator();
+        Iterator<Map.Entry<String, _File>> it = storage.entrySet().iterator();
         long numBytes = 0;
 
         while(it.hasNext()) {
             @SuppressWarnings("unchecked")
-            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            Map.Entry<String, _File> entry = it.next();
             _File file = entry.getValue();
 
             numBytes += file.getFileBytesSize(peer_id);
@@ -221,10 +222,10 @@ public class FileManager {
         FileOutputStream fos = new FileOutputStream(Utils.METADATA_PATHNAME);
         String str = "";
 
-        Iterator it = storage.entrySet().iterator();
+        Iterator<Map.Entry<String, _File>> it = storage.entrySet().iterator();
         while(it.hasNext()) {
             @SuppressWarnings("unchecked")
-            Map.Entry<String, _File> storedFile = (Map.Entry<String, _File>) it.next();
+            Map.Entry<String, _File> storedFile = it.next();
             String fileId = storedFile.getKey();
             _File file = storedFile.getValue();
 
@@ -293,11 +294,11 @@ public class FileManager {
 
     public synchronized ArrayList<Chunk> getChunksWithHighRD(int id) {
         ArrayList<Chunk> ret = new ArrayList<>();
-        Iterator it = storage.entrySet().iterator();
+        Iterator<Map.Entry<String, _File>> it = storage.entrySet().iterator();
 
         while(it.hasNext()) {
             @SuppressWarnings("unchecked")
-            Map.Entry<String, _File> entry = (Map.Entry<String, _File>) it.next();
+            Map.Entry<String, _File> entry = it.next();
             _File file = entry.getValue();
 
             ArrayList<Chunk> chunks = file.getStoredChunksWithHigherRD(id);
@@ -313,7 +314,7 @@ public class FileManager {
     public synchronized long countDisposableSpace(ArrayList<Chunk> storedChunksWithHighRD) {
         long numBytes = 0;
         for(Chunk c : storedChunksWithHighRD){
-            Path path = Paths.get("data/chunks/" + c.getFileId() + c.getChunkNo());
+            Path path = Paths.get("bin/data/chunks/" + c.getFileId() + c.getChunkNo());
             long bytesSize = 0;
             try {
                 bytesSize = Files.readAllBytes(path).length;
@@ -347,7 +348,7 @@ public class FileManager {
         storage.get(fileId).addChunkReceived(chunk, id, true);
         FileOutputStream fileOutputStream;
         try {
-            fileOutputStream = new FileOutputStream("data/chunks/" + fileId + chunk.getChunkNo());
+            fileOutputStream = new FileOutputStream("bin/data/chunks/" + fileId + chunk.getChunkNo());
             fileOutputStream.write(chunkData);
             fileOutputStream.close();
         } catch (IOException e) {
@@ -362,11 +363,11 @@ public class FileManager {
     public void WriteRemovePeerId() throws IOException {
         String str = "";
         FileOutputStream fos = new FileOutputStream(Utils.PEERS_TO_DELETE_PATHNAME);
-        Iterator it = hostIdDelete.entrySet().iterator();
+        Iterator<Map.Entry<String, ArrayList<Integer>>> it = hostIdDelete.entrySet().iterator();
 
         while(it.hasNext()) {
             @SuppressWarnings("unchecked")
-            Map.Entry<String, ArrayList<Integer>> entry = (Map.Entry<String, ArrayList<Integer>>) it.next();
+            Map.Entry<String, ArrayList<Integer>> entry = it.next();
             String fileId = entry.getKey();
             ArrayList<Integer> peers = entry.getValue();
 

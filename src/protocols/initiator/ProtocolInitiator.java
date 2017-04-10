@@ -17,7 +17,7 @@ public abstract class ProtocolInitiator {
         this.logSystem = logSystem;
         if(this.logSystem){
             try{
-                logFile = new PrintWriter("data/Protocol.log", "UTF-8");
+                logFile = new PrintWriter("bin/data/Protocol.log", "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }

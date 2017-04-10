@@ -27,7 +27,7 @@ public class ProtocolDispatcher implements Runnable{
         this.logSystem = logSystem;
         if(this.logSystem){
             try{
-                logFile = new PrintWriter("data/Dispatcher.log", "UTF-8");
+                logFile = new PrintWriter("bin/data/Dispatcher.log", "UTF-8");
             } catch (IOException e) {
                 e.printStackTrace();
             }

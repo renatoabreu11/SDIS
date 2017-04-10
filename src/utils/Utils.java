@@ -27,7 +27,6 @@ public class Utils {
         CHUNK,
         DELETE,
         REMOVED,
-
         ENH_DELETED,
         ENH_AWOKE
     }
@@ -53,9 +52,9 @@ public class Utils {
 
     public final static int RMI_PORT = 1099;
 
-    public final static String CHUNKS_DIR = "data/chunks/";
-    public final static String METADATA_PATHNAME = "data/chunks/metadata.txt";
-    public final static String PEERS_TO_DELETE_PATHNAME = "data/peers_to_delete.txt";
+    public final static String CHUNKS_DIR = "bin/data/chunks/";
+    public final static String METADATA_PATHNAME = "bin/data/chunks/metadata.txt";
+    public final static String PEERS_TO_DELETE_PATHNAME = "bin/data/peers_to_delete.txt";
 
     static private final String IPV4_REGEX = "(([0-1]?[0-9]{1,2}\\.)|(2[0-4][0-9]\\.)|(25[0-5]\\.)){3}(([0-1]?[0-9]{1,2})|(2[0-4][0-9])|(25[0-5]))";
     static private Pattern IPV4_PATTERN = Pattern.compile(IPV4_REGEX);
