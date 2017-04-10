@@ -94,7 +94,7 @@ public class RestoreInitiator extends ProtocolInitiator {
         }
 
         while (System.currentTimeMillis() < end && !foundAllChunks) {
-            if (chunksNo == restoring.size())
+            if (chunksNo == restoring.size() && correctChunkSizes())
                 foundAllChunks = true;
         }
 
@@ -106,6 +106,17 @@ public class RestoreInitiator extends ProtocolInitiator {
         else currState = protocolState.CONCATFILE;
 
         joinFile();
+    }
+
+    private boolean correctChunkSizes() {
+        int numChunks = 0;
+        for(Chunk chunk : restoring) {
+            if(chunk.getChunkData().length == 0)
+                numChunks++;
+        }
+        if(numChunks > 1)
+            return false;
+        return true;
     }
 
     public void joinFile() {
@@ -157,7 +168,7 @@ public class RestoreInitiator extends ProtocolInitiator {
             restoring.add(chunk);
         else{
             for(Chunk c : restoring){
-                if(c.getChunkData().length == 0)
+                if(c.getChunkNo() == chunkNo && c.getChunkData().length == 0)
                     c.setChunkData(data);
 
             }

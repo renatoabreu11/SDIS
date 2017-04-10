@@ -13,7 +13,7 @@ public class Utils {
     public static String ENHANCEMENT_DELETE = "1.3";
     public static String ENHANCEMENT_ALL = "2.0";
 
-    public static long RecoverMaxTime = 2500;
+    public static long RecoverMaxTime = 7500;
     public static long DELETED_MAX_TIME = 2500;
 
     public static long MAX_DISK_SPACE = 740;

@@ -78,9 +78,16 @@ public class Restore implements Runnable {
                     assert bufferPrivate != null;
                     DatagramPacket packet = new DatagramPacket(bufferPrivate, bufferPrivate.length, address, Integer.parseInt(sender[1]));
                     try {
+                        TimeUnit.MILLISECONDS.sleep(new Random().nextInt(401));
+
+                        if(parentPeer.getChunkRestoring().contains(fileId + chunkNo)){
+                            parentPeer.getChunkRestoring().remove(fileId + chunkNo);
+                            socket.close();
+                            return;
+                        }
                         socket.send(packet);
                         parentPeer.sendMessageMDR(bufferMulticast);
-                    } catch (IOException e) {
+                    } catch (IOException | InterruptedException e) {
                         e.printStackTrace();
                     }
                     socket.close();
