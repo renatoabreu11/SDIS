@@ -202,6 +202,7 @@ public class BackupInitiator extends ProtocolInitiator{
             for(int i = 0; i < Utils.DeleteRetransmissions; i++)
                 getParentPeer().sendMessageMC(buffer);
 
+            getParentPeer().getManager().removeFileId(fileId);
             return "Backup Protocol Failure";
         }
         else if(this.currState == protocolState.SUCCESS){

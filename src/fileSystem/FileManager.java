@@ -38,6 +38,10 @@ public class FileManager {
         hostIdDelete.put(fileId, new ArrayList<>(file.getAllPeers()));
     }
 
+    public void removeFileId(String fileId){
+        storage.remove(fileId);
+    }
+
     /**
      * Removes peer's id associated with fileId from the map.
      * @param fileId
@@ -229,17 +233,19 @@ public class FileManager {
             String fileId = storedFile.getKey();
             _File file = storedFile.getValue();
 
-            str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + ".." + file.getChunks().size() + "\n";
-            for(int i = 0; i < file.getChunks().size(); i++) {
-                Chunk chunk = file.getChunks().get(i);
-                str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
-                for(int j = 0; j < chunk.getPeers().size(); j++) {
-                    str += chunk.getPeers().get(j);
-                    if(j < chunk.getPeers().size() - 1)
-                        str += "..";
+            if(file.getChunks().size() != 0){
+                str += fileId + ".." + file.getPathname() + ".." + file.getChunks().get(0).getReplicationDegree() + ".." + file.getChunks().size() + "\n";
+                for(int i = 0; i < file.getChunks().size(); i++) {
+                    Chunk chunk = file.getChunks().get(i);
+                    str += chunk.getChunkNo() + ".." + chunk.getCurrReplicationDegree() + "..";
+                    for(int j = 0; j < chunk.getPeers().size(); j++) {
+                        str += chunk.getPeers().get(j);
+                        if(j < chunk.getPeers().size() - 1)
+                            str += "..";
+                    }
+                    if(i < file.getChunks().size() - 1)
+                        str += "\n";
                 }
-                if(i < file.getChunks().size() - 1)
-                str += "\n";
             }
 
             if(it.hasNext())
