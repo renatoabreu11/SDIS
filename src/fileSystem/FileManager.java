@@ -416,4 +416,9 @@ public class FileManager {
     public HashMap<String, ArrayList<Integer>> getHostIdDelete() {
         return hostIdDelete;
     }
+
+    public void updateFileReplication(String fileId, int replicationDegree) {
+        _File f = storage.get(fileId);
+        f.updateReplication(replicationDegree);
+    }
 }

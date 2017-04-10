@@ -24,6 +24,7 @@ public class BackupInitiator extends ProtocolInitiator{
     private byte[] fileData;
     private String pathname;
     private int replicationDegree;
+    private String fileId;
     private int numTransmission;
     private ArrayList<Chunk> uploading = new ArrayList<>();
     private boolean fromManageProtocol;     // True when the backup is initialized by the Manage Protocol.
@@ -70,7 +71,7 @@ public class BackupInitiator extends ProtocolInitiator{
         else {
             logMessage("Creating file identifier...");
 
-            String fileId = createFileId();
+            fileId = createFileId();
 
             // Only splits the fileData if the backup protocol was started by the interface (and not the Manage Protocol).
             logMessage("Splitting file in multiple chunks...");
@@ -188,10 +189,25 @@ public class BackupInitiator extends ProtocolInitiator{
     }
 
     public String endProtocol() {
-        if(this.currState == protocolState.EXCEEDETRANSMISSIONS)
+        if(this.currState == protocolState.EXCEEDETRANSMISSIONS){
+            MessageHeader header = new MessageHeader(Utils.MessageType.DELETE, "1.0", getParentPeer().getId(), fileId);
+            Message message = new Message(header);
+            byte[] buffer = new byte[0];
+            try {
+                buffer = message.getMessageBytes();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            for(int i = 0; i < Utils.DeleteRetransmissions; i++)
+                getParentPeer().sendMessageMC(buffer);
+
             return "Backup Protocol Failure";
-        else if(this.currState == protocolState.SUCCESS)
+        }
+        else if(this.currState == protocolState.SUCCESS){
+            getParentPeer().getManager().updateFileReplication(fileId, replicationDegree);
             return "Backup Protocol Success";
+        }
         else return "Beep Boop Error Beep Boop";
     }
 }

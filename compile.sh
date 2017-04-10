@@ -6,18 +6,13 @@ javac -Xlint:unchecked -d bin -sourcepath src src/network/TestApp.java src/netwo
 
 mkdir -p bin/data
 mkdir -p bin/data/chunks
-cat <<EOF >bin/data/chunks/metadata.txt
-EOF
-cat <<EOF >bin/data/Protocol.log
-
-EOF
-cat <<EOF >bin/data/Multicast.log
-
-EOF
-cat <<EOF >bin/data/Dispatcher.log
-
-EOF
 mkdir -p bin/META-INF
+touch bin/data/chunks/metadata.txt
+touch bin/data/Protocol.log
+touch bin/data/peers_to_delete.txt
+touch bin/data/Multicast.log
+touch bin/data/Dispatcher.log
+
 cat <<EOF >bin/META-INF/Peer.mf
 Main-Class: network.Peer
 

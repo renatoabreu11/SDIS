@@ -57,10 +57,10 @@ public class Peer implements IClientPeer {
         new Thread(mdr).start();
         new Thread(dispatcher).start();
 
-        if(id == 1)
+        if (id == 1)
             this.stub = (IClientPeer) UnicastRemoteObject.exportObject(this, 0);
 
-        if(protocolVersion.equals(Utils.ENHANCEMENT_DELETE) || protocolVersion.equals(Utils.ENHANCEMENT_ALL)) {
+        if (protocolVersion.equals(Utils.ENHANCEMENT_DELETE) || protocolVersion.equals(Utils.ENHANCEMENT_ALL)) {
             manager.LoadRemovePeerId();
             SendBornMessage();
         }
@@ -71,6 +71,7 @@ public class Peer implements IClientPeer {
     /**
      * Sends an awake message when the peer initializes, in order for the other peers to know the peer awoke,
      * so that they can update his files which have been deleted on the other peers.
+     *
      * @throws IOException
      */
     private void SendBornMessage() throws IOException {
@@ -86,15 +87,16 @@ public class Peer implements IClientPeer {
      * Every time the initiator peer that sent the delete message receives a confirmation from
      * the other peers, it stores the id of the confirmation peer in an array related to the file
      * removed.
+     *
      * @param msgWrapper
      */
     public void ENH_UpdateDeleteResponse(Message msgWrapper) throws IOException {
-        if(this.protocol instanceof DeleteInitiator) {
+        if (this.protocol instanceof DeleteInitiator) {
             MessageHeader header = msgWrapper.getHeader();
             int senderId = header.getSenderId();
             String fileId = header.getFileId();
 
-            if(!manager.getHostIdDelete().containsKey(fileId))
+            if (!manager.getHostIdDelete().containsKey(fileId))
                 return;
 
             manager.RemovePeerId(fileId, senderId);
@@ -114,6 +116,7 @@ public class Peer implements IClientPeer {
 
     /**
      * Manage Storage callable.
+     *
      * @param fileData
      * @param chunk
      * @return
@@ -132,7 +135,7 @@ public class Peer implements IClientPeer {
     public void updateFileStorage(Message msgWrapper) throws IOException {
         this.manager.updateStorage(msgWrapper);
         this.manager.WriteMetadata();
-        if(this.protocol instanceof BackupInitiator)
+        if (this.protocol instanceof BackupInitiator)
             ((BackupInitiator) this.protocol).updateUploadingChunks(msgWrapper);
     }
 
@@ -154,11 +157,12 @@ public class Peer implements IClientPeer {
      * Restore protocol callable.
      * Called every time the MDR received a message.
      * Adds a chunk to the file system (if initiator-peer) or stops others from sending the message.
+     *
      * @param msgWrapper
      */
     public void receiveChunk(Message msgWrapper) {
         chunkRestoring.add(msgWrapper.getHeader().getFileId() + msgWrapper.getHeader().getChunkNo());
-        if(this.protocol instanceof RestoreInitiator)
+        if (this.protocol instanceof RestoreInitiator)
             ((RestoreInitiator) this.protocol).addChunkToRestoring(msgWrapper);
     }
 
@@ -173,6 +177,7 @@ public class Peer implements IClientPeer {
     /**
      * Client callable.
      * Handles the disk space.
+     *
      * @param client_maxDiskSpace
      * @throws IOException
      */
@@ -181,7 +186,7 @@ public class Peer implements IClientPeer {
         protocol = new ManageDiskInitiator(protocolVersion, true, this, client_maxDiskSpace);
         protocol.startProtocol();
         protocol.endProtocol();
-        String msgReply = ((ManageDiskInitiator)this.protocol).getSuccessMessage();
+        String msgReply = ((ManageDiskInitiator) this.protocol).getSuccessMessage();
         protocol = null;
         return msgReply;
     }
@@ -191,7 +196,7 @@ public class Peer implements IClientPeer {
         protocol = new RetrieveInfoInitiator(protocolVersion, true, this);
         protocol.startProtocol();
         protocol.endProtocol();
-        String msgReply = ((RetrieveInfoInitiator)this.protocol).getOut();
+        String msgReply = ((RetrieveInfoInitiator) this.protocol).getOut();
         protocol = null;
         return msgReply;
     }
@@ -199,23 +204,23 @@ public class Peer implements IClientPeer {
     public synchronized boolean freeDisposableSpace(long spaceNeeded) {
         ArrayList<Chunk> storedChunksWithHighRD = manager.getChunksWithHighRD(id);
 
-        if(storedChunksWithHighRD.size() == 0)
+        if (storedChunksWithHighRD.size() == 0)
             return false;
 
         long disposableSpace = manager.countDisposableSpace(storedChunksWithHighRD);
 
-        if(disposableSpace > spaceNeeded) {
+        if (disposableSpace > spaceNeeded) {
             long spaceToRemove = disposableSpace - spaceNeeded;
             long spaceRemoved = 0;
-            for(Chunk c : storedChunksWithHighRD){
+            for (Chunk c : storedChunksWithHighRD) {
                 long aux = 0;
                 try {
-                   aux = manager.deleteStoredChunk(c.getFileId(), c.getChunkNo(), id);
+                    aux = manager.deleteStoredChunk(c.getFileId(), c.getChunkNo(), id);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 spaceRemoved += aux;
-                if(spaceRemoved >= spaceToRemove)
+                if (spaceRemoved >= spaceToRemove)
                     break;
             }
         } else return false;
@@ -302,7 +307,7 @@ public class Peer implements IClientPeer {
 
     public static void Menu(Peer peer) throws IOException, InterruptedException, NoSuchAlgorithmException {
         boolean exit = false;
-        while(!exit) {
+        while (!exit) {
             System.out.print(
                     "1 - Backup a file\n" +
                             "2 - Restore a file\n" +
@@ -332,9 +337,9 @@ public class Peer implements IClientPeer {
                     System.out.print("File pathname: ");
                     pathname = scanner.nextLine();
                     fileData = peer.RestoreFile(pathname);
-                    if(fileData == null)
+                    if (fileData == null)
                         System.out.println("The specified file cannot be restored");
-                    else{
+                    else {
                         FileOutputStream fos = new FileOutputStream(pathname);
                         fos.write(fileData);
                         fos.close();
@@ -359,7 +364,8 @@ public class Peer implements IClientPeer {
                 case 6:
                     exit = true;
                     break;
-                default: break;
+                default:
+                    break;
             }
 
             System.out.println();
@@ -369,7 +375,7 @@ public class Peer implements IClientPeer {
     }
 
     public static void main(String[] args) throws IOException, AlreadyBoundException, NoSuchAlgorithmException, InterruptedException {
-        if(args.length != 7) {
+        if (args.length != 7) {
             System.out.println("Usage: java Peer <protocol_version> <server_id> <service_access_point> <mc:port> <mdb:port> <mdl:port>");
             return;
         }
@@ -393,7 +399,7 @@ public class Peer implements IClientPeer {
         Peer peer = new Peer(args[0], Integer.parseInt(args[1]), args[2], multicastInfo);
 
         Registry registry;
-        if(peer.id == 1){
+        if (peer.id == 1) {
             String IPV4 = Utils.getIPV4address();
             System.out.println("My address: " + IPV4);
             System.setProperty("java.rmi.server.hostname", IPV4);
@@ -403,7 +409,7 @@ public class Peer implements IClientPeer {
 
         System.out.println("Server is ready.\n\n");
 
-        if(useInterface)
+        if (useInterface)
             Menu(peer);
     }
 }

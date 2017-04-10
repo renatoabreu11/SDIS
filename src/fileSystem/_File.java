@@ -192,4 +192,9 @@ public class _File {
         return allPeers;
     }
 
+    public void updateReplication(int replicationDegree) {
+        for(Chunk chunk : chunks) {
+            chunk.setReplicationDegree(replicationDegree);
+        }
+    }
 }
